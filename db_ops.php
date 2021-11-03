@@ -143,3 +143,105 @@ class Change_Password{
         $this->newPassword = $newPassword;
     }
 }
+
+class Update_User_Information{
+    private $id;
+    private $fName;
+    private $mName;
+    private $lName;
+    private $email;
+    private $password;
+    private $db;
+
+    function __construct(){
+        require_once('db_connect.php');
+
+        $this->db = $db;
+    }
+
+    function updateUserInformation(){
+        try{
+            require_once('db_connect.php');
+            $query = "UPDATE employees SET employee_fName = :fName, 
+                    employee_mName = :mName, 
+                    employee_lName = :lName , 
+                    employee_email = :email, 
+                    employee_password = :passwd WHERE employee_id = :id";
+            $stm = $this->db->prepare($query);
+            $stm->bindValue(':fName', $this->fName);
+            $stm->bindValue(':mName', $this->mName);
+            $stm->bindValue(':lName', $this->lName);
+            $stm->bindValue(':email', $this->email);
+            $stm->bindValue(':passwd', password_hash($this->password, PASSWORD_DEFAULT));
+            $stm->bindValue(':id', $this->id);
+            $s = $stm->execute();
+            $stm->closeCursor();
+            if(!$s){
+              print_r($stm->errorInfo()[2]);
+            }else{
+                $_SESSION['employee_fName'] = $this->fName;
+                $_SESSION['employee_mName'] = $this->mName;
+                $_SESSION['employee_lName'] = $this->lName;
+                $_SESSION['employee_email'] = $this->email;
+                $_SESSION['employee_password'] = $this->password;
+            }
+        } catch(PDOException $e){
+            $error_msg = $e;
+            include('db_error.php');
+        }
+        
+    }
+
+    function setID($id){
+        $this->id = $id;
+    }
+
+    function setFirstName($fName){
+        $this->fName = $fName;
+    }
+
+    function setMiddleName($mName){
+        $this->mName = $mName;
+    }
+
+    function setLastName($lName){
+        $this->lName = $lName;
+    }
+
+    function setEmail($email){
+        $this->email = $email;
+    }
+
+    function setPassword($password){
+        $this->password = $password;
+    }
+}
+
+class Fetch_All_Users{
+    private $db;
+
+    function __construct(){
+        require_once('db_connect.php');
+        $this->db = $db;
+    }
+
+   function fetchAllUsers(){
+    try{
+        $query = "SELECT e.employee_id, 
+                        e.employee_fName, 
+                        e.employee_mName, 
+                        e.employee_lName, 
+                        e.employee_email, 
+                        r.role_desc FROM employees e INNER JOIN roles r ON r.role_id = e.role_id";
+        $stm = $this->db->prepare($query);
+        $stm->execute();
+        $employees = $stm->fetchAll();
+        $stm -> closeCursor();
+
+        return $employees;
+    }catch(PDOException $e){
+        $error_msg = $e;
+        include('db_error.php');
+    }
+   }
+}

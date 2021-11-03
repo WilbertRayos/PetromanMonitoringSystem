@@ -29,7 +29,7 @@
                     $_SESSION['employee_password'] = $_POST['employee_password'];
                     $_SESSION['employee_role'] = $db_obj->getEmployeeRole();
                     
-                    header('Location: dashboard.php');
+                    header('Location: projects.php');
                 }
 
             } 
