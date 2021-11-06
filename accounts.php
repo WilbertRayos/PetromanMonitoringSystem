@@ -7,11 +7,37 @@
     $db_obj = new Fetch_All_Users;
     $employees = $db_obj->fetchAllUsers();
     
-
-
     // Add New Account
     if(isset($_POST['addAccount'])){
-        echo($_POST['role']);
+      $db_obj2 = new Add_New_Account;
+      $db_obj2->setEmployee_fName($_POST['create_employee_fName']);
+      $db_obj2->setEmployee_mName($_POST['create_employee_mName']);
+      $db_obj2->setEmployee_lName($_POST['create_employee_lName']);
+      $db_obj2->setEmployee_email($_POST['create_employee_email']);
+      $db_obj2->setEmployee_password($_POST['create_employee_password']);
+      $db_obj2->setEmployee_role($_POST['role']);
+      $db_obj2->addNewEmployee();
+      header('Location: accounts.php');
+    }
+
+    if(isset($_POST['editAccount'])){
+      echo "har";
+      $db_obj4 = new Update_Account;
+      $db_obj4->setEmployeeID($_POST['edit_employee_id']);
+      $db_obj4->setEmployeeRole($_POST['edit_roles']);
+      $db_obj4->setEmployeeFName($_POST['edit_employee_fName']);
+      $db_obj4->setEmployeeMName($_POST['edit_employee_mName']);
+      $db_obj4->setEmployeeLName($_POST['edit_employee_lName']);
+      $db_obj4->setEmployeeEmail($_POST['edit_employee_email']);
+      $db_obj4->updateAccount();
+      header('Location: accounts.php');
+    }
+     
+
+    if(isset($_POST['deleteAccount'])){
+      $db_obj4 = new Delete_Account;
+      $db_obj4->deleteAccount($_POST['edit_employee_id']);
+      header('Location: accounts.php');
     }
 
 ?>
@@ -27,6 +53,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>Hello, world!</title>
+    <script src="js/main.js"></script>
   </head>
   <body>
     <?php include("navbar.php"); ?>
@@ -53,7 +80,7 @@
           <div class="modal-dialog" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="newAccountModalLabel">New Admin</h5>
+                <h5 class="modal-title" id="newAccountModalLabel">New Account</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -74,18 +101,26 @@
                           </label>
                         </div>
                     </div>
-                        <div class="form-group">
-                        <label for="create_employee_fName">First Name</label>
-                        <input type="input" class="form-control" id="create_employee_fName" name="create_employee_fName">
+                    <div class="form-group">
+                      <label for="create_employee_fName">First Name</label>
+                      <input type="input" class="form-control" id="create_employee_fName" name="create_employee_fName">
+                    </div>
+                    <div class="form-group">
                         <label for="create_employee_mName">Middle Name</label>
                         <input type="input" class="form-control" id="create_employee_mName" name="create_employee_mName">
+                    </div>
+                    <div class="form-group">
                         <label for="create_employee_lName">Last Name</label>
                         <input type="input" class="form-control" id="create_employee_lName" name="create_employee_lName">
+                    </div>
+                    <div class="form-group">
                         <label for="create_employee_email">Email</label>
                         <input type="email" class="form-control" id="create_employee_email" name="create_employee_email">
+                    </div>
+                    <div class="form-group">
                         <label for="create_employee_password">Password</label>
                         <input class="form-control" type="password" id="create_employee_password" name="create_employee_password">
-                        <input type="checkbox" onclick="myFunction()"> Show Password
+                        <input type="checkbox" onclick="myFunction('create_employee_password')"> Show Password
                     </div>
                 </form>
               </div>
@@ -120,8 +155,7 @@
                         <td><?php echo $employee['employee_lName'] ?></td>
                         <td><?php echo $employee['employee_email'] ?></td>
                         <td>
-                            <button type="button" class="btn btn-outline-success btn-sm btnAdmin_edit" data-toggle="modal" data-target="#employees_accounts">Edit</button>
-                            <button type="button" class="btn btn-outline-danger btn-sm">Delete</button>
+                          <button type="submit" class="btn btn-outline-success btn-sm btnAdmin_edit" data-toggle="modal" data-target="#employees_accounts">Edit</button>
                         </td>
                     </tr>
             <?php
@@ -158,8 +192,7 @@
                             <td><?php echo $employee['employee_lName'] ?></td>
                             <td><?php echo $employee['employee_email'] ?></td>
                             <td>
-                                <button type="button" class="btn btn-outline-success btn-sm btnAgent_edit" data-toggle="modal" data-target="#employees_accounts">Edit</button>
-                                <button type="button" class="btn btn-outline-danger btn-sm">Delete</button>
+                                <button type="button" class="btn btn-outline-success btn-sm btnAgent_edit" data-toggle="modal" data-target="#employees_accounts" name="btnEdit">Edit</button>
                             </td>
                         </tr>
             <?php
@@ -185,10 +218,10 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="<?php echo $path_parts['basename'];?>" method="POST" id="userInfo">
+                <form action="<?php echo $path_parts['basename'];?>" method="POST" id="employeeInfo">
                     <div class="form-group">
                         <label for="employee_id">Employee ID</label>
-                        <input type="input" class="form-control" id="edit_employee_id">
+                        <input type="input" class="form-control" id="edit_employee_id" name="edit_employee_id" readonly>
                     </div>
                     <div class="form-group">
                         <div class="form-check">
@@ -204,21 +237,28 @@
                           </label>
                         </div>
                     </div> 
-
-                        <label for="edit_employee_fName">First Name</label>
-                        <input type="input" class="form-control" id="edit_employee_fName" name="edit_employee_fName">
-                        <label for="edit_employee_mName">First Name</label>
-                        <input type="input" class="form-control" id="edit_employee_mName" name="edit_employee_mName">
-                        <label for="edit_employee_lName">First Name</label>
-                        <input type="input" class="form-control" id="edit_employee_lName" name="edit_employee_lName">
-                        <label for="edit_employee_email">First Name</label>
-                        <input type="email" class="form-control" id="edit_employee_email" name="edit_employee_email">
-                    
+                    <div class="form-group">
+                      <label for="edit_employee_fName">First Name</label>
+                      <input type="input" class="form-control" id="edit_employee_fName" name="edit_employee_fName">
+                    </div>
+                    <div class="form-group">
+                      <label for="edit_employee_mName">First Name</label>
+                      <input type="input" class="form-control" id="edit_employee_mName" name="edit_employee_mName">
+                    </div>
+                    <div class="form-group">
+                      <label for="edit_employee_lName">First Name</label>
+                      <input type="input" class="form-control" id="edit_employee_lName" name="edit_employee_lName">
+                    </div>
+                    <div class="form-group">
+                      <label for="edit_employee_email">First Name</label>
+                      <input type="email" class="form-control" id="edit_employee_email" name="edit_employee_email">
+                    </div> 
                 </form>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer justify-content-start">
+                <button type="submit" class="btn btn-primary mr-auto" form="employeeInfo" name="editAccount">Save changes</button>
+                <button type="submit" class="btn btn-danger" form="employeeInfo" name="deleteAccount">Delete</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
             </div>
             </div>
         </div>
@@ -232,18 +272,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
+    
     <script>
-      
-      //$('#edit_employee_fName').val('aaasd');
       $(document).ready(function() {
         $('.btnAdmin_edit').on('click', function() {
-            //$('#employees_accounts').modal('show');
             $tr = $(this).closest('tr');
             var data = $tr.children("td").map(function(){
                 return $(this).text();
             }).get();
             console.log(data);
             $('#edit_employee_id').val(data[0]);
+            $('#edit_employee_id').prop('');
             $('#edit_admin').prop('checked',true);
             $('#edit_employee_fName').val(data[1]);
             $('#edit_employee_mName').val(data[2]);
@@ -252,31 +291,21 @@
         });
 
         $('.btnAgent_edit').on('click', function() {
-            //$('#employees_accounts').modal('show');
+
             $tr = $(this).closest('tr');
             var data = $tr.children("td").map(function(){
                 return $(this).text();
             }).get();
             console.log(data);
             $('#edit_employee_id').val(data[0]);
-            $('#edit_admin').prop('checked',true);
+            $('#edit_agent').prop('checked',true);
             $('#edit_employee_fName').val(data[1]);
             $('#edit_employee_mName').val(data[2]);
             $('#edit_employee_lName').val(data[3]);
             $('#edit_employee_email').val(data[4]);
         });
-
       });
+    </script>
 
-      function myFunction() {
-        var x = document.getElementById("create_employee_password");
-        if (x.type === "password") {
-          x.type = "text";
-        } else {
-          x.type = "password";
-        }
-      }
-
-</script>
   </body>
 </html>

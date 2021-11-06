@@ -1,26 +1,23 @@
 <?php
+require_once('db_connect.php');
 
-class User_Login {
+class User_Login extends Dbh{
     private $email;
     private $employee_id;
     private $employee_fName;
     private $employee_mName;
     private $employee_lName;
     private $employee_role;
-    private $db;
 
     function __construct($email)
     {
-        require_once('db_connect.php');
-
         $this->email = $email;
-        $this->db = $db;
     }
 
-    function validate_user_email() {
+    function validateUserEmail() {
         try{
             $query_employee = "SELECT EXISTS(SELECT * FROM employees WHERE employee_email = :email)";
-            $employee_statement = $this->db->prepare($query_employee);
+            $employee_statement = $this->connect()->prepare($query_employee);
             $employee_statement->bindParam(':email',$this->email, PDO::PARAM_STR);
             $employee_statement->execute();
             $employees = $employee_statement->fetch();
@@ -37,7 +34,7 @@ class User_Login {
     function validate_user_password() {
         try{
             $query_employee = "SELECT employee_id,employee_password FROM employees WHERE employee_email = :email";
-            $employee_statement = $this->db->prepare($query_employee);
+            $employee_statement = $this->connect()->prepare($query_employee);
             $employee_statement->bindParam(':email',$this->email, PDO::PARAM_STR);
             $employee_statement->execute();
             $employees = $employee_statement->fetchAll();
@@ -55,7 +52,7 @@ class User_Login {
         try{
             $query_employee = "SELECT e.employee_fName, e.employee_mName, e.employee_lName, r.role_desc
                 FROM employees e INNER JOIN roles r ON r.role_id = e.role_id WHERE e.employee_id = :employee_id;";
-            $employee_statement = $this->db->prepare($query_employee);
+            $employee_statement = $this->connect()->prepare($query_employee);
             $employee_statement->bindParam(':employee_id',$this->employee_id, PDO::PARAM_INT);
             $employee_statement->execute();
             $employees = $employee_statement->fetchAll();
@@ -92,21 +89,17 @@ class User_Login {
     }
 }
 
-class Change_Password{
+class Change_Password extends Dbh{
     private $email;
     private $newPassword;
-    private $db;
 
     function __construct(){
-        require_once('db_connect.php');
-
-        $this->db = $db;
     }
 
-    function validate_user_email(){
+    function validateUserEmail(){
         try{
             $query_employee = "SELECT EXISTS(SELECT * FROM employees WHERE employee_email = :email)";
-            $employee_statement = $this->db->prepare($query_employee);
+            $employee_statement = $this->connect()->prepare($query_employee);
             $employee_statement->bindParam(':email',$this->email, PDO::PARAM_STR);
             $employee_statement->execute();
             $employees = $employee_statement->fetch();
@@ -119,10 +112,10 @@ class Change_Password{
         }
     }
 
-    function change_user_password(){
+    function changeUserPassword(){
         try{
             $query = "UPDATE employees SET employee_password = :newPassword WHERE employee_email = :employee_email";
-            $stm = $this->db->prepare($query);
+            $stm = $this->connect()->prepare($query);
             $stm->bindValue(':newPassword',password_hash($this->newPassword, PASSWORD_DEFAULT));
             $stm->bindValue(':employee_email',$this->email);
             $execute_verdict = $stm->execute();
@@ -144,30 +137,27 @@ class Change_Password{
     }
 }
 
-class Update_User_Information{
+class Update_User_Information extends Dbh{
     private $id;
     private $fName;
     private $mName;
     private $lName;
     private $email;
     private $password;
-    private $db;
+
 
     function __construct(){
-        require_once('db_connect.php');
 
-        $this->db = $db;
     }
 
     function updateUserInformation(){
         try{
-            require_once('db_connect.php');
             $query = "UPDATE employees SET employee_fName = :fName, 
                     employee_mName = :mName, 
                     employee_lName = :lName , 
                     employee_email = :email, 
                     employee_password = :passwd WHERE employee_id = :id";
-            $stm = $this->db->prepare($query);
+            $stm = $this->connect()->prepare($query);
             $stm->bindValue(':fName', $this->fName);
             $stm->bindValue(':mName', $this->mName);
             $stm->bindValue(':lName', $this->lName);
@@ -217,12 +207,9 @@ class Update_User_Information{
     }
 }
 
-class Fetch_All_Users{
-    private $db;
+class Fetch_All_Users extends Dbh{
 
     function __construct(){
-        require_once('db_connect.php');
-        $this->db = $db;
     }
 
    function fetchAllUsers(){
@@ -233,7 +220,7 @@ class Fetch_All_Users{
                         e.employee_lName, 
                         e.employee_email, 
                         r.role_desc FROM employees e INNER JOIN roles r ON r.role_id = e.role_id";
-        $stm = $this->db->prepare($query);
+        $stm = $this->connect()->prepare($query);
         $stm->execute();
         $employees = $stm->fetchAll();
         $stm -> closeCursor();
@@ -244,4 +231,147 @@ class Fetch_All_Users{
         include('db_error.php');
     }
    }
+}
+
+class Add_New_Account extends Dbh{
+    private $employee_fName;
+    private $employee_mName;
+    private $employee_lName;
+    private $employee_email;
+    private $employee_password;
+    private $employee_role;
+
+
+    function __construct(){
+    
+    }
+
+    function addNewEmployee(){
+        try{
+            $query = "INSERT INTO employees (employee_fName, employee_mName, employee_lName, employee_email, employee_password, role_id) 
+            VALUES (:fName, :mName, :lName, :email, :password, (SELECT role_id FROM roles WHERE role_desc = :role))";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':fName', $this->employee_fName);
+            $stm->bindValue(':mName', $this->employee_mName);
+            $stm->bindValue(':lName', $this->employee_lName);
+            $stm->bindValue(':email', $this->employee_email);
+            $stm->bindValue(':password', password_hash($this->employee_password,PASSWORD_DEFAULT));
+            $stm->bindValue(':role', $this->employee_role);
+            $stm->execute();
+            $stm->closeCursor();
+            
+        }catch(PDOException $e){
+            include('db_error.php');
+            $error_msg = $e->getMessage();
+        }
+        
+
+    }
+
+    function setEmployee_fName($fName){
+        $this->employee_fName = $fName;
+    }
+
+    function setEmployee_mName($mName){
+        $this->employee_mName = $mName;
+    }
+
+    function setEmployee_lName($lName){
+        $this->employee_lName = $lName;
+    }
+
+    function setEmployee_email($email){
+        $this->employee_email = $email;
+        echo $email;
+    }
+
+    function setEmployee_password($password){
+        $this->employee_password = $password;
+    }
+
+    function setEmployee_role($role){
+        $this->employee_role = $role;
+    }
+}
+
+class Delete_Account extends Dbh{
+    function deleteAccount($id){
+        try{
+            $query = "DELETE FROM employees WHERE employee_id = :id";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':id', $id);
+            $stm->execute();
+            $stm->closeCursor();
+            
+            //echo "<meta http-equiv='refresh' content='0'>";
+        }catch(PDOException $e){
+            $error_msg = $e;
+            include('db_error.php');
+        }
+        
+    }
+}
+
+class Update_Account extends Dbh{
+    private $employee_id;
+    private $employee_fName;
+    private $employee_mName;
+    private $employee_lName;
+    private $employee_email;
+    private $employee_role;
+
+    function __construct(){
+
+    }
+
+    function updateAccount(){
+        try{
+            $query = "UPDATE employees 
+            SET employee_fName = :fName, 
+            employee_mName = :mName, 
+            employee_lName = :lName, 
+            employee_email = :email, 
+            role_id = (SELECT role_id FROM roles WHERE role_desc = :role) 
+            WHERE employee_id = :id";
+
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':fName', $this->employee_fName);
+            $stm->bindValue(':mName', $this->employee_mName);
+            $stm->bindValue(':lName', $this->employee_lName);
+            $stm->bindValue(':email', $this->employee_email);
+            $stm->bindValue(':role', $this->employee_role);
+            $stm->bindValue('id', $this->employee_id);
+            $stm->execute();
+            $stm->closeCursor();;
+        }catch(PDOException $e){
+            $error_msg = $e;
+            include('db_error.php');
+        }
+        
+    }
+
+    function setEmployeeID($id){
+        $this->employee_id = $id;
+    }
+
+    function setEmployeeFName($fName){
+        $this->employee_fName = $fName;
+    }
+
+    function setEmployeeMName($mName){
+        $this->employee_mName = $mName;
+    }
+    function setEmployeeLName($lName){
+        $this->employee_lName = $lName;
+    }
+
+    function setEmployeeEmail($email){
+        $this->employee_email = $email;
+    }
+
+    function setEmployeeRole($role){
+        $this->employee_role = $role;
+    }
+
+
 }

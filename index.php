@@ -13,7 +13,7 @@
 
             $db_obj = new User_Login($email);
 
-            if($db_obj->validate_user_email() == 0){
+            if($db_obj->validateUserEmail() == 0){
                 echo "No employee exists";
             }else {
                 if(!password_verify($_POST['employee_password'], $db_obj->validate_user_password())){
@@ -47,10 +47,10 @@
             $db_obj = new Change_Password;
             $db_obj->setEmployeeEmail($_POST['cp_employee_email']);
             $db_obj->setEmployeeNewPassword($_POST['cp_employee_password']);
-            if($db_obj->validate_user_email() == 0){
+            if($db_obj->validateUserEmail() == 0){
                 echo "No such employee exists";
             }else{
-                if(!$db_obj->change_user_password() == 1){
+                if(!$db_obj->changeUserPassword() == 1){
                     echo "Employee email failed to change";
                 }else {
                     echo "Employee email successfully changed";

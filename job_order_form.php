@@ -23,7 +23,7 @@
 
     <div class="container">
         <h3 class="display-4">Job Order</h3>
-        <form>
+        <form action="<?php echo $path_parts['basename'];?>" method="POST" id="jo_items">
             <div class="form-row">
                 <div class="form-group col-md-8">
                     <label for="jo_clientName">Client Name </label>
@@ -74,13 +74,12 @@
                 </div>
                 <div class="form-group col-md-1">
                     <label for="jo_add">&nbsp</label>
-                    <button type="submit" class="form-control btn btn-primary" id="jo_add" name="jo_add">Add</button>
+                    <button type="submit" class="form-control btn btn-primary" id="jo_add" form="jo_items" name="jo_add">Add</button>
                 </div>
             </div>
             <table class="table table-striped table-sm">
                 <thead class="thead-dark">
                     <tr>
-                    <th scope="col">#</th>
                     <th scope="col">Description</th>
                     <th scope="col">Unit</th>
                     <th scope="col">Quantity</th>
@@ -90,23 +89,14 @@
                 </thead>
                 <tbody>
                     <tr>
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>@mdo</td>
+                        <td>Mark</td>
+                        <td>Otto</td>
+                        <td>@mdo</td>
+                        <td>Otto</td>
+                        <td>@mdo</td>
                     </tr>
-                    <tr>
-                    <th scope="row">2</th>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>@fat</td>
-                    </tr>
-                    <tr>
-                    <th scope="row">3</th>
-                    <td>Larry</td>
-                    <td>the Bird</td>
-                    <td>@twitter</td>
-                    </tr>
+                
+                   
                 </tbody>
             </table>
             <hr />

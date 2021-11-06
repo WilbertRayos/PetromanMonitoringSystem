@@ -13,6 +13,7 @@
         && strcmp($_POST['employee_email'], $_SESSION['employee_email']) == 0
         && strcmp($_POST['employee_password'], $_SESSION['employee_password']) == 0){
           echo "Nothing to update";
+        $_POST = array();
       }else{
         require_once('db_ops.php');
         $db_obj = new Update_User_Information;
@@ -99,7 +100,7 @@
                 <input type="email" class="form-control" id="employee_email" name="employee_email" value="<?php echo $_SESSION['employee_email'] ?>">
                 <label for="employee_password">Password</label>
                 <input class="form-control" type="password" id="employee_password" name="employee_password" value="<?php echo $_SESSION['employee_password'] ?>">
-                <input type="checkbox" onclick="myFunction()"> Show Password
+                <input type="checkbox" onclick="myFunction('employee_password')"> Show Password
               </div>
             </form>
         </div>
@@ -112,15 +113,4 @@
   </div>
   
 </nav>
-
-<script>
-  function myFunction() {
-        var x = document.getElementById("employee_password");
-        if (x.type === "password") {
-          x.type = "text";
-        } else {
-          x.type = "password";
-        }
-      } 
-</script>
 
