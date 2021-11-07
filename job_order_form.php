@@ -23,7 +23,7 @@
 
     <div class="container">
         <h3 class="display-4">Job Order</h3>
-        <form action="<?php echo $path_parts['basename'];?>" method="POST" id="jo_items">
+        <form action="<?php echo $path_parts['basename'];?>" method="POST" id="jo_information">
             <div class="form-row">
                 <div class="form-group col-md-8">
                     <label for="jo_clientName">Client Name </label>
@@ -43,63 +43,15 @@
                 </div>
                 <div class="form-group col-md-12">
                     <label for="jo_address">Address</label>
-                    <input class="form-control" id="jo_address" name="jo_tin" />
+                    <input class="form-control" id="jo_address" name="jo_address" />
                 </div>
                 <div class="form-group col-md-12">
                     <label for="jo_location">Project Location</label>
-                    <input class="form-control" id="jo_location" name="jo_tin" />
+                    <input class="form-control" id="jo_location" name="jo_location" />
                 </div>
             </div>
             <hr />
-            <div class="form-row">
-                <div class="form-group col-md-5">
-                    <label for="jo_description">Description</label>
-                    <input class="form-control" id="jo_unit" name="jo_tin" />
-                </div>
-                <div class="form-group col-md-1 col-sm-6">
-                    <label for="jo_unit">Unit</label>
-                    <input class="form-control" id="jo_unit" name="jo_unit" />
-                </div>
-                <div class="form-group col-md-1 col-sm-6">
-                    <label for="jo_quantity">Qty.</label>
-                    <input class="form-control" id="jo_quantity" name="jo_quantity" />
-                </div>
-                <div class="form-group col-md-2">
-                    <label for="jo_unitPrice">Unit Price</label>
-                    <input class="form-control" id="jo_unitPrice" name="jo_unitPrice" />
-                </div>
-                <div class="form-group col-md-2">
-                    <label for="jo_amount">Amount</label>
-                    <input class="form-control" id="jo_amount" name="jo_amount" />
-                </div>
-                <div class="form-group col-md-1">
-                    <label for="jo_add">&nbsp</label>
-                    <button type="submit" class="form-control btn btn-primary" id="jo_add" form="jo_items" name="jo_add">Add</button>
-                </div>
-            </div>
-            <table class="table table-striped table-sm">
-                <thead class="thead-dark">
-                    <tr>
-                    <th scope="col">Description</th>
-                    <th scope="col">Unit</th>
-                    <th scope="col">Quantity</th>
-                    <th scope="col">Unit Price</th>
-                    <th scope="col">Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                        <td>Otto</td>
-                        <td>@mdo</td>
-                    </tr>
-                
-                   
-                </tbody>
-            </table>
-            <hr />
+            
             <div class="form-row">
                 <div class="form-group col-sm-12 col-md-4">
                     <label for="jo_creator">Created By:</label>
@@ -111,7 +63,7 @@
                 </div>
                 <div class="form-group col-sm-12 col-md-4">
                     <label for="jo_totalPayment">Total Payment</label>
-                    <input class="form-control" id="jo_totalPayment" name="jo_totalPayment" readonly/>
+                    <input type="number" class="form-control" id="jo_totalPayment" name="jo_totalPayment" readonly/>
                 </div>
             </div>
             <div class="form-row">
@@ -124,6 +76,49 @@
             </div>
         </form>
         
+        <form action="<?php echo $path_parts['basename'];?>" method="POST" id="jo_items">
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label for="jo_description">Description</label>
+                    <input class="form-control" id="jo_description" name="jo_description" />
+                </div>
+                <div class="form-group col-md-2 col-sm-6">
+                    <label for="jo_unit">Unit</label>
+                    <input class="form-control" id="jo_unit" name="jo_unit" />
+                </div>
+                <div class="form-group col-md-2 col-sm-6">
+                    <label for="jo_quantity">Qty.</label>
+                    <input type="number" class="form-control" id="jo_quantity" name="jo_quantity"/>
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="jo_unitPrice">Unit Price</label>
+                    <input type="number" class="form-control" id="jo_unitPrice" name="jo_unitPrice" />
+                </div>
+                <div class="form-group col-md-1">
+                    <label for="jo_add">&nbsp</label>
+                    <button type="button" class="form-control btn btn-primary" id="jo_add" name="jo_add">Add</button>
+                </div>
+            </div>
+            <table class="table table-striped table-sm" id="jo_item_table">
+                <thead class="thead-dark">
+                    <tr>
+                    <th scope="col">Description</th>
+                    <th scope="col">Unit</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Unit Price</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <hr />
+        </form>
+            
+            
+        
+        
         
     </div>
 
@@ -132,5 +127,50 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function() {
+            $("#jo_add").on('click', function() {
+                item_amount = parseFloat($('#jo_quantity').val()*$('#jo_unitPrice').val());
+                new_row = "<tr> \
+                            <td>"+$('#jo_description').val()+"</td> \
+                            <td>"+$('#jo_unit').val()+"</td> \
+                            <td>"+$('#jo_quantity').val()+"</td> \
+                            <td>"+$('#jo_unitPrice').val()+"</td> \
+                            <td>"+item_amount+"</td> \
+                            <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Delete</button></td>";
+                            
+
+                jo_items_tbl = $('table tbody');
+                jo_items_tbl.append(new_row);
+                $('#jo_totalPayment').val(computeTotal);
+                $('#jo_description').val("");
+                $('#jo_unit').val("");
+                $('#jo_quantity').val("");
+                $('#jo_unitPrice').val("");
+                
+            });
+        });
+
+        function deleteRow(cell){
+            var row = $(cell).parents('tr');
+            var rIndex = row[0].rowIndex;
+            document.getElementById('jo_item_table').deleteRow(rIndex);
+        }
+
+        function computeTotal(){
+            
+            var totalAmount = 0.0;
+            var tbl = document.getElementById('jo_item_table');
+            
+            for(var row=1, n=tbl.rows.length; row<n; row++){
+                totalAmount += parseFloat(tbl.rows[row].cells[4].innerHTML);
+            }
+
+            return totalAmount;
+
+        }
+
+    </script>
   </body>
 </html>

@@ -39,7 +39,7 @@
           <a href="job_order_form.php" class="btn btn-primary">Create Job Order</a>
         </div>
       </div>
-
+ 
       <table class="table table-sm">
         <thead class="thead-dark">
           <tr>

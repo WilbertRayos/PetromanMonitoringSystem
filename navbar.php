@@ -64,8 +64,15 @@
             }
         ?>
       </li>
-      <li class="nav-item">
-        <a class="nav-link disabled" href="#">Disabled</a>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="financialReport" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Financial Report
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="finance_job_order.php">Job Order</a>
+          <a class="dropdown-item" href="#">Trading Sales</a>
+
+        </div>
       </li>
     </ul>
     <form class="form-inline my-2 my-lg-0" action="#" method="POST">
