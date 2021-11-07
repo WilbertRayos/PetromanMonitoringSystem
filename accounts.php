@@ -6,7 +6,7 @@
     require_once('db_ops.php');
     $db_obj = new Fetch_All_Users;
     $employees = $db_obj->fetchAllUsers();
-    
+
     // Add New Account
     if(isset($_POST['addAccount'])){
       $db_obj2 = new Add_New_Account;
@@ -21,7 +21,6 @@
     }
 
     if(isset($_POST['editAccount'])){
-      echo "har";
       $db_obj4 = new Update_Account;
       $db_obj4->setEmployeeID($_POST['edit_employee_id']);
       $db_obj4->setEmployeeRole($_POST['edit_roles']);
@@ -30,9 +29,16 @@
       $db_obj4->setEmployeeLName($_POST['edit_employee_lName']);
       $db_obj4->setEmployeeEmail($_POST['edit_employee_email']);
       $db_obj4->updateAccount();
-      header('Location: accounts.php');
+
+      if(strcmp(str_replace("\r\n","",trim($_SESSION['employee_id'])), str_replace("\r\n","",trim($_POST['edit_employee_id'])))!=0){
+        header('Location: accounts.php');
+      }else{
+        header('Location: index.php');
+        session_destroy();
+      } 
     }
-     
+    
+
 
     if(isset($_POST['deleteAccount'])){
       $db_obj4 = new Delete_Account;
