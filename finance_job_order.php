@@ -1,8 +1,8 @@
 <?php
-     session_start();
-     if(!isset($_SESSION['loggedIn'])){
-         header('Location: index.php');
-     }
+session_start();
+if (!isset($_SESSION['loggedIn']) ) {
+    header('Location: index.php');
+}
 ?>
 
 <!doctype html>
@@ -10,15 +10,20 @@
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, 
+                                    initial-scale=1, 
+                                    shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" 
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" 
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" 
+    crossorigin="anonymous">
 
     <title>Hello, world!</title>
   </head>
   <body>
-    <?php include('navbar.php'); ?>
+    <?php require 'navbar.php'; ?>
     <div class="container">
         <h3 class="display-4">Job Orders</h3>
         <div class="row md-mt-3 justify-content-end">

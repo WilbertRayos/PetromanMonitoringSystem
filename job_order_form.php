@@ -1,8 +1,38 @@
 <?php
-     session_start();
-     if(!isset($_SESSION['loggedIn'])){
-         header('Location: index.php');
-     }
+session_start();
+require_once('db_ops.php');
+if (!isset($_SESSION['loggedIn']) ) {
+    header('Location: index.php');
+}
+
+if (isset($_POST['jo_save'])) {
+
+    $db_obj1 = new Add_New_Job_Order;
+    $db_obj1->setJobOrderNumber($_POST['jo_number']);
+    $db_obj1->setClientName($_POST['jo_clientName']);
+    $db_obj1->setDate($_POST['jo_date']);
+    $db_obj1->setRepresentative($_POST['jo_representative']);
+    $db_obj1->setTinNumber($_POST['jo_tin']);
+    $db_obj1->setAddress($_POST['jo_address']);
+    $db_obj1->setProjectLocation($_POST['jo_location']);
+    $db_obj1->setTermsOfPayment($_POST['jo_cod']);
+    $db_obj1->setMobilization($_POST['jo_mobilization']);
+    $db_obj1->setEmployeeID($_SESSION['employee_id']);
+    $arr = json_decode($_POST['jo_item_array']);
+    try{
+        $db_obj1->addNewJobOrder();
+        foreach($arr as $items[]) {
+            foreach($items as $item) {
+                $db_obj1->addJobOrderItems($item[0],$item[1],$item[2],$item[3]);
+            }
+        }
+    } catch(Exception $e) {
+        
+    }
+    
+}
+
+
 ?>
 
 <!doctype html>
@@ -25,6 +55,10 @@
         <h3 class="display-4">Job Order</h3>
         <form action="<?php echo $path_parts['basename'];?>" method="POST" id="jo_information">
             <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label for="jo_number">Job Order Number </label>
+                    <input class="form-control" id="jo_number" name="jo_number" />
+                </div>
                 <div class="form-group col-md-8">
                     <label for="jo_clientName">Client Name </label>
                     <input class="form-control" id="jo_clientName" name="jo_clientName" />
@@ -49,23 +83,35 @@
                     <label for="jo_location">Project Location</label>
                     <input class="form-control" id="jo_location" name="jo_location" />
                 </div>
+                <div class="form-group col-sm-12 col-md-6">
+                    <label for="jo_mobilization">Mobilization</label>
+                    <input class="form-control" id="jo_mobilization" name="jo_mobilization" />
+                </div>
+                <div class="form-group col-sm-12 col-md-6">
+                    <label for="jo_cod">COD(Days)</label>
+                    <select class="form-control" id="jo_cod" name="jo_cod">
+                    <option>30</option>
+                    <option>60</option>
+                    <option>90</option>
+                    <option>150</option>
+                    <option>180</option>
+                    </select>
+                </div> 
             </div>
             <hr />
             
             <div class="form-row">
-                <div class="form-group col-sm-12 col-md-4">
+                <div class="form-group col-sm-12 col-md-6">
                     <label for="jo_creator">Created By:</label>
                     <input class="form-control" id="jo_creator" name="jo_creator" value="<?php echo $_SESSION['employee_fName']." ".$_SESSION['employee_mName']." ".$_SESSION['employee_lName']?>" readonly />
                 </div>
-                <div class="form-group col-sm-12 col-md-4">
-                    <label for="jo_mobilization">Mobilization</label>
-                    <input class="form-control" id="jo_mobilization" name="jo_mobilization" />
-                </div>
-                <div class="form-group col-sm-12 col-md-4">
+                
+                <div class="form-group col-sm-12 col-md-6">
                     <label for="jo_totalPayment">Total Payment</label>
-                    <input type="number" class="form-control" id="jo_totalPayment" name="jo_totalPayment" readonly/>
+                    <input type="number" class="form-control" id="jo_totalPayment" readonly/>
                 </div>
             </div>
+            <input type="hidden" id="jo_item_array" name="jo_item_array">
             <div class="form-row">
                 <div class="form-group col-md-3">
                     <button type="submit" class="form-control btn btn-primary" id="jo_save" name="jo_save">Save</button>
@@ -74,6 +120,7 @@
                     <a href="projects.php" type="button" class="form-control btn btn-danger" id="jo_cancel" name="jo_cancel">Cancel</a>
                 </div>
             </div>
+            
         </form>
         
         <form action="<?php echo $path_parts['basename'];?>" method="POST" id="jo_items">
@@ -129,18 +176,32 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
     <script>
+        let arr_jo_items = [];
         $(document).ready(function() {
+            let ctr1 = 0;
+            
             $("#jo_add").on('click', function() {
+                description = $('#jo_description').val();
+                unit = $('#jo_unit').val();
+                quantity = $('#jo_quantity').val();
+                unitPrice = $('#jo_unitPrice').val();
                 item_amount = parseFloat($('#jo_quantity').val()*$('#jo_unitPrice').val());
+                
+                arr_jo_items.push([description, unit, quantity, unitPrice, item_amount]);
+
+                for (x of arr_jo_items) {
+                    alert(x);
+                }
+
+
                 new_row = "<tr> \
-                            <td>"+$('#jo_description').val()+"</td> \
-                            <td>"+$('#jo_unit').val()+"</td> \
-                            <td>"+$('#jo_quantity').val()+"</td> \
-                            <td>"+$('#jo_unitPrice').val()+"</td> \
+                            <td>"+description+"</td> \
+                            <td>"+unit+"</td> \
+                            <td>"+quantity+"</td> \
+                            <td>"+unitPrice+"</td> \
                             <td>"+item_amount+"</td> \
                             <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Delete</button></td>";
                             
-
                 jo_items_tbl = $('table tbody');
                 jo_items_tbl.append(new_row);
                 $('#jo_totalPayment').val(computeTotal);
@@ -148,19 +209,22 @@
                 $('#jo_unit').val("");
                 $('#jo_quantity').val("");
                 $('#jo_unitPrice').val("");
-                
+                $('#jo_item_array').val(JSON.stringify(arr_jo_items));
             });
         });
 
         function deleteRow(cell){
             var row = $(cell).parents('tr');
             var rIndex = row[0].rowIndex;
+
+            arr_jo_items.splice(rIndex-1, 1);
+
             document.getElementById('jo_item_table').deleteRow(rIndex);
         }
 
         function computeTotal(){
             
-            var totalAmount = 0.0;
+            var totalAmount = 0.0 + parseFloat($('#jo_mobilization').val());
             var tbl = document.getElementById('jo_item_table');
             
             for(var row=1, n=tbl.rows.length; row<n; row++){

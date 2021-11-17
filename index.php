@@ -6,7 +6,7 @@
         if(!isset($_POST['employee_email']) || empty($_POST['employee_email'])){
             echo "Please enter email";
         }else if(!isset($_POST['employee_password']) || empty($_POST['employee_password'])){
-            echo "Please enter password";
+            echo "PlfetchAllUsersease enter password";
         }else{
             $email =$_POST['employee_email'];
             $password = $_POST['employee_password'];
