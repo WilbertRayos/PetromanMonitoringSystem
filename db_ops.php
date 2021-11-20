@@ -583,4 +583,179 @@ class Fetch_Specific_Job_Order extends Dbh {
         return $all_jo_items;
     }
 
+    function checkExistingChecklist() {
+        $query = "SELECT COUNT(job_order_number) FROM job_order_checklist WHERE job_order_number = :job_order_number";
+        $stm = $this->connect()->prepare($query);
+        $stm->bindValue(':job_order_number', $this->job_order_number);
+        $stm->execute();
+        $jo_count = $stm->fetch(PDO::FETCH_ASSOC);
+        $stm->closeCursor();
+
+        return $jo_count;
+    }
+
+    function fetchExistingChecklist() {
+        try {
+            $query = "SELECT o.control_number as or_cn, o.or_date, a.control_number as ar_cn, a.ar_date, w.control_number as ws_cn, w.ws_date, c.control_number as cr_cn, c.cr_date, d.control_number as dr_cn, d.dr_date, h.checklist_2303_2307, h.soa, h.total_materials_used
+                FROM job_order_checklist h
+                INNER JOIN or_ o ON o.job_order_number = h.job_order_number
+                INNER JOIN ar a ON a.job_order_number = h.job_order_number
+                INNER JOIN ws w ON w.job_order_number = h.job_order_number
+                INNER JOIN cr c ON c.job_order_number = h.job_order_number
+                INNER JOIN dr d ON d.job_order_number = h.job_order_number
+                WHERE h.job_order_number = :job_order_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->execute();
+            $jo_checklist = $stm->fetch();
+            $stm->closeCursor();
+        } catch(PDOException $e) {
+            echo $e;
+        }
+        return $jo_checklist;
+    }
+
+    function updateExistingChecklist() {
+        
+    }
+
+}
+
+class Add_New_Checklist extends Dbh {
+    private $job_order_number;
+    private $or_control_number;
+    private $or_date;
+    private $ar_control_number;
+    private $ar_date;
+    private $ws_control_number;
+    private $ws_date;
+    private $cr_control_number;
+    private $cr_date;
+    private $dr_control_number;
+    private $dr_date;
+    private $checklist_2303;
+    private $soa;
+    private $total_materials_used;
+
+    function __construct($job_order_number, 
+                        $or_control_number, $or_date, $ar_control_number, $ar_date, 
+                        $ws_control_number, $ws_date, $cr_control_number, $cr_date, 
+                        $dr_control_number, $dr_date, 
+                        $checklist_2303, $soa, $total_materials_used) {
+        $this->job_order_number = $job_order_number;
+        $this->or_control_number = $or_control_number;
+        $this->or_date = $or_date;
+        $this->ar_control_number = $ar_control_number;
+        $this->ar_date = $ar_date;
+        $this->ws_control_number = $ws_control_number;
+        $this->ws_date = $ws_date;
+        $this->cr_control_number = $cr_control_number;
+        $this->cr_date = $cr_date;
+        $this->dr_control_number = $dr_control_number;
+        $this->dr_date = $dr_date;
+        $this->checklist_2303 = $checklist_2303;
+        $this->soa = $soa;
+        $this->total_materials_used = $total_materials_used;
+    }
+
+    function addNewChecklist() {
+        $this->addNewOR();
+        $this->addNewAR();
+        $this->addNewWS();
+        $this->addNewCR();
+        $this->addNewDR();
+        $this->addNewChecklistInfo();
+    }
+
+    function addNewOR() {
+        try{
+            $query = "INSERT INTO or_ (job_order_number, control_number, or_date) 
+            VALUES (:job_order_number, :control_number, :or_date)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->bindValue(':control_number', $this->or_control_number);
+            $stm->bindValue(':or_date', $this->or_date);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo $e;
+        }
+        
+    }
+
+    function addNewAR() {
+        try{
+            $query = "INSERT INTO ar (job_order_number, control_number, ar_date) 
+            VALUES (:job_order_number, :control_number, :ar_date)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->bindValue(':control_number', $this->ar_control_number);
+            $stm->bindValue(':ar_date', $this->ar_date);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function addNewWS() {
+        try{
+            $query = "INSERT INTO ws (job_order_number, control_number, ws_date) 
+            VALUES (:job_order_number, :control_number, :ws_date)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->bindValue(':control_number', $this->ws_control_number);
+            $stm->bindValue(':ws_date', $this->ws_date);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function addNewCR() {
+        try{
+            $query = "INSERT INTO cr (job_order_number, control_number, cr_date) 
+            VALUES (:job_order_number, :control_number, :cr_date)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->bindValue(':control_number', $this->cr_control_number);
+            $stm->bindValue(':cr_date', $this->cr_date);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function addNewDR() {
+        try{
+            $query = "INSERT INTO dr (job_order_number, control_number, dr_date) 
+            VALUES (:job_order_number, :control_number, :dr_date)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->bindValue(':control_number', $this->dr_control_number);
+            $stm->bindValue(':dr_date', $this->dr_date);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function addNewChecklistInfo() {
+        try{
+            $query = "INSERT INTO job_order_checklist (job_order_number, checklist_2303_2307, soa, total_materials_used) 
+            VALUES (:job_order_number, :checklist_2303_2307, :soa, :total_materials_used)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->bindValue(':checklist_2303_2307', $this->checklist_2303);
+            $stm->bindValue(':soa', $this->soa);
+            $stm->bindValue(':total_materials_used', $this->total_materials_used);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
 }

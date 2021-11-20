@@ -9,10 +9,30 @@ require_once('db_ops.php');
 $db_obj_1 = new Fetch_Specific_Job_Order($_GET['jo_num']);
 $jo_information = $db_obj_1->fetchJobOrderInformation();
 $all_jo_items = $db_obj_1->fetchJobOrderItems();
+$jo_count = $db_obj_1->checkExistingChecklist();
+
+if ($jo_count > 1) {
+    $jo_checklist = $db_obj_1->fetchExistingChecklist();
+ 
+    $or_control_number = $jo_checklist['or_cn'];
+    $or_date = $jo_checklist['or_date'];
+    $ar_control_number = $jo_checklist['ar_cn'];
+    $ar_date = $jo_checklist['ar_date'];
+    $ws_control_number = $jo_checklist['ws_cn'];
+    $ws_date = $jo_checklist['ws_date'];
+    $cr_control_number = $jo_checklist['cr_cn'];
+    $cr_date = $jo_checklist['cr_date'];
+    $dr_control_number = $jo_checklist['dr_cn'];
+    $dr_date = $jo_checklist['dr_date'];
+    $checklist_2303 = $jo_checklist['checklist_2303_2307'];
+    $checklist_soa = $jo_checklist['soa'];
+    $checklist_materials = $jo_checklist['total_materials_used'];
+
+    
+}
 
 
-if (isset($_POST['save_checklist'])) {
-    print_r($_POST);
+if (isset($_POST['save_checklist']) && !($jo_count > 1)) {
     if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
         echo "Fill-up OR information";
     } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
@@ -27,9 +47,21 @@ if (isset($_POST['save_checklist'])) {
         echo "Fill-up 2303/2307 information";
     } else if (!isset($_POST['soa']) || empty($_POST['soa'])) {
         echo "Fill-up SOA information";
-    } else if (!isset($_POST['stotal_material_usedoa']) || empty($_POST['total_material_used'])) {
+    } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
         echo "Fill-up total_material_used information";
+    } else {
+        $db_obj_2 = new Add_New_Checklist($_GET['jo_num'], 
+                                        $_POST['or_control_number'], $_POST['or_date'], 
+                                        $_POST['ar_control_number'], $_POST['ar_date'], 
+                                        $_POST['ws_control_number'], $_POST['ws_date'],
+                                        $_POST['cr_control_number'], $_POST['cr_date'],
+                                        $_POST['dr_control_number'], $_POST['dr_date'],
+                                        $_POST['2307'], $_POST['soa'], $_POST['total_material_used']
+                                    );
+        $new_checklist = $db_obj_2->addNewChecklist();
     }
+} else if (isset($_POST['save_checklist']) && ($jo_count > 1)) {
+    
 }
 
 ?>
@@ -199,10 +231,10 @@ if (isset($_POST['save_checklist'])) {
                             <label for="or_control_number">OR</label>
                         </div>
                         <div class="col-md-5">
-                            <input class="form-control" id="or_control_number" name="or_control_number" placeholder="Control Number"/>
+                            <input class="form-control" id="or_control_number" name="or_control_number" placeholder="Control Number" value="<?php echo $or_control_number ?>"/>
                         </div>
                         <div class="col-md-5">
-                            <input type="date" class="form-control" id="or_date" name="or_date" />
+                            <input type="date" class="form-control" id="or_date" name="or_date"  value="<?php echo $or_date ?>"/>
                         </div>
                     </div>
                     <div class="form-row">
@@ -210,10 +242,10 @@ if (isset($_POST['save_checklist'])) {
                             <label for="ar_control_number">AR</label>
                         </div>
                         <div class="col-md-5">
-                            <input class="form-control" id="ar_control_number" name="ar_control_number" placeholder="Control Number"/>
+                            <input class="form-control" id="ar_control_number" name="ar_control_number" placeholder="Control Number"  value="<?php echo $ar_control_number ?>"/>
                         </div>
                         <div class="col-md-5">
-                            <input type="date" class="form-control" id="ar_date" name="ar_date" />
+                            <input type="date" class="form-control" id="ar_date" name="ar_date"  value="<?php echo $ar_date ?>"/>
                         </div>
                     </div>
                     <div class="form-row">
@@ -221,10 +253,10 @@ if (isset($_POST['save_checklist'])) {
                             <label for="ws_control_number">WS</label>
                         </div>
                         <div class="col-md-5">
-                            <input class="form-control" id="ws_control_number" name="ws_control_number" placeholder="Control Number"/>
+                            <input class="form-control" id="ws_control_number" name="ws_control_number" placeholder="Control Number"  value="<?php echo $ws_control_number ?>"/>
                         </div>
                         <div class="col-md-5">
-                            <input type="date" class="form-control" id="ws_date" name="ws_date" />
+                            <input type="date" class="form-control" id="ws_date" name="ws_date"  value="<?php echo $ws_date ?>"/>
                         </div>
                     </div>
                     <div class="form-row">
@@ -232,10 +264,10 @@ if (isset($_POST['save_checklist'])) {
                             <label for="cr_control_number">CR</label>
                         </div>
                         <div class="col-md-5">
-                            <input class="form-control" id="cr_control_number" name="cr_control_number" placeholder="Control Number"/>
+                            <input class="form-control" id="cr_control_number" name="cr_control_number" placeholder="Control Number"  value="<?php echo $cr_control_number ?>"/>
                         </div>
                         <div class="col-md-5">
-                            <input type="date" class="form-control" id="cr_date" name="cr_date" />
+                            <input type="date" class="form-control" id="cr_date" name="cr_date"  value="<?php echo $cr_date ?>"/>
                         </div>
                     </div>
                     <div class="form-row">
@@ -243,10 +275,10 @@ if (isset($_POST['save_checklist'])) {
                             <label for="dr_control_number">DR</label>
                         </div>
                         <div class="col-md-5">
-                            <input class="form-control" id="dr_control_number" name="dr_control_number" placeholder="Control Number"/>
+                            <input class="form-control" id="dr_control_number" name="dr_control_number" placeholder="Control Number"  value="<?php echo $dr_control_number ?>"/>
                         </div>
                         <div class="col-md-5">
-                            <input type="date" class="form-control" id="dr_date" name="dr_date" />
+                            <input type="date" class="form-control" id="dr_date" name="dr_date"  value="<?php echo $dr_date ?>"/>
                         </div>
                     </div>
                     <div class="form-row">
@@ -254,7 +286,7 @@ if (isset($_POST['save_checklist'])) {
                             <label for="2307">2303/2307</label>
                         </div>
                         <div class="col-md-10">
-                            <input class="form-control" id="2307" name="2307" />
+                            <input class="form-control" id="2307" name="2307"  value="<?php echo $checklist_2303 ?>"/>
                         </div>
                     </div>
                     <div class="form-row">
@@ -262,15 +294,15 @@ if (isset($_POST['save_checklist'])) {
                             <label for="soa">SOA</label>
                         </div>
                         <div class="col-md-10">
-                            <input class="form-control" id="soa" name="soa" />
+                            <input class="form-control" id="soa" name="soa"  value="<?php echo $checklist_soa ?>"/>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="col-md-2">
-                            <label for="total_material_used">DR</label>
+                            <label for="total_material_used">Total Materials Used</label>
                         </div>
                         <div class="col-md-10">
-                            <input class="form-control" id="total_material_used" name="total_material_used" />
+                            <input class="form-control" id="total_material_used" name="total_material_used"  value="<?php echo $checklist_materials ?>"/>
                         </div>
                     </div>
                 </form>
