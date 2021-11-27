@@ -513,13 +513,13 @@ class Fetch_All_Job_Orders extends Dbh {
         $stm->closeCursor();
         foreach ($all_jo as $jo_number) {
             $flt_total_jo_amount = (float) $this->fetchTotalJobOrderAmount($jo_number['job_order_number']) + (float) $jo_number['mobilization'];
-            $current_phase_count = $this->countPhases($jo_number['job_order_number']);
-            if ($current_phase_count === 4) {
+            $highest_phase = $this->countPhases($jo_number['job_order_number']);
+            if ($highest_phase === 4) {
                 $current_phase = "Done";
-            } else if ($current_phase_count === 0) {
+            } else if ($highest_phase === 0) {
                 $current_phase = "Phase 1";
             } else {
-                $current_phase = "Phase ".$current_phase_count;
+                $current_phase = "Phase ".$highest_phase;
             }
 
             array_push($this->arr_job_orders, array($jo_number['job_order_number'], $jo_number['client_name'], $flt_total_jo_amount, $current_phase));    
@@ -540,8 +540,9 @@ class Fetch_All_Job_Orders extends Dbh {
     }
 
     function countPhases($job_num) {
-        $query = "SELECT COUNT(job_order_number) current_phase FROM project_phases";
+        $query = "SELECT MAX(stage) FROM project_phases WHERE job_order_number = :job_order_number";
         $stm = $this->connect()->prepare($query);
+        $stm->bindValue(':job_order_number', $job_num);
         $stm->execute();
         $current_phase = $stm->fetch();
         $stm->closeCursor();
@@ -584,7 +585,7 @@ class Fetch_Specific_Job_Order extends Dbh {
     }
 
     function checkExistingChecklist() {
-        $query = "SELECT COUNT(job_order_number) FROM job_order_checklist WHERE job_order_number = :job_order_number";
+        $query = "SELECT COUNT(job_order_number) AS total_number FROM job_order_checklist WHERE job_order_number = :job_order_number";
         $stm = $this->connect()->prepare($query);
         $stm->bindValue(':job_order_number', $this->job_order_number);
         $stm->execute();
@@ -758,4 +759,312 @@ class Add_New_Checklist extends Dbh {
             echo $e;
         }
     }
+}
+
+class Update_Checklist extends Dbh {
+    private $job_order_number;
+    private $or_control_number;
+    private $or_date;
+    private $ar_control_number;
+    private $ar_date;
+    private $ws_control_number;
+    private $ws_date;
+    private $cr_control_number;
+    private $cr_date;
+    private $dr_control_number;
+    private $dr_date;
+    private $checklist_2303;
+    private $checklist_soa;
+    private $checklist_materials;
+
+    function __construct($job_order_number, $or_cn, $or_date, $ar_cn, $ar_date, $ws_cn, $ws_date, $cr_cn, $cr_date, $dr_cn, $dr_date, $checklist_2303, $soa, $materials) {
+        $this->job_order_number = $job_order_number;
+        $this->or_control_number = $or_cn;
+        $this->or_date = $or_date;
+        $this->ar_control_number = $ar_cn;
+        $this->ar_date = $ar_date;
+        $this->ws_control_number = $ws_cn;
+        $this->ws_date = $ws_date;
+        $this->cr_control_number = $cr_cn;
+        $this->cr_date = $cr_date;
+        $this->dr_control_number = $dr_cn;
+        $this->dr_date = $dr_date;
+        $this->checklist_2303 = $checklist_2303;
+        $this->checklist_soa = $soa;
+        $this->checklist_materials = $materials;
+    }
+
+    function updateChecklist() {
+        try {
+            $this->updateOR();
+            $this->updateAR();
+            $this->updateWS();
+            $this->updateCR();
+            $this->updateDR();
+            $this->updateChecklistTable();
+        } catch (PDOException $e) {
+            $this->connect()->rollBack();
+        }
+    }
+
+    function updateOR() {
+        try {
+            $query = "UPDATE or_ SET control_number = :new_control_number, or_date = :new_date WHERE job_order_number = :job_order_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':new_control_number', $this->or_control_number);
+            $stm->bindValue(':new_date', $this->or_date);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo "Error in update OR";
+            echo $e;
+        }
+    }
+
+    function updateAR() {
+        try {
+            $query = "UPDATE ar SET control_number = :new_control_number, ar_date = :new_date WHERE job_order_number = :job_order_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':new_control_number', $this->ar_control_number);
+            $stm->bindValue(':new_date', $this->ar_date);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo "Error in update AR";
+            echo $e;
+        }
+    }
+
+    function updateWS() {
+        try {
+            $query = "UPDATE ws SET control_number = :new_control_number, ws_date = :new_date WHERE job_order_number = :job_order_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':new_control_number', $this->ws_control_number);
+            $stm->bindValue(':new_date', $this->ws_date);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo "Error in update WS";
+            echo $e;
+        }
+    }
+
+    function updateCR() {
+        try {
+            $query = "UPDATE cr SET control_number = :new_control_number, cr_date = :new_date WHERE job_order_number = :job_order_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':new_control_number', $this->cr_control_number);
+            $stm->bindValue(':new_date', $this->cr_date);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo "Error in update CR";
+            echo $e;
+        }
+    }
+
+    function updateDR() {
+        try {
+            $query = "UPDATE dr SET control_number = :new_control_number, dr_date = :new_date WHERE job_order_number = :job_order_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':new_control_number', $this->dr_control_number);
+            $stm->bindValue(':new_date', $this->dr_date);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo "Error in update DR";
+            echo $e;
+        }
+    }
+
+    function updateChecklistTable() {
+        try {
+            $query = "UPDATE job_order_checklist SET checklist_2303_2307 = :checklist_2303, soa = :soa, total_materials_used = :materials WHERE job_order_number = :job_order_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':checklist_2303', $this->checklist_2303);
+            $stm->bindValue(':soa', $this->checklist_soa);
+            $stm->bindValue(':materials', $this->checklist_materials);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+
+            $stm->execute();
+            $stm->closeCursor();
+        }catch (PDOException $e) {
+            echo "wews".$e;
+        }
+        
+    }
+}
+
+class Job_Order_Phases extends Dbh {
+    private $job_order_number;
+    
+    function __construct($job_order_number) {
+        $this->job_order_number = $job_order_number;
+    }
+
+    function fetchAllJOPhases() {
+        try {
+            $query = "SELECT * FROM project_phases WHERE job_order_number = :job_order_number ORDER BY stage";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->execute();
+            $jo_phases = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+
+            return $jo_phases;
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
+
+    function addNewPhase($stage, $image) {
+        try {
+            $query = "INSERT INTO project_phases (job_order_number, stage, image) VALUES (:job_order_number, :stage, :image)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->bindValue(':stage', $stage);
+            $stm->bindValue(':image', $image, PDO::PARAM_LOB);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo $e;
+        }
+        
+    }
+}
+
+class Update_Job_Order extends Dbh {
+    private $job_order_number;
+
+    function __construct($job_order_number) {
+        echo $job_order_number;
+        $this->job_order_number = $job_order_number;
+    }
+
+    function updateJobOrderInformation($nJob_order_number, $nClient_name, $nRepresentative, $nAddress, $nDate, $nTin_number, $nProject_location, $nTerms_of_payment, $nMobilization) {
+        $query = "UPDATE job_order SET job_order_number=:nJob_order_number, client_name =:nClient_name, 
+                    representative=:nRepresentative, address=:nAddress, date=:nDate, tin_number=:nTin_number, 
+                    project_location=:nProject_location, terms_of_payment=:nTerms_of_payment, mobilization=:nMobilization 
+                    WHERE job_order_number = :job_order_number";
+        
+        $stm = $this->connect()->prepare($query);
+        $stm->bindValue(':nJob_order_number',$nJob_order_number);
+        $stm->bindValue(':nClient_name',$nClient_name);
+        $stm->bindValue(':nRepresentative',$nRepresentative);
+        $stm->bindValue(':nAddress',$nAddress);
+        $stm->bindValue(':nDate',$nDate);
+        $stm->bindValue(':nTin_number',$nTin_number);
+        $stm->bindValue(':nProject_location',$nProject_location);
+        $stm->bindValue(':nTerms_of_payment',$nTerms_of_payment);
+        $stm->bindValue(':nMobilization',$nMobilization);
+        $stm->bindValue(':job_order_number', $this->job_order_number);
+
+        $stm->execute();
+        $stm->closeCursor();
+    }
+
+    function updateJobOrderItems($arr_jo_items) {
+        foreach ($arr_jo_items as $jo_item) {
+            if (!$this->checkJobOrderItem($jo_item[0], $jo_item[1], $jo_item[2], $jo_item[3]) > 0) {
+                try {
+                    $query = "INSERT INTO job_order_items (job_order_number, description, unit, quantity, unit_price) VALUES 
+                            (:job_order_number, :description, :unit, :quantity, :unit_price)";
+                    $stm = $this->connect()->prepare($query);
+                    $stm->bindValue(':job_order_number', $this->job_order_number);
+                    $stm->bindValue(':description', $jo_item[0]);
+                    $stm->bindValue(':unit', $jo_item[1]);
+                    $stm->bindValue(':quantity', $jo_item[2]);
+                    $stm->bindValue(':unit_price', $jo_item[3]);
+                    $stm->execute();
+                    $stm->closeCursor();
+                } catch(PDOException $e) {
+                    echo $e;
+                }   
+            }
+            else if ($this->checkJobOrderItem($jo_item[0], $jo_item[1], $jo_item[2], $jo_item[3]) == -1) {
+                echo "Error Occured";
+            }
+        }
+    }
+
+    function checkJobOrderItem($description, $unit, $quantity, $unit_price) {
+        try {
+            $query = "SELECT EXISTS (SELECT job_order_number FROM job_order_items WHERE 
+                    job_order_number = :job_order_number AND description = :description 
+                    AND unit = :unit AND quantity = :quantity AND unit_price = :unit_price) AS verdict";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":job_order_number", $this->job_order_number);
+            $stm->bindValue(":description", $description);
+            $stm->bindValue(":unit", $unit);
+            $stm->bindValue(":quantity", $quantity);
+            $stm->bindValue(":unit_price", $unit_price);
+            $stm->execute();
+            $verdict = $stm->fetch();
+            $stm->closeCursor();
+
+            return $verdict['verdict'];
+
+        } catch (PDOException $e) {
+            echo $e;
+            return -1;
+        } 
+    }
+
+    function deleteJobOrderItem($arr_jo_items) {
+        $existing_jo = $this->fetchJobOrders();
+        foreach ($arr_jo_items as $jo_item) {
+            foreach($existing_jo as $key => $val) {
+
+                if ($jo_item[0] == $val['description'] && $jo_item[1] == $val['unit'] && $jo_item[2] == $val['quantity'] && $jo_item[3] == $val['unit_price']) {
+                    unset($existing_jo[$key]);
+                    break;
+                }
+            }
+        }
+        foreach($existing_jo as $jo) {
+            $this->deleteFromJobOrderTable($jo['description'], $jo['unit'], $jo['quantity'], $jo['unit_price']);
+        }
+        // $query = "SELECT * FROM job_order_items WHERE job_order_number = :job_order_number";
+        // $stm = $this->connect()->prepare($query);
+        // $stm->bindValue(':job_order_number', $this->job_order_number);
+        // $stm->execute();
+        // $existing_job_order = $stm->fetchAll(PDO::FETCH_ASSOC);
+        // $stm->closeCursor();
+
+        // print_r($existing_job_order);
+    }
+
+    private function fetchJobOrders() {
+        try {
+            $query = "SELECT description, unit, quantity, unit_price FROM job_order_items WHERE job_order_number = :job_order_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->execute();
+            $all_job_order = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            return $all_job_order;
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
+    private function deleteFromJobOrderTable($description, $unit, $quantity, $unit_price) {
+        $query = "DELETE FROM job_order_items WHERE job_order_number = :job_order_number AND description = :description AND unit = :unit AND quantity = :quantity and unit_price = :unit_price";
+        $stm = $this->connect()->prepare($query);
+        $stm->bindValue(':job_order_number', $this->job_order_number);
+        $stm->bindValue(':description', $description);
+        $stm->bindValue(':unit', $unit);
+        $stm->bindValue(':quantity', $quantity);
+        $stm->bindValue(':unit_price', $unit_price);
+
+        $stm->execute();
+        $stm->closeCursor();
+    }
+    
 }

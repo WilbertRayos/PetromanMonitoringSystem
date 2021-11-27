@@ -6,12 +6,28 @@ if (!isset($_SESSION['loggedIn']) ) {
 
 require_once('db_ops.php');
 
+$job_order_number = $_GET['jo_num'];
 $db_obj_1 = new Fetch_Specific_Job_Order($_GET['jo_num']);
 $jo_information = $db_obj_1->fetchJobOrderInformation();
 $all_jo_items = $db_obj_1->fetchJobOrderItems();
-$jo_count = $db_obj_1->checkExistingChecklist();
 
-if ($jo_count > 1) {
+if (isset($_POST['jo_update'])){
+    $arr = json_decode($_POST['jo_item_array']);
+
+    $db_obj_updateJobOrder = new Update_Job_Order($job_order_number);
+    $db_obj_updateJobOrder->deleteJobOrderItem($arr);
+    $db_obj_updateJobOrder->updateJobOrderItems($arr);
+    $db_obj_updateJobOrder->updateJobOrderInformation($_POST['jo_number'], $_POST['jo_clientName'], $_POST['jo_representative'],
+    $_POST['jo_address'],$_POST['jo_date'],$_POST['jo_tin'],$_POST['jo_location'],$_POST['jo_cod'],$_POST['jo_mobilization']);
+    header('Location: projects.php');
+}
+
+
+
+// Checklist
+$jo_count = $db_obj_1->checkExistingChecklist();
+// If checklist already exists
+if ($jo_count > 0) {
     $jo_checklist = $db_obj_1->fetchExistingChecklist();
  
     $or_control_number = $jo_checklist['or_cn'];
@@ -26,13 +42,11 @@ if ($jo_count > 1) {
     $dr_date = $jo_checklist['dr_date'];
     $checklist_2303 = $jo_checklist['checklist_2303_2307'];
     $checklist_soa = $jo_checklist['soa'];
-    $checklist_materials = $jo_checklist['total_materials_used'];
-
-    
+    $checklist_materials = $jo_checklist['total_materials_used']; 
 }
 
 
-if (isset($_POST['save_checklist']) && !($jo_count > 1)) {
+if (isset($_POST['save_checklist']) && !($jo_count > 0)) {
     if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
         echo "Fill-up OR information";
     } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
@@ -61,8 +75,76 @@ if (isset($_POST['save_checklist']) && !($jo_count > 1)) {
         $new_checklist = $db_obj_2->addNewChecklist();
     }
 } else if (isset($_POST['save_checklist']) && ($jo_count > 1)) {
-    
+    if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
+        echo "Fill-up OR information";
+    } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
+        echo "Fill-up AR information";
+    } else if (!isset($_POST['ws_control_number']) || empty($_POST['ws_control_number']) || !isset($_POST['ws_date']) || empty($_POST['ws_date'])) {
+        echo "Fill-up WS information";
+    } else if (!isset($_POST['cr_control_number']) || empty($_POST['cr_control_number']) || !isset($_POST['cr_date']) || empty($_POST['cr_date'])) {
+        echo "Fill-up CR information";
+    } else if (!isset($_POST['dr_control_number']) || empty($_POST['dr_control_number']) || !isset($_POST['dr_date']) || empty($_POST['dr_date'])) {
+        echo "Fill-up DR information";
+    } else if (!isset($_POST['2307']) || empty($_POST['2307'])) {
+        echo "Fill-up 2303/2307 information";
+    } else if (!isset($_POST['soa']) || empty($_POST['soa'])) {
+        echo "Fill-up SOA information";
+    } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
+        echo "Fill-up total_material_used information";
+    } else {
+        $db_obj_3 = new Update_Checklist(
+            $_GET['jo_num'], $_POST['or_control_number'], $_POST['or_date'],
+            $_POST['ar_control_number'], $_POST['ar_date'], $_POST['ws_control_number'], $_POST['ws_date'],
+            $_POST['cr_control_number'], $_POST['cr_date'], $_POST['dr_control_number'], $_POST['dr_date'],
+            $_POST['2307'], $_POST['soa'], $_POST['total_material_used']
+        );
+        $db_obj_3->updateChecklist();
+    }
 }
+
+$db_obj_4 = new Job_Order_Phases($_GET['jo_num']);
+$jo_phases = $db_obj_4->fetchAllJOPhases();
+if (isset($_POST['submit_phase'])) {
+    // Image
+    $file = $_FILES['project_phase_picture'];
+    $fileName = $file['name'];
+    $fileTempName = $file['tmp_name'];
+    $fileSize = $file['size'];
+    $fileError = $file['error'];
+    $fileType = $file['type'];
+    //Phase Number
+    $phase = $_POST['project_phase'];
+
+    $fileExt = explode('.', $fileName);
+    $fileActualExt = strtolower(end($fileExt));
+    $allowed = array('jpg','jpeg','png');
+
+    // If image file extension is correct
+    if(in_array($fileActualExt, $allowed)) {
+        // If no error encountered in the image
+        if($fileError === 0) {
+            if($fileSize < 5000000) {
+                try {
+                    $fileNewName = uniqid('',true).".".$fileActualExt;
+                    $fileDestination = 'phases_pictures/'.$fileNewName;
+                    move_uploaded_file($fileTempName, $fileDestination);
+                    $db_obj_4->addNewPhase($phase, $fileNewName);
+                    header("Refresh:0");
+                }catch (PDOException $e) {
+                    echo $e;
+                }
+                
+            }
+        }
+    }
+
+   
+}
+
+if (isset($_POST['btn_delete'])) {
+    echo "wewewewe";
+}
+
 
 ?>
 
@@ -145,12 +227,17 @@ if (isset($_POST['save_checklist']) && !($jo_count > 1)) {
             <input type="hidden" id="jo_item_array" name="jo_item_array">
             <div class="form-row">
                 <div class="form-group col-md-3">
-                    <button type="submit" class="form-control btn btn-primary" id="jo_save" name="jo_save">Save</button>
+                    <button type="submit" class="form-control btn btn-primary" id="jo_update" name="jo_update" form="jo_information">Update</button>
                 </div>
                 <div class="form-group col-md-3">
-                <button type="button" class="font-control btn btn-info" data-toggle="modal" data-target="#checklistModal">
-                    Checklist
-                </button>
+                    <button type="button" class="font-control btn btn-info" data-toggle="modal" data-target="#checklistModal">
+                        Checklist
+                    </button>
+                </div>
+                <div class="form-group col-md-3">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#phasesModal">
+                        Phases
+                    </button>
                 </div>
                 <div class="form-group col-md-3">
                     <a href="projects.php" type="button" class="form-control btn btn-danger" id="jo_cancel" name="jo_cancel">Cancel</a>
@@ -195,7 +282,9 @@ if (isset($_POST['save_checklist']) && !($jo_count > 1)) {
                 </thead>
                 <tbody>
                     <?php 
+                    print_r($all_jo_items);
                         foreach ($all_jo_items as $job_order_item) {
+                             
                     ?>
                         <tr>
                             <td><?php echo $job_order_item['description'] ?></td>
@@ -203,6 +292,7 @@ if (isset($_POST['save_checklist']) && !($jo_count > 1)) {
                             <td><?php echo $job_order_item['quantity'] ?></td>
                             <td><?php echo $job_order_item['unit_price'] ?></td>
                             <td><?php echo $job_order_item['quantity']*$job_order_item['unit_price'] ?></td>
+                            <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Deletee</button><td>
                         </tr>
 
                     <?php 
@@ -314,6 +404,62 @@ if (isset($_POST['save_checklist']) && !($jo_count > 1)) {
             </div>
         </div>
         </div>
+
+        
+
+        <!-- Phases Modal -->
+        <div class="modal fade" id="phasesModal" tabindex="-1" role="dialog" aria-labelledby="phasesModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="phasesModalLabel">Phases</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="<?php echo $path_parts['basename'];?>" method="POST" id="project_phases" enctype="multipart/form-data">
+                            <div class="form-row">
+                                <div class="form-group col-md-5">
+                                    <label for="project_phase">Phase Number</label>
+                                    <select class="form-control" id="project_phase" name="project_phase">
+                                        <option>1</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-2 col-sm-6">
+                                    <label for="project_phase_picture">Upload Picture</label>
+                                    <input type="file" class="form-control-file" id="project_phase_picture" name="project_phase_picture">
+                                </div>
+                            </div>  
+                        </form>    
+                        <hr /> 
+                        <h4>Phases</h4>
+                        <?php
+                                foreach($jo_phases as $jo_phase) {
+                                    
+                        ?>
+                            <div>
+                                Phase # <?php echo $jo_phase['stage']; ?>
+                            </div>
+                            <div>
+                                <img src="phases_pictures/<?php echo $jo_phase['image']; ?>" class="img-thumbnail"/>
+                            </div>
+                        <?php
+                            }
+                                    
+                        ?>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" name="submit_phase" form="project_phases">Save</button>
+                    </div>
+                </div>
+            </div>
+         </div>
+</div>
         
         
     </div>
@@ -327,8 +473,18 @@ if (isset($_POST['save_checklist']) && !($jo_count > 1)) {
     <script>
         let arr_jo_items = [];
         $(document).ready(function() {
-            let ctr1 = 0;
-            
+            var tbl = document.getElementById('jo_item_table');
+            var tbl_rows = tbl.rows.length;
+            for(var row=1; row < tbl_rows; row++){
+                description = tbl.rows[row].cells[0].innerHTML;
+                unit = tbl.rows[row].cells[1].innerHTML;
+                quantity = tbl.rows[row].cells[2].innerHTML;
+                unitPrice = tbl.rows[row].cells[3].innerHTML;
+                item_amount = tbl.rows[row].cells[4].innerHTML;
+
+                arr_jo_items.push([description, unit, quantity, unitPrice]);
+                $('#jo_item_array').val(JSON.stringify(arr_jo_items));
+            }
             $("#jo_add").on('click', function() {
                 description = $('#jo_description').val();
                 unit = $('#jo_unit').val();
@@ -336,8 +492,8 @@ if (isset($_POST['save_checklist']) && !($jo_count > 1)) {
                 unitPrice = $('#jo_unitPrice').val();
                 item_amount = parseFloat($('#jo_quantity').val()*$('#jo_unitPrice').val());
                 
-                arr_jo_items.push([description, unit, quantity, unitPrice, item_amount]);
-
+                arr_jo_items.push([description, unit, quantity, unitPrice]);
+                $('#jo_item_array').val(JSON.stringify(arr_jo_items));
                 for (x of arr_jo_items) {
                     alert(x);
                 }
@@ -365,9 +521,8 @@ if (isset($_POST['save_checklist']) && !($jo_count > 1)) {
         function deleteRow(cell){
             var row = $(cell).parents('tr');
             var rIndex = row[0].rowIndex;
-
             arr_jo_items.splice(rIndex-1, 1);
-
+            $('#jo_item_array').val(JSON.stringify(arr_jo_items));
             document.getElementById('jo_item_table').deleteRow(rIndex);
         }
 
