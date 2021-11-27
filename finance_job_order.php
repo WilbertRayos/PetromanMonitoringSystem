@@ -3,6 +3,11 @@ session_start();
 if (!isset($_SESSION['loggedIn']) ) {
     header('Location: index.php');
 }
+
+require_once('db_ops.php');
+
+
+
 ?>
 
 <!doctype html>
@@ -37,26 +42,34 @@ if (!isset($_SESSION['loggedIn']) ) {
             </div>
         </div>
 
-        <table class="table table-sm table-striped">
-            <thead class="thead-dark">
-                <tr>
-                <th scope="col">JO Order #</th>
-                <th scope="col">Remaining Balance</th>
-                <th scope="col">Aging</th>
-                <th scope="col">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                <td><a href="#" onclick="clickme(this)">bruhh</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-                </tr>
-
-
-            </tbody>
-            </table>
+        <table class="table table-sm">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Job Order #</th>
+            <th scope="col">Remaining Balance</th>
+            <th scope="col">Aging</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php 
+            $obj_1 = new Finance_Job_Order;
+            $all_jo = $obj_1->fetchAllJobOrderFinance();
+            foreach ($all_jo as $jo_arr) {
+          ?>
+            <tr>
+                <td>
+                <a href="#" id="job_order_number"><?php echo $jo_arr['job_order_number']; ?></button>
+                </td>
+                <td><?php echo $jo_arr['remaining_balance']; ?></td>
+                <td><?php echo $jo_arr['aging']; ?></td>
+                <td><?php echo $jo_arr['status']; ?></td>
+            </tr>
+          <?php
+            }
+          ?>
+        </tbody>
+      </table>
     </div>
 
     <!-- Optional JavaScript -->
