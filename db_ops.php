@@ -513,11 +513,9 @@ class Fetch_All_Job_Orders extends Dbh {
         $stm->closeCursor();
         foreach ($all_jo as $jo_number) {
             $flt_total_jo_amount = (float) $this->fetchTotalJobOrderAmount($jo_number['job_order_number']) + (float) $jo_number['mobilization'];
-            $highest_phase = $this->countPhases($jo_number['job_order_number']);
-            if ($highest_phase === 4) {
+            $highest_phase = $this->countPhases($jo_number['job_order_number']) + 1;
+            if ($highest_phase === 5) {
                 $current_phase = "Done";
-            } else if ($highest_phase === 0) {
-                $current_phase = "Phase 1";
             } else {
                 $current_phase = "Phase ".$highest_phase;
             }
@@ -539,7 +537,7 @@ class Fetch_All_Job_Orders extends Dbh {
         return (float) $total[0];
     }
 
-    function countPhases($job_num) {
+    private function countPhases($job_num) {
         $query = "SELECT MAX(stage) FROM project_phases WHERE job_order_number = :job_order_number";
         $stm = $this->connect()->prepare($query);
         $stm->bindValue(':job_order_number', $job_num);
@@ -1071,7 +1069,7 @@ class Update_Job_Order extends Dbh {
 
 class Finance_Job_Order extends Dbh {
     function fetchAllJobOrderFinance() {
-        $query = "SELECT j.job_order_number, COALESCE(SUM(i.quantity*i.unit_price), 0)+j.mobilization AS remaining_balance, (CURDATE() - j.date) AS aging, (SUM((i.quantity*i.unit_price)+j.mobilization)-SUM(p.amount)) AS status
+        $query = "SELECT j.job_order_number, COALESCE(SUM(i.quantity*i.unit_price), 0)+j.mobilization AS remaining_balance, (CURDATE() - j.date) AS aging, COALESCE(SUM(i.quantity*i.unit_price)+j.mobilization, 0)-COALESCE(SUM(p.amount),0) AS status
                     FROM job_order j
                     LEFT JOIN job_order_items i ON j.job_order_number = i.job_order_number
                     LEFT JOIN payments p ON j.job_order_number = p.job_order_number
@@ -1080,7 +1078,45 @@ class Finance_Job_Order extends Dbh {
         $stm->execute();
         $finance_job_order = $stm->fetchAll(PDO::FETCH_ASSOC);
         $stm->closeCursor();
-        print_r($finance_job_order);
+
         return $finance_job_order;
+    }
+
+    function fetchSpecificJobOrderFinance($job_order_number) {
+        echo $job_order_number;
+        try {
+            $query = "SELECT j.date AS date_created, COALESCE(SUM(i.quantity*i.unit_price), 0)+j.mobilization AS total_amount, j.terms_of_payment, COALESCE(SUM(i.quantity*i.unit_price)+j.mobilization, 0)-COALESCE(SUM(p.amount),0) AS remaining_balance
+                        FROM job_order j
+                        LEFT JOIN job_order_items i ON j.job_order_number = i.job_order_number
+                        LEFT JOIN payments p ON j.job_order_number = p.job_order_number
+                        WHERE j.job_order_number = :job_order_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $job_order_number);
+            $stm->execute();
+            $jo_finance_info = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+
+            return $jo_finance_info[0];
+        } catch(PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function insertPayment($job_order_number, $amount, $bank, $reference_number, $deposit_date) {
+        try {
+            $query = "INSERT INTO payments (job_order_number, collectibles_type, amount, bank, reference_number, deposit_date) 
+                        VALUES (:job_order_number, :collectibles_type, :amount, :bank, :reference_number, :deposit_date)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $job_order_number);
+            $stm->bindValue(':collectibles_type', "JO");
+            $stm->bindValue(':amount', $amount);
+            $stm->bindValue(':bank', $bank);
+            $stm->bindValue(':reference_number', $reference_number);
+            $stm->bindValue(':deposit_date', $deposit_date);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch(PDOException $e) {
+            echo $e;
+        }
     }
 }

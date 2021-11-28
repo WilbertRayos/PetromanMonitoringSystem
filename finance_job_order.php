@@ -61,9 +61,17 @@ require_once('db_ops.php');
                 <td>
                 <a href="#" id="job_order_number"><?php echo $jo_arr['job_order_number']; ?></button>
                 </td>
-                <td><?php echo $jo_arr['remaining_balance']; ?></td>
+                <td><?php echo $jo_arr['remaining_balance']." Php"; ?></td>
                 <td><?php echo $jo_arr['aging']; ?></td>
-                <td><?php echo $jo_arr['status']; ?></td>
+                <td>
+                  <?php 
+                    if ($jo_arr['status'] == 0) {
+                      echo "Fully Paid";
+                    } else {
+                      echo "Unpaid";
+                    }
+                  ?>
+                </td>
             </tr>
           <?php
             }
@@ -79,9 +87,9 @@ require_once('db_ops.php');
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
   </body>
   <script>
-      function clickme(obj){
-        var joNum = $(obj).text();
-        alert(joNum);
-      }
+      $('a#job_order_number').on('click', function() {
+        var jo_num = $(this).text();
+        window.location.href = "/petroman/finance_job_order_view.php?jo_num="+jo_num;
+      })
   </script>
 </html>
