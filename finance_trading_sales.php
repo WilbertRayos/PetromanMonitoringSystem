@@ -25,12 +25,12 @@ require_once('db_ops.php');
     integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" 
     crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>Finance Trading Sales</title>
   </head>
   <body>
     <?php require 'navbar.php'; ?>
     <div class="container">
-        <h3 class="display-4">Job Orders</h3>
+        <h3 class="display-4">Trading Sales</h3>
         <div class="row md-mt-3 justify-content-end">
             <div class="col-4">
                 <div class="input-group mb-3">
@@ -45,7 +45,7 @@ require_once('db_ops.php');
         <table class="table table-sm">
         <thead class="thead-dark">
           <tr>
-            <th scope="col">Job Order #</th>
+            <th scope="col">Order Form #</th>
             <th scope="col">Remaining Balance</th>
             <th scope="col">Aging</th>
             <th scope="col">Status</th>

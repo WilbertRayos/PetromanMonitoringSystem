@@ -1069,7 +1069,7 @@ class Update_Job_Order extends Dbh {
 
 class Finance_Job_Order extends Dbh {
     function fetchAllJobOrderFinance() {
-        $query = "SELECT j.job_order_number, COALESCE(SUM(i.quantity*i.unit_price), 0)+j.mobilization AS remaining_balance, (CURDATE() - j.date) AS aging, COALESCE(SUM(i.quantity*i.unit_price)+j.mobilization, 0)-COALESCE(SUM(p.amount),0) AS status
+        $query = "SELECT j.job_order_number, COALESCE(SUM(i.quantity*i.unit_price), 0)+j.mobilization AS remaining_balance, (CURDATE() - j.date) AS aging, COALESCE(SUM(i.quantity*i.unit_price)+j.mobilization, 0)-COALESCE(SUM(p.amount),0) AS status, CURDATE()-MAX(p.deposit_date) as last_payment
                     FROM job_order j
                     LEFT JOIN job_order_items i ON j.job_order_number = i.job_order_number
                     LEFT JOIN payments p ON j.job_order_number = p.job_order_number
@@ -1119,4 +1119,8 @@ class Finance_Job_Order extends Dbh {
             echo $e;
         }
     }
+}
+
+class Create_New_Trading_Sales extends Dbh {
+    
 }

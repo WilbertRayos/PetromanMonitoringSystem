@@ -57,6 +57,14 @@
         ?>">
         <a class="nav-link" href="projects.php">Projects<span class="sr-only"></span></a>
       </li>
+      <li class="nav-item 
+        <?php 
+            if($path_parts['filename'] == 'trading_sales'){
+                echo "active";
+            }
+        ?>">
+        <a class="nav-link" href="trading_sales.php">Trading Sales<span class="sr-only"></span></a>
+      </li>
       <li class="nav-item">
         <?php
             if($_SESSION['employee_role'] == 'Admin'){
