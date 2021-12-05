@@ -5,25 +5,23 @@ if (!isset($_SESSION['loggedIn']) ) {
     header('Location: index.php');
 }
 
-if (isset($_POST['jo_save'])) {
-
-    $db_obj1 = new Add_New_Job_Order;
-    $db_obj1->setJobOrderNumber($_POST['jo_number']);
-    $db_obj1->setClientName($_POST['jo_clientName']);
-    $db_obj1->setDate($_POST['jo_date']);
-    $db_obj1->setRepresentative($_POST['jo_representative']);
-    $db_obj1->setTinNumber($_POST['jo_tin']);
-    $db_obj1->setAddress($_POST['jo_address']);
-    $db_obj1->setProjectLocation($_POST['jo_location']);
-    $db_obj1->setTermsOfPayment($_POST['jo_cod']);
-    $db_obj1->setMobilization($_POST['jo_mobilization']);
+if (isset($_POST['ts_save'])) {
+    echo "wews";
+    $db_obj1 = new Create_New_Trading_Sales;
+    $db_obj1->setTradingSalesNumber($_POST['ts_number']);
+    $db_obj1->setClientName($_POST['ts_clientName']);
+    $db_obj1->setDate($_POST['ts_date']);
+    $db_obj1->setRepresentative($_POST['ts_representative']);
+    $db_obj1->setTinNumber($_POST['ts_tin']);
+    $db_obj1->setAddress($_POST['ts_address']);
+    $db_obj1->setTermsOfPayment($_POST['ts_cod']);
     $db_obj1->setEmployeeID($_SESSION['employee_id']);
-    $arr = json_decode($_POST['jo_item_array']);
+    $arr = json_decode($_POST['ts_item_array']);
     try{
-        $db_obj1->addNewJobOrder();
+        $db_obj1->addTradingSales();
         foreach($arr as $items[]) {
             foreach($items as $item) {
-                $db_obj1->addJobOrderItems($item[0],$item[1],$item[2],$item[3]);
+                $db_obj1->addTradingSalesItems($item[0],$item[1],$item[2],$item[3]);
             }
         }
     } catch(Exception $e) {
@@ -93,7 +91,7 @@ if (isset($_POST['jo_save'])) {
             
             <div class="form-row">
                 <div class="form-group col-sm-12 col-md-6">
-                    <label for=ts_creator">Created By:</label>
+                    <label for="ts_creator">Created By:</label>
                     <input class="form-control" id="ts_creator" name="ts_creator" value="<?php echo $_SESSION['employee_fName']." ".$_SESSION['employee_mName']." ".$_SESSION['employee_lName']?>" readonly />
                 </div>
                 

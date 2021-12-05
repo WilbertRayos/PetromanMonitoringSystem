@@ -5,7 +5,6 @@ if (!isset($_SESSION['loggedIn']) ) {
 }
 
 require_once('db_ops.php');
-    
 
 ?>
 
@@ -49,22 +48,22 @@ require_once('db_ops.php');
             <th scope="col">Company Name</th>
             <th scope="col">Trade Value</th>
             <th scope="col">Agent</th>
-            <th scope="col">Status</th>
           </tr>
         </thead>
         <tbody>
           <?php 
-            $obj_1 = new Fetch_All_Job_Orders;
-            $all_jo = $obj_1->fetchAllJobOrders();
-            foreach ($all_jo as $jo_arr) {
+            $obj_1 = new Fetch_All_Trading_Sales;
+            $all_ts = $obj_1->fetchAllTradingSales();
+
+            foreach ($all_ts as $ts_arr) {
           ?>
           <tr>
             <td>
-              <a href="#" id="job_order_number"><?php echo $jo_arr[0]; ?></button>
+              <a href="#" id="trading_sales_number"><?php echo $ts_arr[0]; ?></button>
             </td>
-            <td><?php echo $jo_arr[1]; ?></td>
-            <td><?php echo $jo_arr[2]; ?></td>
-            <td><?php echo $jo_arr[3]; ?></td>
+            <td><?php echo $ts_arr[1]; ?></td>
+            <td><?php echo $ts_arr[2]; ?></td>
+            <td><?php echo $ts_arr[3]; ?></td>
           </tr>
           <?php
             }
@@ -86,9 +85,9 @@ require_once('db_ops.php');
   crossorigin="anonymous"></script>
   
     <script>
-      $('a#job_order_number').on('click', function() {
-        var jo_num = $(this).text();
-        window.location.href = "/petroman/job_order_view.php?jo_num="+jo_num;
+      $('a#trading_sales_number').on('click', function() {
+        var ts_num = $(this).text();
+        window.location.href = "/petroman/trading_sales_view.php?ts_num="+ts_num;
       })
     </script>
   </body>
