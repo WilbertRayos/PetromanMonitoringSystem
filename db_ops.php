@@ -1277,7 +1277,6 @@ class Fetch_Specific_Trading_Sales extends Dbh {
         $stm->execute();
         $ts_information = $stm->fetch(PDO::FETCH_ASSOC);
         $stm->closeCursor();
-
         return $ts_information;
     }
 
@@ -1732,5 +1731,60 @@ class Update_Trading_Sales_Checklist extends Dbh {
             echo "wews".$e;
         }
         
+    }
+}
+
+class Finance_Trading_Sales extends Dbh {
+    function fetchAllTradingSalesFinance() {
+        $query = "SELECT t.trading_sales_number,sum(i.quantity*i.unit_price)-COALESCE(amount,0) AS remaining_balance, (CURDATE() - t.trading_sales_date) AS aging, 
+                    FROM trading_sales t
+                    LEFT JOIN trading_sales_items i ON i.trading_sales_number = t.trading_sales_number
+                    LEFT JOIN (SELECT p.trading_sales_number, SUM(p.amount) AS amount FROM trading_sales_payment p 
+                    GROUP BY p.trading_sales_number) p ON p.trading_sales_number = t.trading_sales_number
+                    GROUP BY trading_sales_number";
+        $stm = $this->connect()->prepare($query);
+        $stm->execute();
+        $finance_trading_sales = $stm->fetchAll(PDO::FETCH_ASSOC);
+        $stm->closeCursor();
+
+        return $finance_trading_sales;
+    }
+
+    function fetchSpecificTradingSalesFinance($trading_sales_number) {
+        echo $trading_sales_number;
+        try {
+            $query = "SELECT t.trading_sales_date AS date_created, COALESCE(SUM(i.quantity*i.unit_price), 0) AS total_amount, t.terms_of_payment, COALESCE(SUM(i.quantity*i.unit_price), 0)-COALESCE(amount,0) AS remaining_balance
+                        FROM trading_sales t
+                        LEFT JOIN trading_sales_items i ON t.trading_sales_number = i.trading_sales_number
+                        LEFT JOIN (SELECT trading_sales_number, SUM(amount) AS amount FROM trading_sales_payment GROUP BY trading_sales_number)  p ON p.trading_sales_number = t.trading_sales_number
+                        WHERE t.trading_sales_number = :trading_sales_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':trading_sales_number', $trading_sales_number);
+            $stm->execute();
+            $ts_finance_info = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            return $ts_finance_info[0];
+        } catch(PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function insertPayment($trading_sales_number, $amount, $bank, $reference_number, $deposit_date) {
+        try {
+            echo "ewewew";
+            $query = "INSERT INTO trading_sales_payment (trading_sales_number, amount, bank, reference_number, deposit_date) 
+                        VALUES (:trading_sales_number, :amount, :bank, :reference_number, :deposit_date)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':trading_sales_number', $trading_sales_number);
+            $stm->bindValue(':amount', $amount);
+            $stm->bindValue(':bank', $bank);
+            $stm->bindValue(':reference_number', $reference_number);
+            $stm->bindValue(':deposit_date', $deposit_date);
+            $stm->execute();
+            $stm->closeCursor();
+            
+        } catch(PDOException $e) {
+            echo $e;
+        }
     }
 }

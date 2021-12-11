@@ -78,7 +78,7 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <a class="dropdown-item" href="finance_job_order.php">Job Order</a>
-          <a class="dropdown-item" href="#">Trading Sales</a>
+          <a class="dropdown-item" href="finance_trading_sales.php">Trading Sales</a>
 
         </div>
       </li>

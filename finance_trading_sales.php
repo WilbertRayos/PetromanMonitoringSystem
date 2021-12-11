@@ -53,26 +53,26 @@ require_once('db_ops.php');
         </thead>
         <tbody>
           <?php 
-            $obj_1 = new Finance_Job_Order;
-            $all_jo = $obj_1->fetchAllJobOrderFinance();
-            print_r($all_jo);
-            foreach ($all_jo as $jo_arr) {
+            $obj_1 = new Finance_Trading_Sales;
+            $all_ts = $obj_1->fetchAllTradingSalesFinance();
+            print_r($all_ts);
+            foreach ($all_ts as $ts_arr) {
           ?>
             <tr>
                 <td>
-                <a href="#" id="job_order_number"><?php echo $jo_arr['job_order_number']; ?></button>
+                <a href="#" id="trading_sales_number"><?php echo $ts_arr['trading_sales_number']; ?></button>
                 </td>
                 <?php 
-                  if ($jo_arr['status'] == 0) {
+                  if ($ts_arr['remaining_balance'] == 0) {
                 ?>
                 <td><?php echo "0 Php"; ?></td>               
-                <td><?php echo $jo_arr['last_payment']; ?></td>
+                <td><?php echo $ts_arr['aging']; ?></td>
                 <td><?php echo "Fully Paid" ?></td>
                 <?php
                   }else {
                 ?>
-                  <td><?php echo $jo_arr['remaining_balance']." Php"; ?></td>               
-                  <td><?php echo $jo_arr['aging']; ?></td>
+                  <td><?php echo round($ts_arr['remaining_balance'],2)." Php"; ?></td>               
+                  <td><?php echo $ts_arr['aging']; ?></td>
                   <td><?php echo "Unpaid" ?></td>
                 <?php
                   }
@@ -92,9 +92,9 @@ require_once('db_ops.php');
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
   </body>
   <script>
-      $('a#job_order_number').on('click', function() {
-        var jo_num = $(this).text();
-        window.location.href = "/petroman/finance_job_order_view.php?jo_num="+jo_num;
+      $('a#trading_sales_number').on('click', function() {
+        var ts_num = $(this).text();
+        window.location.href = "/petroman/finance_trading_sales_view.php?ts_num="+ts_num;
       })
   </script>
 </html>

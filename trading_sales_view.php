@@ -164,8 +164,22 @@ if (isset($_POST['btn_delete'])) {
                 </div>
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="ts_cod">COD(Days)</label>
-                    <select class="form-control" id="ts_cod" name="ts_cod" value="<?php echo $ts_information['terms_of_payment']; ?>">
-                    <option>30</option>
+                    <select class="form-control" id="ts_cod" name="ts_cod">
+                        <?php 
+                            echo "asdasdasd";
+                            if($ts_information['terms_of_payment'] == 30){
+                                echo '<option selected="selected">30</option>';
+                            } else if ($ts_information['terms_of_payment'] == 60) {
+                                echo '<option selected="selected">60</option>';
+                            } else if ($ts_information['terms_of_payment'] == 90) {
+                                echo '<option selected="selected">90</option>';
+                            } else if ($ts_information['terms_of_payment'] == 150) {
+                                echo '<option selected="selected">150</option>';
+                            } else if ($ts_information['terms_of_payment'] == 180) {
+                                echo '<option selected="selected">180</option>';
+                            }
+                        ?>
+                    <option>60</option>
                     <option>60</option>
                     <option>90</option>
                     <option>150</option>
