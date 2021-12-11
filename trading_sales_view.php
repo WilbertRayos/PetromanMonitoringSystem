@@ -84,7 +84,9 @@ if (isset($_POST['save_checklist'])) {
             );
             $db_obj_3->updateChecklist();
         }
+        header("Location: trading_sales.php");
     }
+    
 }  
     
 // } else if (isset($_POST['save_checklist']) && ($ts_count > 1)) {
@@ -192,11 +194,6 @@ if (isset($_POST['btn_delete'])) {
                 <div class="form-group col-md-3">
                     <button type="button" class="font-control btn btn-info" data-toggle="modal" data-target="#checklistModal">
                         Checklist
-                    </button>
-                </div>
-                <div class="form-group col-md-3">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#phasesModal">
-                        Phases
                     </button>
                 </div>
                 <div class="form-group col-md-3">

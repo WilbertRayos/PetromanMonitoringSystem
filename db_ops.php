@@ -1614,7 +1614,7 @@ class Update_Trading_Sales_Checklist extends Dbh {
     private $checklist_materials;
 
     function __construct($trading_sales_number, $or_cn, $or_date, $ar_cn, $ar_date, $ws_cn, $ws_date, $cr_cn, $cr_date, $dr_cn, $dr_date, $checklist_2303, $soa, $materials) {
-        $this->job_order_number = $trading_sales_number;
+        $this->trading_sales_number = $trading_sales_number;
         $this->or_control_number = $or_cn;
         $this->or_date = $or_date;
         $this->ar_control_number = $ar_cn;
@@ -1720,13 +1720,12 @@ class Update_Trading_Sales_Checklist extends Dbh {
 
     function updateChecklistTable() {
         try {
-            $query = "UPDATE job_order_checklist SET checklist_2303_2307 = :checklist_2303, soa = :soa, total_materials_used = :materials WHERE trading_sales_number = :trading_sales_number";
+            $query = "UPDATE trading_sales_checklist SET checklist_2303_2307 = :checklist_2303, soa = :soa, total_materials_used = :materials WHERE trading_sales_number = :trading_sales_number";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':checklist_2303', $this->checklist_2303);
             $stm->bindValue(':soa', $this->checklist_soa);
             $stm->bindValue(':materials', $this->checklist_materials);
             $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
-
             $stm->execute();
             $stm->closeCursor();
         }catch (PDOException $e) {
