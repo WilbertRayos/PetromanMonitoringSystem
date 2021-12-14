@@ -619,6 +619,24 @@ class Fetch_Specific_Job_Order extends Dbh {
 
 }
 
+class Delete_Specific_Job_Order extends Dbh {
+    private $job_order_number = "";
+
+    function __construct($job_order_number){
+        $this->job_order_number = $job_order_number;
+    }
+
+    function deleteJobOrder() {
+        try {
+            $query = "DELETE FROM job_order WHERE job_order_number = :job_order_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue();
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+}
+
 class Add_New_Checklist extends Dbh {
     private $job_order_number;
     private $or_control_number;
@@ -1736,7 +1754,7 @@ class Update_Trading_Sales_Checklist extends Dbh {
 
 class Finance_Trading_Sales extends Dbh {
     function fetchAllTradingSalesFinance() {
-        $query = "SELECT t.trading_sales_number,sum(i.quantity*i.unit_price)-COALESCE(amount,0) AS remaining_balance, (CURDATE() - t.trading_sales_date) AS aging, 
+        $query = "SELECT t.trading_sales_number,sum(i.quantity*i.unit_price)-COALESCE(amount,0) AS remaining_balance, (CURDATE() - t.trading_sales_date) AS aging
                     FROM trading_sales t
                     LEFT JOIN trading_sales_items i ON i.trading_sales_number = t.trading_sales_number
                     LEFT JOIN (SELECT p.trading_sales_number, SUM(p.amount) AS amount FROM trading_sales_payment p 

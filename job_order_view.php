@@ -141,7 +141,7 @@ if (isset($_POST['submit_phase'])) {
    
 }
 
-if (isset($_POST['btn_delete'])) {
+if (isset($_POST['jo_delete'])) {
     echo "wewewewe";
 }
 
@@ -229,19 +229,23 @@ if (isset($_POST['btn_delete'])) {
                 <div class="form-group col-md-3">
                     <button type="submit" class="form-control btn btn-primary" id="jo_update" name="jo_update" form="jo_information">Update</button>
                 </div>
-                <div class="form-group col-md-3">
-                    <button type="button" class="font-control btn btn-info" data-toggle="modal" data-target="#checklistModal">
+                <div class="form-group col-md-2">
+                    <button type="button" class="form-control btn btn-info" data-toggle="modal" data-target="#checklistModal">
                         Checklist
                     </button>
                 </div>
-                <div class="form-group col-md-3">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#phasesModal">
+                <div class="form-group col-md-2">
+                    <button type="button" class="form-control btn btn-primary" data-toggle="modal" data-target="#phasesModal">
                         Phases
                     </button>
                 </div>
                 <div class="form-group col-md-3">
                     <a href="projects.php" type="button" class="form-control btn btn-danger" id="jo_cancel" name="jo_cancel">Cancel</a>
                 </div>
+                <div class="form-group col-md-2">
+                    <button type="submit" class="form-control btn btn-outline-danger" id="jo_delete" name="jo_delete" form="jo_information">Delete</button>
+                </div> 
+                
             </div>
             
         </form>
@@ -292,7 +296,7 @@ if (isset($_POST['btn_delete'])) {
                             <td><?php echo $job_order_item['quantity'] ?></td>
                             <td><?php echo $job_order_item['unit_price'] ?></td>
                             <td><?php echo $job_order_item['quantity']*$job_order_item['unit_price'] ?></td>
-                            <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Deletee</button><td>
+                            <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Delete</button><td>
                         </tr>
 
                     <?php 
