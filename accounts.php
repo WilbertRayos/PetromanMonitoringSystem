@@ -14,10 +14,10 @@
       $db_obj2->setEmployee_mName($_POST['create_employee_mName']);
       $db_obj2->setEmployee_lName($_POST['create_employee_lName']);
       $db_obj2->setEmployee_email($_POST['create_employee_email']);
-      $db_obj2->setEmployee_password($_POST['create_employee_password']);
+      // $db_obj2->setEmployee_password($_POST['create_employee_password']);
       $db_obj2->setEmployee_role($_POST['role']);
       $db_obj2->addNewEmployee();
-      header('Location: accounts.php');
+      // header('Location: accounts.php');
     }
 
     if(isset($_POST['editAccount'])){
@@ -123,11 +123,12 @@
                         <label for="create_employee_email">Email</label>
                         <input type="email" class="form-control" id="create_employee_email" name="create_employee_email">
                     </div>
-                    <div class="form-group">
+                   <!-- <div class="form-group">
                         <label for="create_employee_password">Password</label>
                         <input class="form-control" type="password" id="create_employee_password" name="create_employee_password">
                         <input type="checkbox" onclick="myFunction('create_employee_password')"> Show Password
                     </div>
+  -->
                 </form>
               </div>
               <div class="modal-footer">
@@ -146,6 +147,7 @@
             <th scope="col">Middle Name</th>
             <th scope="col">Last Name</th>
             <th scope="col">Email</th>
+            <th scope="col">Status</th>
             <th scope="col"></th>
             </tr>
         </thead>
@@ -160,6 +162,7 @@
                         <td><?php echo $employee['employee_mName'] ?></td>
                         <td><?php echo $employee['employee_lName'] ?></td>
                         <td><?php echo $employee['employee_email'] ?></td>
+                        <td><?php echo $employee['employee_stats'] ?></td>
                         <td>
                           <button type="submit" class="btn btn-outline-success btn-sm btnAdmin_edit" data-toggle="modal" data-target="#employees_accounts">Edit</button>
                         </td>
@@ -183,6 +186,7 @@
             <th scope="col">Middle Name</th>
             <th scope="col">Last Name</th>
             <th scope="col">Email</th>
+            <th scope="col">Status</th>
             <th scope="col"></th>
             </tr>
         </thead>
@@ -197,6 +201,7 @@
                             <td><?php echo $employee['employee_mName'] ?></td>
                             <td><?php echo $employee['employee_lName'] ?></td>
                             <td><?php echo $employee['employee_email'] ?></td>
+                            <td><?php echo $employee['employee_stats'] ?></td>
                             <td>
                                 <button type="button" class="btn btn-outline-success btn-sm btnAgent_edit" data-toggle="modal" data-target="#employees_accounts" name="btnEdit">Edit</button>
                             </td>
@@ -263,7 +268,7 @@
             </div>
             <div class="modal-footer justify-content-start">
                 <button type="submit" class="btn btn-primary mr-auto" form="employeeInfo" name="editAccount">Save changes</button>
-                <button type="submit" class="btn btn-danger" form="employeeInfo" name="deleteAccount">Delete</button>
+                <button type="submit" class="btn btn-danger" form="employeeInfo" name="deleteAccount">Deactivate</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
             </div>

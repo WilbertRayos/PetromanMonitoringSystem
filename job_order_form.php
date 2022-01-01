@@ -6,12 +6,12 @@ if (!isset($_SESSION['loggedIn']) ) {
 }
 
 if (isset($_POST['jo_save'])) {
-
     $db_obj1 = new Add_New_Job_Order;
     $db_obj1->setJobOrderNumber($_POST['jo_number']);
     $db_obj1->setClientName($_POST['jo_clientName']);
     $db_obj1->setDate($_POST['jo_date']);
     $db_obj1->setRepresentative($_POST['jo_representative']);
+    $db_obj1->setContactNumber($_POST['jo_contact']);
     $db_obj1->setTinNumber($_POST['jo_tin']);
     $db_obj1->setAddress($_POST['jo_address']);
     $db_obj1->setProjectLocation($_POST['jo_location']);
@@ -67,9 +67,13 @@ if (isset($_POST['jo_save'])) {
                     <label for="jo_date">Date(mm/dd/yyyy) </label>
                     <input class="form-control" id="jo_date" name="jo_date" value="<?php echo date('m/d/Y');?>" readonly/>
                 </div>
-                <div class="form-group col-md-8">
+                <div class="form-group col-md-4">
                     <label for="jo_representative">Representative</label>
                     <input class="form-control" id="jo_representative" name="jo_representative" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="jo_contact">Contact Number</label>
+                    <input class="form-control" id="jo_contact" name="jo_contact" />
                 </div>
                 <div class="form-group col-md-4">
                     <label for="jo_tin">TIN#</label>
@@ -135,11 +139,12 @@ if (isset($_POST['jo_save'])) {
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="jo_quantity">Qty.</label>
-                    <input type="number" class="form-control" id="jo_quantity" name="jo_quantity"/>
+                    <input type="number" min="0" onkeyup="if(this.value<0)this.value=0"
+    onblur="if(this.value<0)this.value=0" class="form-control" id="jo_quantity" name="jo_quantity"/>
                 </div>
                 <div class="form-group col-md-2">
                     <label for="jo_unitPrice">Unit Price</label>
-                    <input type="number" class="form-control" id="jo_unitPrice" name="jo_unitPrice" />
+                    <input type="number" min="0" class="form-control" id="jo_unitPrice" name="jo_unitPrice" />
                 </div>
                 <div class="form-group col-md-1">
                     <label for="jo_add">&nbsp</label>
@@ -162,11 +167,6 @@ if (isset($_POST['jo_save'])) {
             </table>
             <hr />
         </form>
-            
-            
-        
-        
-        
     </div>
 
     <!-- Optional JavaScript -->
@@ -186,30 +186,44 @@ if (isset($_POST['jo_save'])) {
                 quantity = $('#jo_quantity').val();
                 unitPrice = $('#jo_unitPrice').val();
                 item_amount = parseFloat($('#jo_quantity').val()*$('#jo_unitPrice').val());
-                
-                arr_jo_items.push([description, unit, quantity, unitPrice, item_amount]);
+                if (!description) {
+                    alert("Item description must not be empty");
+                } else if (!unit) {
+                    alert("Item unit must not be empty");
+                } else if ((!quantity) || quantity <= 0) {
+                    alert("Quantity must be greater than 0");
+                } else if ((!unitPrice) || unitPrice <= 0) {
+                    alert("Unit price must be greater than 0");
+                } else {
+                    arr_jo_items.push([description, unit, quantity, unitPrice, item_amount]);
 
-                for (x of arr_jo_items) {
-                    alert(x);
+                    for (x of arr_jo_items) {
+                        alert(x);
+                    }
+
+
+                    new_row = "<tr> \
+                                <td>"+description+"</td> \
+                                <td>"+unit+"</td> \
+                                <td>"+quantity+"</td> \
+                                <td>"+unitPrice+"</td> \
+                                <td>"+item_amount+"</td> \
+                                <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Delete</button></td>";
+                                
+                    jo_items_tbl = $('table tbody');
+                    jo_items_tbl.append(new_row);
+                    $('#jo_totalPayment').val(computeTotal);
+                    $('#jo_description').val("");
+                    $('#jo_unit').val("");
+                    $('#jo_quantity').val("");
+                    $('#jo_unitPrice').val("");
+                    $('#jo_item_array').val(JSON.stringify(arr_jo_items));
                 }
-
-
-                new_row = "<tr> \
-                            <td>"+description+"</td> \
-                            <td>"+unit+"</td> \
-                            <td>"+quantity+"</td> \
-                            <td>"+unitPrice+"</td> \
-                            <td>"+item_amount+"</td> \
-                            <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Delete</button></td>";
-                            
-                jo_items_tbl = $('table tbody');
-                jo_items_tbl.append(new_row);
-                $('#jo_totalPayment').val(computeTotal);
-                $('#jo_description').val("");
-                $('#jo_unit').val("");
-                $('#jo_quantity').val("");
-                $('#jo_unitPrice').val("");
-                $('#jo_item_array').val(JSON.stringify(arr_jo_items));
+                // description = $('#jo_description').val();
+                // unit = $('#jo_unit').val();
+                // quantity = $('#jo_quantity').val();
+                // unitPrice = $('#jo_unitPrice').val();
+                // item_amount = parseFloat($('#jo_quantity').val()*$('#jo_unitPrice').val());
             });
         });
 

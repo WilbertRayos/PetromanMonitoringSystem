@@ -1,7 +1,11 @@
 <?php
     session_start();
-    require_once('db_ops.php');
+    if (isset($_SESSION['loggedIn']) ) {
+        header('Location: projects.php');
+    }
 
+    require_once('db_ops.php');
+    // echo "http://".$_SERVER["HTTP_HOST"].dirname($_SERVER["PHP_SELF"])."/resetPassword.php?code=123123";
     if(isset($_POST['login'])){
         if(!isset($_POST['employee_email']) || empty($_POST['employee_email'])){
             echo "Please enter email";
@@ -20,16 +24,22 @@
                     echo "incorrect password";
                 }else{
                     $db_obj->fetch_user_info();
-                    $_SESSION['loggedIn'] = true;
-                    $_SESSION['employee_id'] = $db_obj->getEmployeeID();
-                    $_SESSION['employee_fName'] = $db_obj->getEmployeeFName();
-                    $_SESSION['employee_mName'] = $db_obj->getEmployeeMName();
-                    $_SESSION['employee_lName'] = $db_obj->getEmployeeLName();
-                    $_SESSION['employee_email'] = $_POST['employee_email'];
-                    $_SESSION['employee_password'] = $_POST['employee_password'];
-                    $_SESSION['employee_role'] = $db_obj->getEmployeeRole();
+                    if ($db_obj->getEmployeeStats() == 'inactive'){
+                        echo "<script>alert('Your account is deactivated')</script>";
+                    }else{
+                        $_SESSION['loggedIn'] = true;
+                        $_SESSION['employee_id'] = $db_obj->getEmployeeID();
+                        $_SESSION['employee_fName'] = $db_obj->getEmployeeFName();
+                        $_SESSION['employee_mName'] = $db_obj->getEmployeeMName();
+                        $_SESSION['employee_lName'] = $db_obj->getEmployeeLName();
+                        $_SESSION['employee_email'] = $_POST['employee_email'];
+                        $_SESSION['employee_password'] = $_POST['employee_password'];
+                        $_SESSION['employee_stats'] = 
+                        $_SESSION['employee_role'] = $db_obj->getEmployeeRole();
+                        
+                        header('Location: projects.php');
+                    }
                     
-                    header('Location: projects.php');
                 }
 
             } 
@@ -37,26 +47,33 @@
     }else if(isset($_POST['changePassword'])) {
         if(!isset($_POST['cp_employee_email']) || empty($_POST['cp_employee_email'])) {
             echo "To change password, please enter your email";
-        }else if(!isset($_POST['cp_employee_password']) || empty($_POST['cp_employee_password'])){
-            echo "Please enter your new password";
-        }else if(!isset($_POST['re_cp_employee_password']) || empty($_POST['re_cp_employee_password'])){
-            echo "Please re-enter your password";
-        }else if(strcmp($_POST['cp_employee_password'],$_POST['re_cp_employee_password']) != 0){
-            echo "Your passwords are not similar";
-        }else{
-            $db_obj = new Change_Password;
-            $db_obj->setEmployeeEmail($_POST['cp_employee_email']);
-            $db_obj->setEmployeeNewPassword($_POST['cp_employee_password']);
-            if($db_obj->validateUserEmail() == 0){
-                echo "No such employee exists";
-            }else{
-                if(!$db_obj->changeUserPassword() == 1){
-                    echo "Employee email failed to change";
-                }else {
-                    echo "Employee email successfully changed";
-                }
-            }
+        } else {
+            require_once "PhpProcesses/password_reset_ops.php";
+            $resetReq = resetRequest($_POST['cp_employee_email']);
+            echo "<script>alert('Password reset link has been sent to your email')</script>";
         }
+        // if(!isset($_POST['cp_employee_email']) || empty($_POST['cp_employee_email'])) {
+        //     echo "To change password, please enter your email";
+        // }else if(!isset($_POST['cp_employee_password']) || empty($_POST['cp_employee_password'])){
+        //     echo "Please enter your new password";
+        // }else if(!isset($_POST['re_cp_employee_password']) || empty($_POST['re_cp_employee_password'])){
+        //     echo "Please re-enter your password";
+        // }else if(strcmp($_POST['cp_employee_password'],$_POST['re_cp_employee_password']) != 0){
+        //     echo "Your passwords are not similar";
+        // }else{
+        //     $db_obj = new Change_Password;
+        //     $db_obj->setEmployeeEmail($_POST['cp_employee_email']);
+        //     $db_obj->setEmployeeNewPassword($_POST['cp_employee_password']);
+        //     if($db_obj->validateUserEmail() == 0){
+        //         echo "No such employee exists";
+        //     }else{
+        //         if(!$db_obj->changeUserPassword() == 1){
+        //             echo "Employee email failed to change";
+        //         }else {
+        //             echo "Employee email successfully changed";
+        //         }
+        //     }
+        // }
     }   
 ?>
 
@@ -92,7 +109,7 @@
                     <label for="employeePassword">Password</label>
                     <input type="password" class="form-control" id="employeePassword" name="employee_password" placeholder="Password">
                 </div>
-                <button type="submit" class="btn btn-primary" name="login" value="login" fomr="loginForm">Login</button> 
+                <button type="submit" class="btn btn-primary" name="login" value="login" form="loginForm">Login</button> 
             </form>
             <a type="button" data-toggle="modal" data-target="#exampleModalCenter" class="float-right" href="#">Forgot Password</a>
         </div>
@@ -113,17 +130,17 @@
                 <div class="modal-body">
                     <form action="index.php" method="POST" id="changePasswordForm">
                         <div class="form-group">
-                            <label for="cp_employeeEmail">Email address</label>
+                            <label for="cp_employeeEmail">Email Address</label>
                             <input type="email" class="form-control" id="cp_employeeEmail" name="cp_employee_email" aria-describedby="emailHelp" placeholder="Enter email">
                         </div>
-                        <div class="form-group">
-                            <label for="cp_employeePassword">New Password</label>
+                        <!--<div class="form-group">
+                            <label for="cp_employeePassword">Email Address (Where to send the password reset link)</label>
                             <input type="password" class="form-control" id="cp_employeePassword" name="cp_employee_password" placeholder="New Password">
                         </div>
                         <div class="form-group">
                             <label for="re_cp_employeePassword">Re-enter New Password</label>
                             <input type="password" class="form-control" id="re_cp_employeePassword" name="re_cp_employee_password" placeholder="Re-enter New Password">
-                        </div>
+                        </div> -->
                     </form>
                 </div>
                 <div class="modal-footer">

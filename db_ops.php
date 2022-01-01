@@ -7,6 +7,7 @@ class User_Login extends Dbh{
     private $employee_fName;
     private $employee_mName;
     private $employee_lName;
+    private $employee_stats;
     private $employee_role;
 
     function __construct($email)
@@ -50,7 +51,7 @@ class User_Login extends Dbh{
 
     function fetch_user_info() {
         try{
-            $query_employee = "SELECT e.employee_fName, e.employee_mName, e.employee_lName, r.role_desc
+            $query_employee = "SELECT e.employee_fName, e.employee_mName, e.employee_lName, e.employee_stats, r.role_desc
                 FROM employees e INNER JOIN roles r ON r.role_id = e.role_id WHERE e.employee_id = :employee_id;";
             $employee_statement = $this->connect()->prepare($query_employee);
             $employee_statement->bindParam(':employee_id',$this->employee_id, PDO::PARAM_INT);
@@ -61,7 +62,8 @@ class User_Login extends Dbh{
             $this->employee_fName = $employees[0][0];
             $this->employee_mName = $employees[0][1];
             $this->employee_lName = $employees[0][2];
-            $this->employee_role = $employees[0][3];
+            $this->employee_stats = $employees[0][3];
+            $this->employee_role = $employees[0][4];
         } catch(PDOException $e) {
             $error_msg = $e;
             include('db_error.php');
@@ -82,6 +84,10 @@ class User_Login extends Dbh{
 
     function getEmployeeLName(){
         return $this->employee_lName;
+    }
+
+    function getEmployeeStats(){
+        return $this->employee_stats;
     }
 
     function getEmployeeRole(){
@@ -219,6 +225,7 @@ class Fetch_All_Users extends Dbh{
                         e.employee_mName, 
                         e.employee_lName, 
                         e.employee_email, 
+                        e.employee_stats,
                         r.role_desc FROM employees e INNER JOIN roles r ON r.role_id = e.role_id";
         $stm = $this->connect()->prepare($query);
         $stm->execute();
@@ -247,6 +254,7 @@ class Add_New_Account extends Dbh{
     }
 
     function addNewEmployee(){
+        echo $this->employee_password;
         try{
             $query = "INSERT INTO employees (employee_fName, employee_mName, employee_lName, employee_email, employee_password, role_id) 
             VALUES (:fName, :mName, :lName, :email, :password, (SELECT role_id FROM roles WHERE role_desc = :role))";
@@ -285,11 +293,17 @@ class Add_New_Account extends Dbh{
         echo $email;
     }
 
-    function setEmployee_password($password){
-        $this->employee_password = $password;
-    }
+    // function setEmployee_password($password){
+    //     $this->employee_password = $password;
+    // }
 
     function setEmployee_role($role){
+        echo $role;
+        if ($role == "admin") {
+            $this->employee_password = "admin123";
+        }else if ($role == "agent") {
+            $this->employee_password = "user123";
+        }
         $this->employee_role = $role;
     }
 }
@@ -297,7 +311,8 @@ class Add_New_Account extends Dbh{
 class Delete_Account extends Dbh{
     function deleteAccount($id){
         try{
-            $query = "DELETE FROM employees WHERE employee_id = :id";
+            $query = "UPDATE employees SET employee_stats = 'inactive' WHERE employee_id = :id";
+            // $query = "DELETE FROM employees WHERE employee_id = :id";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':id', $id);
             $stm->execute();
@@ -379,6 +394,7 @@ class Add_New_Job_Order extends Dbh {
     private $job_order_number;
     private $client_name;
     private $representative;
+    private $contact_number;
     private $address;
     private $date;
     private $tin_number;
@@ -389,13 +405,14 @@ class Add_New_Job_Order extends Dbh {
 
     function addNewJobOrder() {
         try {
-            $query = "INSERT INTO job_order (job_order_number, client_name, representative, address, date, tin_number, 
+            $query = "INSERT INTO job_order (job_order_number, client_name, representative, contact_number, address, date, tin_number, 
             project_location, terms_of_payment, mobilization, employee_id) VALUES (:job_order_number, :client_name, 
-            :representative, :address, :date, :tin_number, :project_location, :terms_of_payment, :mobilization, :employee_id)";
+            :representative, :contact_number, :address, :date, :tin_number, :project_location, :terms_of_payment, :mobilization, :employee_id)";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':job_order_number', $this->job_order_number);
             $stm->bindValue(':client_name', $this->client_name);
             $stm->bindValue(':representative', $this->representative);
+            $stm->bindValue(':contact_number', $this->contact_number);
             $stm->bindValue(':address', $this->address);
             $stm->bindValue(':date', $this->date);
             $stm->bindValue(':tin_number', $this->tin_number);
@@ -433,13 +450,14 @@ class Add_New_Job_Order extends Dbh {
     function fetchJobOrderID() {
         try{
             $query = "SELECT job_order_id FROM job_order WHERE job_order_number = :job_order_number AND client_name = :client_name AND 
-            representative = :representative AND address = :address AND date = :date AND tin_number = :tin_number AND 
+            representative = :representative AND contact_number = :contact_number AND address = :address AND date = :date AND tin_number = :tin_number AND 
             project_location = :project_location AND terms_of_payment = :terms_of_payment AND mobilization = :mobilization AND 
             employee_id = :employee_id";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':job_order_number', $this->job_order_number);
             $stm->bindValue(':client_name', $this->client_name);
             $stm->bindValue(':representative', $this->representative);
+            $stm->bindValue(':contact_number', $this->contact_number);
             $stm->bindValue(':address', $this->address);
             $stm->bindValue(':date', $this->date);
             $stm->bindValue(':tin_number', $this->tin_number);
@@ -468,6 +486,10 @@ class Add_New_Job_Order extends Dbh {
 
     function setRepresentative($representative) {
         $this->representative = $representative;
+    }
+
+    function setContactNumber($contactNumber) {
+        $this->contact_number = $contactNumber;
     }
 
     function setAddress($address) {
@@ -630,7 +652,7 @@ class Delete_Specific_Job_Order extends Dbh {
         try {
             $query = "DELETE FROM job_order WHERE job_order_number = :job_order_number";
             $stm = $this->connect()->prepare($query);
-            $stm->bindValue();
+            $stm->bindValue(':job_order_number', $this->job_order_number);
         } catch (PDOException $e) {
             echo $e;
         }
@@ -1805,4 +1827,108 @@ class Finance_Trading_Sales extends Dbh {
             echo $e;
         }
     }
+}
+
+class Insert_Reset_Unique extends Dbh {
+    private $email;
+    private $code;
+
+    function __construct($email)
+    {
+        $this->email = $email;
+        $this->code = uniqid(true);
+    }
+
+    function check_email_exists() {
+        try {
+            $query = "SELECT EXISTS(SELECT * FROM employees WHERE employee_email = :email) AS cnt";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":email", $this->email);
+            $stm->execute();
+            $employee_exists = $stm->fetch(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            return $employee_exists['cnt'];
+        } catch(PDOException $e) {
+            echo $e;
+        }
+    }
+
+
+    function insert_new_unique()
+    {
+        try {
+            $query = "INSERT INTO reset_password (code, email) VALUES (:code, :email)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':code', $this->code);
+            $stm->bindValue(':email', $this->email);
+            $stm->execute();
+            $stm->closeCursor();
+
+        }catch(PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function getCode() {
+        return $this->code;
+    }
+}
+
+class Fetch_Particular_Email extends Dbh {
+    private $code;
+
+    function __construct($code)
+    {
+        $this->code = $code;
+    }
+
+    function fetch_email() {
+        try{
+            $query = "SELECT email FROM reset_password WHERE code = :code";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":code", $this->code);
+            $stm->execute();
+            $email = $stm->fetch(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            return $email['email'];
+        }catch(PDOException $e) {
+            echo "error";
+        }
+    }
+
+}
+
+class Update_Employee_Password extends Dbh {
+    private $password;
+    function __construct($password)
+    {   
+        $this->password = $password;
+    }
+
+    function update_password() {
+        try {
+            $query = "UPDATE employees SET employee_password = :password";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":password", password_hash($this->password, PASSWORD_DEFAULT));
+            $stm->execute();
+            $stm->closeCursor();
+            return 0;
+        } catch(PDOException $e) {
+            return -1;
+        }
+    }
+
+    function delete_code($code, $email) {
+        try {
+            $query = "DELETE FROM reset_password WHERE code = :code AND email = :email";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":code", $code);
+            $stm->bindValue(":email", $email);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch(PDOException $e) {
+
+        }
+    }
+
 }
