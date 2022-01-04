@@ -17,7 +17,7 @@ if (isset($_POST['jo_update'])){
     $db_obj_updateJobOrder = new Update_Job_Order($job_order_number);
     $db_obj_updateJobOrder->deleteJobOrderItem($arr);
     $db_obj_updateJobOrder->updateJobOrderItems($arr);
-    $db_obj_updateJobOrder->updateJobOrderInformation($_POST['jo_number'], $_POST['jo_clientName'], $_POST['jo_representative'],
+    $db_obj_updateJobOrder->updateJobOrderInformation($_POST['jo_number'], $_POST['jo_clientName'], $_POST['jo_representative'], $_POST['jo_contact'],
     $_POST['jo_address'],$_POST['jo_date'],$_POST['jo_tin'],$_POST['jo_location'],$_POST['jo_cod'],$_POST['jo_mobilization']);
     header('Location: projects.php');
 }
@@ -180,9 +180,13 @@ if (isset($_POST['jo_delete'])) {
                     <label for="jo_date">Date(mm/dd/yyyy) </label>
                     <input class="form-control" id="jo_date" name="jo_date" value="<?php echo $jo_information['date']; ?>" readonly/>
                 </div>
-                <div class="form-group col-md-8">
+                <div class="form-group col-md-4">
                     <label for="jo_representative">Representative</label>
                     <input class="form-control" id="jo_representative" name="jo_representative" value="<?php echo $jo_information['representative']; ?>"/>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="jo_representative">Contact Number</label>
+                    <input class="form-control" id="jo_contact" name="jo_contact" value="<?php echo $jo_information['contact_number']; ?>"/>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="jo_tin">TIN#</label>
@@ -286,7 +290,6 @@ if (isset($_POST['jo_delete'])) {
                 </thead>
                 <tbody>
                     <?php 
-                    print_r($all_jo_items);
                         foreach ($all_jo_items as $job_order_item) {
                              
                     ?>

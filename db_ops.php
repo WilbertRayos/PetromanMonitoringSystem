@@ -577,7 +577,7 @@ class Fetch_Specific_Job_Order extends Dbh {
     }
 
     function fetchJobOrderInformation() {
-        $query = "SELECT j.job_order_number, j.client_name, j.representative, j.address, j.date, j.tin_number, j.project_location, j.terms_of_payment, j.mobilization,
+        $query = "SELECT j.job_order_number, j.client_name, j.representative, j.contact_number, j.address, j.date, j.tin_number, j.project_location, j.terms_of_payment, j.mobilization,
         CONCAT(e.employee_fName, e.employee_mName, e.employee_lName) as employee_name, SUM(i.quantity*i.unit_price) as jo_sum
         FROM job_order j 
         INNER JOIN employees e ON e.employee_id = j.employee_id
@@ -984,9 +984,9 @@ class Update_Job_Order extends Dbh {
         $this->job_order_number = $job_order_number;
     }
 
-    function updateJobOrderInformation($nJob_order_number, $nClient_name, $nRepresentative, $nAddress, $nDate, $nTin_number, $nProject_location, $nTerms_of_payment, $nMobilization) {
+    function updateJobOrderInformation($nJob_order_number, $nClient_name, $nRepresentative, $nContact_number, $nAddress, $nDate, $nTin_number, $nProject_location, $nTerms_of_payment, $nMobilization) {
         $query = "UPDATE job_order SET job_order_number=:nJob_order_number, client_name =:nClient_name, 
-                    representative=:nRepresentative, address=:nAddress, date=:nDate, tin_number=:nTin_number, 
+                    representative=:nRepresentative, contact_number=:nContact_number, address=:nAddress, date=:nDate, tin_number=:nTin_number, 
                     project_location=:nProject_location, terms_of_payment=:nTerms_of_payment, mobilization=:nMobilization 
                     WHERE job_order_number = :job_order_number";
         
@@ -994,6 +994,7 @@ class Update_Job_Order extends Dbh {
         $stm->bindValue(':nJob_order_number',$nJob_order_number);
         $stm->bindValue(':nClient_name',$nClient_name);
         $stm->bindValue(':nRepresentative',$nRepresentative);
+        $stm->bindValue(':nContact_number', $nContact_number);
         $stm->bindValue(':nAddress',$nAddress);
         $stm->bindValue(':nDate',$nDate);
         $stm->bindValue(':nTin_number',$nTin_number);
@@ -1930,5 +1931,101 @@ class Update_Employee_Password extends Dbh {
 
         }
     }
+
+}
+
+
+class Fetch_Warehouse_Products extends Dbh {
+    private $products;
+
+    function __construct()
+    {
+        $this->products = array();
+    }
+
+    function fetchProductFromDatabase() {
+        $query = "SELECT product_desc FROM products ORDER BY product_desc ASC";
+        $stm = $this->connect()->prepare($query);
+        $stm->execute();
+        $temp = $stm->fetchAll();
+        $stm->closeCursor();
+
+        foreach($temp as $item) {
+            array_push($this->products,$item[0]);
+        }
+    }
+
+    function getProducts() {
+        return $this->products;
+    }
+}
+
+class Process_Warehouse_Products extends Dbh {
+    private $control_number;
+    private $process_date;
+    private $person_name;
+    private $arr_products;
+    private $activity;
+
+    function __construct($activity, $control_number, $date, $person_name, $arr_products)
+    {
+        $this->activity = $activity;
+        $this->control_number = $control_number;
+        $this->process_date = date("Y-m-d", strtotime($date));
+        $this->person_name = $person_name;
+        $this->arr_products = $arr_products;
+    }
+
+    function fetchPreviousEnd($product) {
+        try{
+            $query = "SELECT ending_qty FROM warehouse WHERE product_id=(SELECT product_id FROM products WHERE product_desc = :product_desc) ORDER BY operation_date DESC LIMIT 1";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':product_desc', $product);
+            $stm->execute();
+            $ending_qty = $stm->fetch(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+
+            return $ending_qty["ending_qty"];
+        }catch(PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function insertProduct($product_desc, $beginning_qty, $ending_qty) {
+        echo $this->process_date;
+        try {
+            $query = "INSERT INTO warehouse (product_id, control_number, person_name, operation_date, beginning_qty, ending_qty) 
+                        VALUES ((SELECT product_id FROM products WHERE product_desc = :product_desc), :control_number, :person_name, :operation_date, 
+                        :beginning_qty, :ending_qty)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":product_desc", $product_desc);
+            $stm->bindValue(":control_number", $this->control_number);
+            $stm->bindValue(":person_name", $this->person_name);
+            $stm->bindValue(":operation_date", $this->process_date);
+            $stm->bindValue(":beginning_qty", $beginning_qty);
+            $stm->bindValue(":ending_qty", $ending_qty);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function productController() {
+        foreach($this->arr_products as $product) {
+            $product_name = $product[0];
+            $new_beg = $this->fetchPreviousEnd($product[0]);
+            $new_end = 0;
+            if ($this->activity === "Receive") {
+                $new_end = $new_beg + $product[1];
+            } else if ($this->activity === "Withdraw") {
+                $new_end = $new_beg - $product[1];
+            }
+            
+            $this->insertProduct($product_name, $new_beg, $new_end);
+        }
+    }
+
+    
 
 }
