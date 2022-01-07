@@ -90,6 +90,14 @@
         ?>">
         <a class="nav-link" href="warehouse.php">Warehouse<span class="sr-only"></span></a>
       </li>
+      <li class="nav-item 
+        <?php 
+            if($path_parts['filename'] == 'calendar'){
+                echo "active";
+            }
+        ?>">
+        <a class="nav-link" href="calendar.php">Itenerary Calendar<span class="sr-only"></span></a>
+      </li>
     </ul>
     <form class="form-inline my-2 my-lg-0" action="#" method="POST">
       <button class="btn btn-outline-danger my-2 my-sm-0" type="submit" name="logout" value="logout">Logout</button>

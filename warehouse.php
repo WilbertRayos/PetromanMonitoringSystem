@@ -41,7 +41,7 @@ require_once('db_ops.php');
           <a href="warehouse_receive.php" class="btn btn-success">Receive</a>
         </div>
         <div class="col-md-7 order-md-1" >
-          <a href="#" class="btn btn-warning">Withdraw</a>
+          <a href="warehouse_withdraw.php" class="btn btn-warning">Withdraw</a>
         </div>
       </div>
  
