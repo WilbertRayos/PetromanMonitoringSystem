@@ -4,12 +4,10 @@ require_once('db_ops.php');
 if (!isset($_SESSION['loggedIn']) ) {
     header('Location: index.php');
 }
-$today = date("F j, Y, l");   
-echo $today;
+// print_r($_SESSION);
 
-$obj_products = new Fetch_Warehouse_Products;
-$obj_products->fetchProductFromDatabase();
-$products = $obj_products->getProducts();
+
+$obj_itinerary_calendar = new Itinerary_Calendar;
 
 
 if (isset($_POST['memo_save'])) {
@@ -21,7 +19,8 @@ if (isset($_POST['memo_save'])) {
     } else if (!isset($_POST['memo_message']) || empty($_POST['memo_message'])) {
         echo "<script>alert('Please fill-up message');</script>";
     } else {
-        echo "nioce";
+        
+        $obj_itinerary_calendar->addMemo($_SESSION['employee_id'], $_POST['date_picker'], $_POST['memo_title'], $_POST['memo_message']);
     }
     // $arr = json_decode($_POST['withdraw_item_array']);
     // if (!isset($_POST["withdraw_number"]) || empty($_POST["withdraw_number"])) {
@@ -63,7 +62,20 @@ if (isset($_POST['memo_save'])) {
     
 }
 
-
+if (isset($_POST["memo_delete"])) {
+    if (!isset($_POST["end_memo_id"]) || empty($_POST["end_memo_id"])) {
+        echo "<script>alert('Please enter the id number of the memo you want to delete');</script>";
+    } else if($_POST["end_memo_id"] < 1) {
+        echo "<script>alert('Invalid Memo Id Number');</script>";
+    } else {
+        $memo_exists = $obj_itinerary_calendar->memoIdExists($_POST["end_memo_id"]);
+        if ($memo_exists) {
+            $obj_itinerary_calendar->deleteMemo($_POST["end_memo_id"]);
+        } else {
+            echo "<script>alert('No such memo id exists');</script>";
+        }
+    }
+}
 ?>
 
 <!doctype html>
@@ -86,6 +98,7 @@ if (isset($_POST['memo_save'])) {
         <h3 class="display-4">Itenerary Calendar</h3>
         <div class="row">
             <div class="col-md-4" style="background-color:green;">
+                <h3 class="h3 mt-3">Add Memo</h3>
                 <form action="<?php echo $path_parts['basename'];?>" method="POST" id="date_setter">
                     <div class="form-row">
                         <div class="form-group col-md-12">
@@ -107,13 +120,53 @@ if (isset($_POST['memo_save'])) {
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-3">
-                            <button type="submit" class="form-control btn btn-primary" id="memo_save" name="memo_save">Post</button>
+                            <button type="submit" class="form-control btn btn-primary" form="date_setter" id="memo_save" name="memo_save">Add</button>
+                        </div>
+                    </div>
+                </form>
+                <hr />
+                <h3 class="h3">Delete Memo</h3>
+                <form action="<?php echo $path_parts['basename'];?>" method="POST" id="memo_ender">
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="memo_id">Memo #</label>
+                            <input class="form-control" type="number" id="end_memo_id" name="end_memo_id" min="1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <button type="submit" class="form-control btn btn-danger" form="memo_ender" id="memo_delete" name="memo_delete">Delete</button>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="col-md-8" style="background-color:rebeccapurple;">
-                2 of 2
+            <div class="col-md-8">
+                <?php 
+                    $all_memos = $obj_itinerary_calendar->fetchMemos();
+                    foreach($all_memos as $memo) {
+                ?>
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col col-md-10">
+                                    <?php echo date_format(new DateTime($memo['memo_date']), "F j, Y, l"); ?>
+                                </div>
+                                <div class="col col-md-2 text-right">
+                                    <?php echo 'Memo #:'.$memo['memo_id']; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <blockquote class="blockquote mb-0">
+                            <h3 class="h3"><?php echo $memo['memo_title']; ?></h3>
+                            <p><?php echo $memo['memo_message']; ?></p>
+                            <footer class="blockquote-footer">Created by  <cite title="Source Title"><?php echo $memo['employee_name']; ?></cite></footer>
+                            </blockquote>
+                        </div>
+                    </div>
+                <?php
+                    }
+                ?>
             </div>
         </div>
         

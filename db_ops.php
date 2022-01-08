@@ -2029,3 +2029,68 @@ class Process_Warehouse_Products extends Dbh {
     
 
 }
+
+class Itinerary_Calendar extends Dbh {
+    function addMemo($employee_id, $memo_date, $memo_title, $memo_message) {
+        try {
+            $query = "INSERT INTO memos (memo_user_id, memo_date, memo_title, memo_message) VALUES 
+                (:employee_id, :memo_date, :memo_title, :memo_message)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":employee_id", $employee_id);
+            $stm->bindValue(":memo_date", $memo_date);
+            $stm->bindValue(":memo_title", $memo_title);
+            $stm->bindValue(":memo_message", $memo_message);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch(PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function fetchMemos() {
+        try {
+            $query = "SELECT m.memo_id, CONCAT(e.employee_fName,' ',e.employee_mName,' ',e.employee_lName) AS employee_name, m.memo_date, m.memo_title, m.memo_message
+                        FROM memos m
+                        INNER JOIN employees e ON e.employee_id = m.memo_user_id;";
+            $stm = $this->connect()->prepare($query);
+            $stm->execute();
+            $all_memos = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+
+            return $all_memos;
+        } catch(PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function deleteMemo($memo_id) {
+        try {
+            $query = "DELETE FROM memos WHERE memo_id = :memo_id";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":memo_id", $memo_id);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch(PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function memoIdExists($memo_id) {
+        try {
+            $query = "SELECT EXISTS(SELECT * FROM memos WHERE memo_id = :memo_id)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":memo_id", $memo_id);
+            $stm->execute();
+            $memo_exists = $stm->fetch();
+            $stm->closeCursor();
+
+            if ($memo_exists[0] > 0) {
+                return true;
+            }
+            return false;
+
+        } catch(PDOException $e) {
+            echo $e;
+        }
+    }
+}
