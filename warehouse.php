@@ -5,7 +5,7 @@ if (!isset($_SESSION['loggedIn']) ) {
 }
 
 require_once('db_ops.php');
-    
+   
 
 ?>
 
@@ -19,13 +19,13 @@ require_once('db_ops.php');
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>Warehouse</title>
     <script src="js/main.js"></script>
   </head>
   <body>
     <?php require 'navbar.php';?>
     <div class="container">
-      <h3 class="display-4">Warehouse</h3>
+      <h4 class="display-4">Warehouse</h4>
       <div class="row mt-md-3">
         <!-- Search Bar Column -->
         <div class="col-md-4 order-md-12">
@@ -45,36 +45,123 @@ require_once('db_ops.php');
         </div>
       </div>
  
+
+      
+
+      <h4 class="display-5">Summary</h4>
       <table class="table table-sm">
         <thead class="thead-dark">
           <tr>
-            <th scope="col">Job Order #</th>
-            <th scope="col">Project Name</th>
-            <th scope="col">Projected Value</th>
-            <th scope="col">Status</th>
+            <th scope="col">Product Name</th>
+            <th scope="col">Activity</th>
+            <th scope="col">Control Number</th>
+            <th scope="col">Person Name</th>
+            <th scope="col">Operation Date</th>
+            <th scope="col">Beginning Quantity</th>
+            <th scope="col">Ending Quantity</th>
           </tr>
-        </thead>
+        </thread>
         <tbody>
-          <?php 
-            $obj_1 = new Fetch_All_Job_Orders;
-            $all_jo = $obj_1->fetchAllJobOrders();
-            foreach ($all_jo as $jo_arr) {
-          ?>
-          <tr>
-            <td>
-              <a href="#" id="job_order_number"><?php echo $jo_arr[0]; ?></button>
-            </td>
-            <td><?php echo $jo_arr[1]; ?></td>
-            <td><?php echo $jo_arr[2]; ?></td>
-            <td><?php echo $jo_arr[3]; ?></td>
-          </tr>
           <?php
+            $obj_fetch_warehouse_summary = new Fetch_Warehouse_Summary;
+            $products = $obj_fetch_warehouse_summary->fetch_product_summary();
+            foreach ($products as $product) {
+              
+          ?>
+            <tr>
+              <td><?php echo $product['product_desc']; ?></td>
+              <td><?php echo $product['activity']; ?></td>
+              <td><?php echo $product['control_number']; ?></td>
+              <td><?php echo $product['person_name']; ?></td>
+              <td><?php echo $product['operation_date']; ?></td>
+              <td><?php echo $product['beginning_qty']; ?></td>
+              <td><?php echo $product['ending_qty']; ?></td>
+            </tr>
+          <?php
+            }
+
+          ?>
+        </tbody>
+      </table>
+      <hr/>
+      <h4 class="display-5">All Transactions</h4>
+      
+          <?php
+            $obj_fetch_warehouse_summary = new Fetch_Warehouse_Summary;
+            $transactions = $obj_fetch_warehouse_summary->fetch_all_transactions();
+            $current_date = "";
+            foreach ($transactions as $transaction) {
+              if ($current_date === "") {
+                $current_date = $transaction['operation_date'];
+
+            ?>
+                <table class="table table-sm">
+                <thead class="thead-light">
+                  <tr>
+                    <th scope="col">Product Name</th>
+                    <th scope="col">Activity</th>
+                    <th scope="col">Control Number</th>
+                    <th scope="col">Person Name</th>
+                    <th scope="col">Operation Date</th>
+                    <th scope="col">Beginning Quantity</th>
+                    <th scope="col">Ending Quantity</th>
+                  </tr>
+                </thread>
+                <tbody>
+                  <tr>
+                    <td><?php echo $transaction['product_desc']; ?></td>
+                    <td><?php echo $transaction['activity']; ?></td>
+                    <td><?php echo $transaction['control_number']; ?></td>
+                    <td><?php echo $transaction['person_name']; ?></td>
+                    <td><?php echo $transaction['operation_date']; ?></td>
+                    <td><?php echo $transaction['beginning_qty']; ?></td>
+                    <td><?php echo $transaction['ending_qty']; ?></td> 
+                  </tr>
+            <?php
+              } else if ($current_date != $transaction['operation_date']) {
+                $current_date = $transaction['operation_date'];
+
+           ?>
+                  <table class="table table-sm">
+                <thead class="thead-light">
+                  <tr>
+                    <th scope="col">Product Name</th>
+                    <th scope="col">Activity</th>
+                    <th scope="col">Control Number</th>
+                    <th scope="col">Person Name</th>
+                    <th scope="col">Operation Date</th>
+                    <th scope="col">Beginning Quantity</th>
+                    <th scope="col">Ending Quantity</th>
+                  </tr>
+                </thread>
+                <tbody>
+                  <tr>
+                    <td><?php echo $transaction['product_desc']; ?></td>
+                    <td><?php echo $transaction['activity']; ?></td>
+                    <td><?php echo $transaction['control_number']; ?></td>
+                    <td><?php echo $transaction['person_name']; ?></td>
+                    <td><?php echo $transaction['operation_date']; ?></td>
+                    <td><?php echo $transaction['beginning_qty']; ?></td>
+                    <td><?php echo $transaction['ending_qty']; ?></td> 
+                  </tr>
+            <?php
+              } else if ($current_date == $transaction['operation_date']) {
+            ?>
+                  <tr>
+                    <td><?php echo $transaction['product_desc']; ?></td>
+                    <td><?php echo $transaction['activity']; ?></td>
+                    <td><?php echo $transaction['control_number']; ?></td>
+                    <td><?php echo $transaction['person_name']; ?></td>
+                    <td><?php echo $transaction['operation_date']; ?></td>
+                    <td><?php echo $transaction['beginning_qty']; ?></td>
+                    <td><?php echo $transaction['ending_qty']; ?></td>  
+                  </tr>  
+            <?php
+              }
             }
           ?>
         </tbody>
       </table>
-
-
     </div>
 
     <!-- Optional JavaScript -->

@@ -4,11 +4,7 @@ require_once('db_ops.php');
 if (!isset($_SESSION['loggedIn']) ) {
     header('Location: index.php');
 }
-// print_r($_SESSION);
-
-
 $obj_itinerary_calendar = new Itinerary_Calendar;
-
 
 if (isset($_POST['memo_save'])) {
     print_r($_POST);
@@ -21,45 +17,7 @@ if (isset($_POST['memo_save'])) {
     } else {
         
         $obj_itinerary_calendar->addMemo($_SESSION['employee_id'], $_POST['date_picker'], $_POST['memo_title'], $_POST['memo_message']);
-    }
-    // $arr = json_decode($_POST['withdraw_item_array']);
-    // if (!isset($_POST["withdraw_number"]) || empty($_POST["withdraw_number"])) {
-    //     echo "<script>alert('Please enter RR Control Number');</script>";
-    // } else if (!isset($_POST["withdraw_clientName"]) || empty($_POST["withdraw_clientName"])) {
-    //     echo "<script>alert('Please enter Withdraw by');</script>";
-    // } else if (count($arr) < 1) {
-    //     echo "<script>alert('Please enter products');</script>";
-    // } else {
-    //     $db_obj1 = new Process_Warehouse_Products("Withdraw",$_POST["withdraw_number"], $_POST["withdraw_date"], $_POST["withdraw_clientName"], $arr);
-    //     $db_obj1->productController();
-    // }
-
-
-    
-    // $db_obj1 = new Add_New_Job_Order;
-    // $db_obj1->setJobOrderNumber($_POST['withdraw_number']);
-    // $db_obj1->setClientName($_POST['withdraw_clientName']);
-    // $db_obj1->setDate($_POST['withdraw_date']);
-    // $db_obj1->setRepresentative($_POST['withdraw_representative']);
-    // $db_obj1->setContactNumber($_POST['withdraw_contact']);
-    // $db_obj1->setTinNumber($_POST['withdraw_tin']);
-    // $db_obj1->setAddress($_POST['withdraw_address']);
-    // $db_obj1->setProjectLocation($_POST['withdraw_location']);
-    // $db_obj1->setTermsOfPayment($_POST['withdraw_cod']);
-    // $db_obj1->setMobilization($_POST['withdraw_mobilization']);
-    // $db_obj1->setEmployeeID($_SESSION['employee_id']);
-    // $arr = json_decode($_POST['withdraw_item_array']);
-    // try{
-    //     $db_obj1->addNewJobOrder();
-    //     foreach($arr as $items[]) {
-    //         foreach($items as $item) {
-    //             $db_obj1->addJobOrderItems($item[0],$item[1],$item[2],$item[3]);
-    //         }
-    //     }
-    // } catch(Exception $e) {
-        
-    // }
-    
+    }  
 }
 
 if (isset($_POST["memo_delete"])) {
@@ -70,7 +28,12 @@ if (isset($_POST["memo_delete"])) {
     } else {
         $memo_exists = $obj_itinerary_calendar->memoIdExists($_POST["end_memo_id"]);
         if ($memo_exists) {
-            $obj_itinerary_calendar->deleteMemo($_POST["end_memo_id"]);
+            $delete_verdict = $obj_itinerary_calendar->deleteMemo($_POST["end_memo_id"], $_SESSION['employee_id'], $_SESSION['employee_role']);
+            if ($delete_verdict == -1) {
+                echo "<script>alert('You are not eligible to delete this particular note');</script>";
+            } else if ($delete_verdict == 1) {
+                echo "<script>alert('Note has been deleted');</script>";
+            }
         } else {
             echo "<script>alert('No such memo id exists');</script>";
         }
@@ -97,7 +60,7 @@ if (isset($_POST["memo_delete"])) {
     <div class="container">
         <h3 class="display-4">Itenerary Calendar</h3>
         <div class="row">
-            <div class="col-md-4" style="background-color:green;">
+            <div class="col-md-4 bg-secondary">
                 <h3 class="h3 mt-3">Add Memo</h3>
                 <form action="<?php echo $path_parts['basename'];?>" method="POST" id="date_setter">
                     <div class="form-row">
@@ -120,7 +83,7 @@ if (isset($_POST["memo_delete"])) {
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-3">
-                            <button type="submit" class="form-control btn btn-primary" form="date_setter" id="memo_save" name="memo_save">Add</button>
+                            <button type="submit" class="form-control btn btn-success" form="date_setter" id="memo_save" name="memo_save">Add</button>
                         </div>
                     </div>
                 </form>

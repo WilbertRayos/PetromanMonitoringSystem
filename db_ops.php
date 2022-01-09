@@ -2030,6 +2030,66 @@ class Process_Warehouse_Products extends Dbh {
 
 }
 
+class Fetch_Warehouse_Summary extends Dbh {
+    function fetch_product_summary() {
+        $product_summary_arr = array();
+        array_push($product_summary_arr,$this->fetch_summary_legacy_white("LEGACY WHITE"));
+        array_push($product_summary_arr,$this->fetch_summary_legacy_white("LEGACY YELLOW"));
+        array_push($product_summary_arr,$this->fetch_summary_legacy_white("CS WHITE"));
+        array_push($product_summary_arr,$this->fetch_summary_legacy_white("CS YELLOW"));
+        array_push($product_summary_arr,$this->fetch_summary_legacy_white("GLASS BEADS"));
+        array_push($product_summary_arr,$this->fetch_summary_legacy_white("PRIMER"));
+
+        return $product_summary_arr;
+        
+    }
+
+    function fetch_summary_legacy_white($product_desc) {
+        try {
+            $query = "SELECT w.warehouse_id, p.product_desc, w.activity, w.control_number, w.person_name, w.operation_date, w.beginning_qty, w.ending_qty  
+                        FROM warehouse w 
+                        RIGHT JOIN products p ON w.product_id = p.product_id 
+                        WHERE p.product_desc = :product_name 
+                        ORDER BY w.warehouse_id DESC 
+                        LIMIT 1";
+            // $query = "SELECT p.product_desc, w.activity, w.control_number, w.person_name, w.operation_date, w.beginning_qty, w.ending_qty 
+            //             FROM warehouse w
+            //             RIGHT JOIN products p ON w.product_id = p.product_id
+            //             WHERE p.product_desc = :product_name AND w.operation_date = (SELECT MAX(operationg_date) FROM warehouse) AND w.warehouse_id = (SELECT MAX(warehouse_id) FROM warehouse) 
+            //             GROUP BY w.warehouse_id  
+            //             ORDER BY w.operation_date DESC
+            //             LIMIT 1";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":product_name", $product_desc);
+            $stm->execute();
+            $product_info = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            
+            return $product_info[0];
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function fetch_all_transactions() {
+        try {
+            $query = "SELECT w.warehouse_id, p.product_desc, w.activity, w.control_number, w.person_name, w.operation_date, w.beginning_qty, w.ending_qty
+                        FROM warehouse w
+                        INNER JOIN products p ON p.product_id = w.product_id
+                        ORDER BY w.operation_date DESC, w.warehouse_id DESC
+                        ";
+            $stm = $this->connect()->prepare($query);
+            $stm->execute();
+            $all_warehouse_transaction = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+
+            return $all_warehouse_transaction;
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+}
+
 class Itinerary_Calendar extends Dbh {
     function addMemo($employee_id, $memo_date, $memo_title, $memo_message) {
         try {
@@ -2063,14 +2123,38 @@ class Itinerary_Calendar extends Dbh {
         }
     }
 
-    function deleteMemo($memo_id) {
+    function deleteMemo($memo_id, $deletor, $role) {
+        $memo_creator = $this->checkMemoCreator($memo_id);
+        echo $role;
+        if (($deletor == $memo_creator) || $role == "Admin") {
+            try {
+                $query = "DELETE FROM memos WHERE memo_id = :memo_id";
+                $stm = $this->connect()->prepare($query);
+                $stm->bindValue(":memo_id", $memo_id);
+                $stm->execute();
+                $stm->closeCursor();
+                return 1;
+            } catch(PDOException $e) {
+                echo $e;
+            }
+        } else {
+            return -1;
+        }
+        
+    }
+
+    function checkMemoCreator($memo_id) {
         try {
-            $query = "DELETE FROM memos WHERE memo_id = :memo_id";
+            $query = "SELECT memo_user_id FROM memos WHERE memo_id = :memo_id";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(":memo_id", $memo_id);
             $stm->execute();
+            $creator_id = $stm->fetch(PDO::FETCH_ASSOC);
             $stm->closeCursor();
-        } catch(PDOException $e) {
+
+
+            return $creator_id["memo_user_id"];
+        } catch (PDOException $e) {
             echo $e;
         }
     }
