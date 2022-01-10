@@ -55,7 +55,6 @@ require_once('db_ops.php');
           <?php 
             $obj_1 = new Finance_Trading_Sales;
             $all_ts = $obj_1->fetchAllTradingSalesFinance();
-            print_r($all_ts);
             foreach ($all_ts as $ts_arr) {
           ?>
             <tr>

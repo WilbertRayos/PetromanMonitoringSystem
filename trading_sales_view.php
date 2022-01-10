@@ -13,19 +13,21 @@ $all_ts_items = $db_obj_1->fetchTradingSalesItems();
 
 if (isset($_POST['ts_update'])){
     $arr = json_decode($_POST['ts_item_array']);
-
     $db_obj_updateTradingSales = new Update_Trading_Sales($trading_sales_number);
+    $db_obj_updateTradingSales->returnStockToWarehouse();
     $db_obj_updateTradingSales->deleteTradingSalesItem($arr);
     $db_obj_updateTradingSales->updateTradingSalesItems($arr);
     $db_obj_updateTradingSales->updateTradingSalesInformation($_POST['ts_number'], $_POST['ts_clientName'], $_POST['ts_representative'],
-    $_POST['ts_address'],$_POST['ts_date'],$_POST['ts_tin'],$_POST['ts_location'],$_POST['ts_cod']);
-    header('Location: trading_sales.php');
+    $_POST['ts_address'],$_POST['ts_date'],$_POST['ts_tin'],$_POST['ts_cod']);
+    $db_obj_updateTradingSales->withdrawStocksFromWarehouse($_POST['ts_number'],$_POST['ts_date'],$_POST['ts_clientName'],$arr);
+    // header('Location: trading_sales.php');
 }
 
 
 
 // Checklist
 $ts_count = $db_obj_1->checkExistingChecklist();
+
 // If checklist already exists
 if ($ts_count > 0) {
     $ts_checklist = $db_obj_1->fetchExistingChecklist();
@@ -43,7 +45,23 @@ if ($ts_count > 0) {
     $checklist_2303 = $ts_checklist['checklist_2303_2307'];
     $checklist_soa = $ts_checklist['soa'];
     $checklist_materials = $ts_checklist['total_materials_used']; 
+} else {
+    $or_control_number = "";
+    $or_date = "";
+    $ar_control_number = "";
+    $ar_date = "";
+    $ws_control_number = "";
+    $ws_date = "";
+    $cr_control_number = "";
+    $cr_date = "";
+    $dr_control_number = "";
+    $dr_date = "";
+    $checklist_2303 = "";
+    $checklist_soa = "";
+    $checklist_materials = ""; 
 }
+
+
 if (isset($_POST['save_checklist'])) {
     if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
         echo "Fill-up OR information";
@@ -62,7 +80,6 @@ if (isset($_POST['save_checklist'])) {
     } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
         echo "Fill-up total_material_used information";
     } else {
-        echo $ts_count['total_number'];
         if ($ts_count['total_number'] == 0) {
             echo "wes";
             $db_obj_2 = new Add_New_Trading_Sales_Checklist($_GET['ts_num'], 
@@ -75,7 +92,6 @@ if (isset($_POST['save_checklist'])) {
                                         );
             $new_checklist = $db_obj_2->addNewChecklist();
         } else {
-            echo "was";
             $db_obj_3 = new Update_Trading_Sales_Checklist(
                 $_GET['ts_num'], $_POST['or_control_number'], $_POST['or_date'],
                 $_POST['ar_control_number'], $_POST['ar_date'], $_POST['ws_control_number'], $_POST['ws_date'],
@@ -88,31 +104,11 @@ if (isset($_POST['save_checklist'])) {
     }
     
 }  
-    
-// } else if (isset($_POST['save_checklist']) && ($ts_count > 1)) {
-//     if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
-//         echo "Fill-up OR information";
-//     } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
-//         echo "Fill-up AR information";
-//     } else if (!isset($_POST['ws_control_number']) || empty($_POST['ws_control_number']) || !isset($_POST['ws_date']) || empty($_POST['ws_date'])) {
-//         echo "Fill-up WS information";
-//     } else if (!isset($_POST['cr_control_number']) || empty($_POST['cr_control_number']) || !isset($_POST['cr_date']) || empty($_POST['cr_date'])) {
-//         echo "Fill-up CR information";
-//     } else if (!isset($_POST['dr_control_number']) || empty($_POST['dr_control_number']) || !isset($_POST['dr_date']) || empty($_POST['dr_date'])) {
-//         echo "Fill-up DR information";
-//     } else if (!isset($_POST['2307']) || empty($_POST['2307'])) {
-//         echo "Fill-up 2303/2307 information";
-//     } else if (!isset($_POST['soa']) || empty($_POST['soa'])) {
-//         echo "Fill-up SOA information";
-//     } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
-//         echo "Fill-up total_material_used information";
-//     } else {
-        
-//     }
-// }
 
-if (isset($_POST['btn_delete'])) {
-    echo "wewewewe";
+if (isset($_POST['ts_delete'])) {
+    $obj_ts_delete = new Delete_Specific_Trading_Sales($_POST["ts_number"]);
+    $obj_ts_delete->deleteTradingSales();
+    header("Location: trading_sales.php");
 }
 
 
@@ -211,8 +207,11 @@ if (isset($_POST['btn_delete'])) {
                     </button>
                 </div>
                 <div class="form-group col-md-3">
-                    <a href="projects.php" type="button" class="form-control btn btn-danger" id="ts_cancel" name="ts_cancel">Cancel</a>
+                    <a href="trading_sales.php" type="button" class="form-control btn btn-danger" id="ts_cancel" name="ts_cancel">Cancel</a>
                 </div>
+                <div class="form-group col-md-3">
+                    <button type="submit" class="form-control btn btn-outline-danger" id="ts_delete" name="ts_delete" form="ts_information">Delete</button>
+                </div> 
             </div>
             
         </form>
@@ -221,7 +220,14 @@ if (isset($_POST['btn_delete'])) {
             <div class="form-row">
                 <div class="form-group col-md-5">
                     <label for="ts_description">Description</label>
-                    <input class="form-control" id="ts_description" name="ts_description" />
+                    <select class="form-control" id="ts_description" name="ts_description" >
+                        <option>CS WHITE</option>
+                        <option>CS YELLOW</option>
+                        <option>GLASS BEADS</option>
+                        <option>LEGACY WHITE</option>
+                        <option>LEGACY YELLOW</option>
+                        <option>PRIMER</option>
+                    </select>
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="ts_unit">Unit</label>
@@ -253,7 +259,6 @@ if (isset($_POST['btn_delete'])) {
                 </thead>
                 <tbody>
                     <?php 
-                    print_r($all_ts_items);
                         foreach ($all_ts_items as $tsb_order_item) {
                              
                     ?>

@@ -129,7 +129,14 @@ if (isset($_POST['ts_save'])) {
             <div class="form-row">
                 <div class="form-group col-md-5">
                     <label for="ts_description">Description</label>
-                    <input class="form-control" id="ts_description" name="ts_description" />
+                    <select class="form-control" id="ts_description" name="ts_description" >
+                        <option>CS WHITE</option>
+                        <option>CS YELLOW</option>
+                        <option>GLASS BEADS</option>
+                        <option>LEGACY WHITE</option>
+                        <option>LEGACY YELLOW</option>
+                        <option>PRIMER</option>
+                    </select>
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="ts_unit">Unit</label>

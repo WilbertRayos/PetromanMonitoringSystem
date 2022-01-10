@@ -611,7 +611,7 @@ class Fetch_Specific_Job_Order extends Dbh {
         $jo_count = $stm->fetch(PDO::FETCH_ASSOC);
         $stm->closeCursor();
 
-        return $jo_count;
+        return $jo_count["total_number"];
     }
 
     function fetchExistingChecklist() {
@@ -642,7 +642,7 @@ class Fetch_Specific_Job_Order extends Dbh {
 }
 
 class Delete_Specific_Job_Order extends Dbh {
-    private $job_order_number = "";
+    private $job_order_number;
 
     function __construct($job_order_number){
         $this->job_order_number = $job_order_number;
@@ -653,6 +653,8 @@ class Delete_Specific_Job_Order extends Dbh {
             $query = "DELETE FROM job_order WHERE job_order_number = :job_order_number";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->execute();
+            $stm->closeCursor();
         } catch (PDOException $e) {
             echo $e;
         }
@@ -1295,6 +1297,26 @@ class Create_New_Trading_Sales extends Dbh {
     }
 }
 
+class Delete_Specific_Trading_Sales extends Dbh {
+    private $trading_sales_number;
+
+    function __construct($trading_sales_number){
+        $this->trading_sales_number = $trading_sales_number;
+    }
+
+    function deleteTradingSales() {
+        try {
+            $query = "DELETE FROM trading_sales WHERE trading_sales_number = :trading_sales_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+}
+
 class Fetch_All_Trading_Sales extends Dbh {
     private $arr_trading_sales = [];
 
@@ -1368,7 +1390,7 @@ class Fetch_Specific_Trading_Sales extends Dbh {
         $ts_count = $stm->fetch(PDO::FETCH_ASSOC);
         $stm->closeCursor();
 
-        return $ts_count;
+        return $ts_count["total_number"];
     }
 
     function fetchExistingChecklist() {
@@ -1399,12 +1421,68 @@ class Fetch_Specific_Trading_Sales extends Dbh {
 }
 
 class Update_Trading_Sales extends Dbh {
-    private $Trading_Sales_number;
+    private $trading_sales_number;
+    private $current_items_arr;
+    private $current_client_name;
+    private $current_trading_sales_date;
+
 
     function __construct($trading_sales_number) {
-        echo $trading_sales_number;
         $this->trading_sales_number = $trading_sales_number;
+        $this->current_client_name = "";
+        $this->current_trading_sales_date = "";
+        $this->current_items_arr = array();
+        $this->fetchTradingSalesInfo();
     }
+
+    function fetchTradingSalesInfo() {
+        try {
+            $query = "SELECT t.client_name, t.trading_sales_date, i.description, i.unit, i.quantity, i.unit_price FROM trading_sales t
+            INNER JOIN trading_sales_items i ON i.trading_sales_number = t.trading_sales_number WHERE t.trading_sales_number = :trading_sales_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":trading_sales_number", $this->trading_sales_number);
+            $stm->execute();
+            $ts_current_info = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+
+            foreach ($ts_current_info as $items) {
+                if ($this->current_client_name == "") {
+                    $this->current_client_name = $items["client_name"];
+                } else if ($this->current_trading_sales_date == "") {
+                    $this->current_trading_sales_date = $items["trading_sales_date"];
+                }
+                array_push($this->current_items_arr, array($items["description"],$items["quantity"]));
+            }
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function returnStockToWarehouse() {
+        $obj_warehouse = new Process_Warehouse_Products("Receive", $this->trading_sales_number, $this->current_trading_sales_date, $this->current_client_name, $this->current_items_arr);
+        $obj_warehouse->productController();
+    }
+
+    function withdrawStocksFromWarehouse($nts_number, $nts_date, $nts_client_name, $nts_items_arr) {
+        $warehouse_items_arr = array();
+        foreach ($nts_items_arr as $items) {
+            array_push($warehouse_items_arr, array($items[0], $items[2]));
+        }
+        $obj_warehouse = new Process_Warehouse_Products("Withdraw",$nts_number,$nts_date,$nts_client_name,$warehouse_items_arr);
+        $obj_warehouse->productController();
+    }
+
+    // function deleteCurrentItems() {
+    //     try {
+    //         $query = "DELETE FROM trading_sales_items WHERE trading_sales_number = :trading_sales_number";
+    //         $stm = $this->connect()->prepare($query);
+    //         $stm->bindValue(":trading_sales_number", $this->trading_sales_number);
+    //         $stm->execute();
+    //         $stm->closeCursor();
+    //     } catch(PDOException $e) {
+    //         echo $e;
+    //     }
+    // }
 
     function updateTradingSalesInformation($nTrading_sales_number, $nClient_name, $nRepresentative, $nAddress, $nTrading_sales_date, $nTin_number, $nTerms_of_payment) {
         $query = "UPDATE trading_sales SET trading_sales_number=:nTrading_sales_number, client_name =:nClient_name, 
@@ -1430,6 +1508,7 @@ class Update_Trading_Sales extends Dbh {
         foreach ($arr_ts_items as $ts_item) {
             if (!$this->checkTradingSalesItem($ts_item[0], $ts_item[1], $ts_item[2], $ts_item[3]) > 0) {
                 try {
+                    
                     $query = "INSERT INTO trading_sales_items (trading_sales_number, description, unit, quantity, unit_price) VALUES 
                             (:trading_sales_number, :description, :unit, :quantity, :unit_price)";
                     $stm = $this->connect()->prepare($query);
@@ -1449,6 +1528,7 @@ class Update_Trading_Sales extends Dbh {
             }
         }
     }
+
 
     function checkTradingSalesItem($description, $unit, $quantity, $unit_price) {
         try {
@@ -1820,7 +1900,6 @@ class Finance_Trading_Sales extends Dbh {
     }
 
     function fetchSpecificTradingSalesFinance($trading_sales_number) {
-        echo $trading_sales_number;
         try {
             $query = "SELECT t.trading_sales_date AS date_created, COALESCE(SUM(i.quantity*i.unit_price), 0) AS total_amount, t.terms_of_payment, COALESCE(SUM(i.quantity*i.unit_price), 0)-COALESCE(amount,0) AS remaining_balance
                         FROM trading_sales t

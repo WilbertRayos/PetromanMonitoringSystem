@@ -55,7 +55,6 @@ require_once('db_ops.php');
           <?php 
             $obj_1 = new Finance_Job_Order;
             $all_jo = $obj_1->fetchAllJobOrderFinance();
-            print_r($all_jo);
             foreach ($all_jo as $jo_arr) {
           ?>
             <tr>

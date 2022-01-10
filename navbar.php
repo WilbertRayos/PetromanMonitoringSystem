@@ -12,7 +12,7 @@
         && strcmp($_POST['employee_lName'], $_SESSION['employee_lName']) == 0
         && strcmp($_POST['employee_email'], $_SESSION['employee_email']) == 0
         && strcmp($_POST['employee_password'], $_SESSION['employee_password']) == 0){
-          echo "Nothing to update";
+          echo "<script>alert('Nothing to update');</script>";
         $_POST = array();
       }else{
         require_once('db_ops.php');

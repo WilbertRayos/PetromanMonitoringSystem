@@ -17,7 +17,7 @@
       // $db_obj2->setEmployee_password($_POST['create_employee_password']);
       $db_obj2->setEmployee_role($_POST['role']);
       $db_obj2->addNewEmployee();
-      // header('Location: accounts.php');
+      header('Location: accounts.php');
     }
 
     if(isset($_POST['editAccount'])){

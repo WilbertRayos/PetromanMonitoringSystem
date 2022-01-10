@@ -43,6 +43,20 @@ if ($jo_count > 0) {
     $checklist_2303 = $jo_checklist['checklist_2303_2307'];
     $checklist_soa = $jo_checklist['soa'];
     $checklist_materials = $jo_checklist['total_materials_used']; 
+} else {
+    $or_control_number = "";
+    $or_date = "";
+    $ar_control_number = "";
+    $ar_date = "";
+    $ws_control_number = "";
+    $ws_date = "";
+    $cr_control_number = "";
+    $cr_date = "";
+    $dr_control_number = "";
+    $dr_date = "";
+    $checklist_2303 = "";
+    $checklist_soa = "";
+    $checklist_materials = "";
 }
 
 
@@ -73,6 +87,7 @@ if (isset($_POST['save_checklist']) && !($jo_count > 0)) {
                                         $_POST['2307'], $_POST['soa'], $_POST['total_material_used']
                                     );
         $new_checklist = $db_obj_2->addNewChecklist();
+        header("Refresh:0");
     }
 } else if (isset($_POST['save_checklist']) && ($jo_count > 1)) {
     if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
@@ -99,6 +114,7 @@ if (isset($_POST['save_checklist']) && !($jo_count > 0)) {
             $_POST['2307'], $_POST['soa'], $_POST['total_material_used']
         );
         $db_obj_3->updateChecklist();
+        header("Refresh:0");
     }
 }
 
@@ -142,7 +158,9 @@ if (isset($_POST['submit_phase'])) {
 }
 
 if (isset($_POST['jo_delete'])) {
-    echo "wewewewe";
+    $obj_delete_jo = new Delete_Specific_Job_Order($_POST["jo_number"]);
+    $obj_delete_jo->deleteJobOrder();
+    header("Location: projects.php");
 }
 
 
@@ -328,7 +346,7 @@ if (isset($_POST['jo_delete'])) {
                             <label for="or_control_number">OR</label>
                         </div>
                         <div class="col-md-5">
-                            <input class="form-control" id="or_control_number" name="or_control_number" placeholder="Control Number" value="<?php echo $or_control_number ?>"/>
+                            <input class="form-control" id="or_control_number" name="or_control_number" placeholder="Control Number" value="<?php echo $or_control_number; ?>"/>
                         </div>
                         <div class="col-md-5">
                             <input type="date" class="form-control" id="or_date" name="or_date"  value="<?php echo $or_date ?>"/>

@@ -21,13 +21,13 @@ if (isset($_POST['jo_save'])) {
     $arr = json_decode($_POST['jo_item_array']);
     try{
         $db_obj1->addNewJobOrder();
-        foreach($arr as $items[]) {
-            foreach($items as $item) {
-                $db_obj1->addJobOrderItems($item[0],$item[1],$item[2],$item[3]);
-            }
+        foreach($arr as $items) {
+            $db_obj1->addJobOrderItems($items[0],$items[1],$items[2],$items[3]);  
         }
+        echo "<script>alert('Job Order has been created');</script>";
+        header("Location: projects.php");
     } catch(Exception $e) {
-        
+        echo "<script>alert('Unexpected Error Occured');</script>";
     }
     
 }
