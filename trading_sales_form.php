@@ -6,7 +6,6 @@ if (!isset($_SESSION['loggedIn']) ) {
 }
 
 if (isset($_POST['ts_save'])) {
-    echo "wews";
     $db_obj1 = new Create_New_Trading_Sales;
     $db_obj1->setTradingSalesNumber($_POST['ts_number']);
     $db_obj1->setClientName($_POST['ts_clientName']);
@@ -19,9 +18,23 @@ if (isset($_POST['ts_save'])) {
     $arr = json_decode($_POST['ts_item_array']);
     try{
         $db_obj1->addTradingSales();
+        $all_products_available = true;
+        //Check if stock is enought for all items
         foreach($arr as $items[]) {
             foreach($items as $item) {
-                $db_obj1->addTradingSalesItems($item[0],$item[1],$item[2],$item[3]);
+                // $db_obj1->addTradingSalesItems($item[0],$item[1],$item[2],$item[3]);
+                $product_stock = $db_obj1->checkWarehouseStock($item[0]);
+                if (($product_stock - $item[2]) < 0) {
+                    $all_products_available = false;
+                    echo "<script>alert('Not enough stock of {$item}');</script>";
+                    break;
+                }
+            }
+        }
+
+        if ($all_products_available) {
+            foreach($arr as $items) {
+                $db_obj1->addTradingSalesItems($items[0],$items[1],$items[2],$items[3]);
             }
         }
     } catch(Exception $e) {
@@ -178,11 +191,6 @@ if (isset($_POST['ts_save'])) {
                 
                 arr_ts_items.push([description, unit, quantity, unitPrice, item_amount]);
 
-                for (x of arr_ts_items) {
-                    alert(x);
-                }
-
-
                 new_row = "<tr> \
                             <td>"+description+"</td> \
                             <td>"+unit+"</td> \
@@ -212,8 +220,7 @@ if (isset($_POST['ts_save'])) {
         }
 
         function computeTotal(){
-            
-            var totalAmount = 0.0 + parseFloat($('#ts_mobilization').val());
+            var totalAmount = 0.0;
             var tbl = document.getElementById('ts_item_table');
             
             for(var row=1, n=tbl.rows.length; row<n; row++){

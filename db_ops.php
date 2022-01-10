@@ -1162,7 +1162,7 @@ class Finance_Job_Order extends Dbh {
 }
 
 class Create_New_Trading_Sales extends Dbh {
-    private $order_form_number;
+    private $trading_sales_number;
     private $client_name;
     private $representative;
     private $address;
@@ -1193,8 +1193,36 @@ class Create_New_Trading_Sales extends Dbh {
         }
     }
 
+    function checkWarehouseStock($trading_sales_description) {
+        try {
+            $query = "SELECT w.ending_qty 
+                        FROM warehouse w
+                        INNER JOIN products p
+                        ON p.product_id = w.product_id
+                        WHERE p.product_desc = :product_desc
+                        ORDER BY warehouse_id DESC
+                        LIMIT 1";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":product_desc", $trading_sales_description);
+            $stm->execute();
+            $current_stock = $stm->fetch(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+
+            return $current_stock['ending_qty'];
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
+
     function addTradingSalesItems($trading_sales_description, $trading_sales_unit,$trading_sales_quantity, $trading_sales_unit_price){
+
         try{
+            $arr_product = array();
+            $product = array($trading_sales_description, $trading_sales_quantity);
+            array_push($arr_product, $product);
+            $warehouse_obj = new Process_Warehouse_Products("Withdraw", $this->trading_sales_number, $this->date, $this->client_name, $arr_product);
+            $warehouse_obj->productController();
+
             $query = "INSERT INTO trading_sales_items (trading_sales_number, description, unit, quantity, unit_price) VALUES 
             (:trading_sales_number, :trading_sales_description, :trading_sales_unit, :trading_sales_quantity, :trading_sales_unit_price)";
             $stm = $this->connect()->prepare($query);
@@ -1934,7 +1962,6 @@ class Update_Employee_Password extends Dbh {
 
 }
 
-
 class Fetch_Warehouse_Products extends Dbh {
     private $products;
 
@@ -1992,14 +2019,14 @@ class Process_Warehouse_Products extends Dbh {
     }
 
     function insertProduct($product_desc, $beginning_qty, $ending_qty) {
-        echo $this->process_date;
         try {
-            $query = "INSERT INTO warehouse (product_id, control_number, person_name, operation_date, beginning_qty, ending_qty) 
-                        VALUES ((SELECT product_id FROM products WHERE product_desc = :product_desc), :control_number, :person_name, :operation_date, 
+            $query = "INSERT INTO warehouse (product_id, activity, control_number, person_name, operation_date, beginning_qty, ending_qty) 
+                        VALUES ((SELECT product_id FROM products WHERE product_desc = :product_desc), :activity, :control_number, :person_name, :operation_date, 
                         :beginning_qty, :ending_qty)";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(":product_desc", $product_desc);
             $stm->bindValue(":control_number", $this->control_number);
+            $stm->bindValue(":activity", $this->activity);
             $stm->bindValue(":person_name", $this->person_name);
             $stm->bindValue(":operation_date", $this->process_date);
             $stm->bindValue(":beginning_qty", $beginning_qty);
