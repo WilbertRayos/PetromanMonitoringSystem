@@ -63,15 +63,15 @@ if (isset($_POST['receive_save'])) {
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <title>Hello, world!</title>
+    <link rel="stylesheet" href="css/main.css">
+    <title>Warehouse Receive</title>
   </head>
   <body>
    
     <?php require('navbar.php');?>
 
     <div class="container">
-        <h3 class="display-4">Warehouse Receive</h3>
+        <h3 class="display-4 my-4 page-title">Warehouse Receive</h3>
         <form action="<?php echo $path_parts['basename'];?>" method="POST" id="receive_information">
             <div class="form-row">
                 <div class="form-group col-md-6">
@@ -94,7 +94,7 @@ if (isset($_POST['receive_save'])) {
                     <button type="submit" class="form-control btn btn-primary" id="receive_save" name="receive_save">Save</button>
                 </div>
                 <div class="form-group col-md-3">
-                    <a href="projects.php" type="button" class="form-control btn btn-danger" id="receive_cancel" name="receive_cancel">Cancel</a>
+                    <a href="warehouse.php" type="button" class="form-control btn btn-danger" id="receive_cancel" name="receive_cancel">Cancel</a>
                 </div>
             </div>
             

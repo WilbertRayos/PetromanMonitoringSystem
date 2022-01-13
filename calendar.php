@@ -7,7 +7,6 @@ if (!isset($_SESSION['loggedIn']) ) {
 $obj_itinerary_calendar = new Itinerary_Calendar;
 
 if (isset($_POST['memo_save'])) {
-    print_r($_POST);
     if (!isset($_POST['date_picker']) || empty($_POST['date_picker'])){
         echo "<script>alert('Please pick a date');</script>";
     } else if (!isset($_POST['memo_title']) || empty($_POST['memo_title'])) {
@@ -50,18 +49,21 @@ if (isset($_POST["memo_delete"])) {
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <title>Hello, world!</title>
+    <link rel="stylesheet" href="css/main.css">
+    <title>Calendar</title>
+    <style>
+        
+    </style>
   </head>
   <body>
    
     <?php require('navbar.php');?>
 
     <div class="container">
-        <h3 class="display-4">Itenerary Calendar</h3>
+        <h1 class="display-4 my-4 page-title">Itenerary Calendar</h1>
         <div class="row">
-            <div class="col-md-4 bg-secondary">
-                <h3 class="h3 mt-3">Add Memo</h3>
+            <div class="col-md-4 menu-box">
+                <h3 class="h3 mt-3 menu-box-title">Add Memo</h3>
                 <form action="<?php echo $path_parts['basename'];?>" method="POST" id="date_setter">
                     <div class="form-row">
                         <div class="form-group col-md-12">
@@ -77,7 +79,7 @@ if (isset($_POST["memo_delete"])) {
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-12">
-                            <label for="memo_message">Title</label>
+                            <label for="memo_message">Message</label>
                             <textarea class="form-control" id="memo_message" name="memo_message" rows="5"></textarea>
                         </div>
                     </div>
@@ -88,7 +90,7 @@ if (isset($_POST["memo_delete"])) {
                     </div>
                 </form>
                 <hr />
-                <h3 class="h3">Delete Memo</h3>
+                <h3 class="h3 menu-box-title">Delete Memo</h3>
                 <form action="<?php echo $path_parts['basename'];?>" method="POST" id="memo_ender">
                     <div class="form-row">
                         <div class="form-group col-md-12">
@@ -98,7 +100,7 @@ if (isset($_POST["memo_delete"])) {
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-3">
-                            <button type="submit" class="form-control btn btn-danger" form="memo_ender" id="memo_delete" name="memo_delete">Delete</button>
+                            <button type="submit" class="form-control btn btn-danger mb-3" form="memo_ender" id="memo_delete" name="memo_delete">Delete</button>
                         </div>
                     </div>
                 </form>

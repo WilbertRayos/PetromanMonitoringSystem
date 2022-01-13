@@ -38,7 +38,7 @@ if (isset($_POST['ts_save'])) {
             }
         }
     } catch(Exception $e) {
-        
+        echo "<script>alert('Unexpected Error Occured');</script>";
     }
     
 }
@@ -54,15 +54,15 @@ if (isset($_POST['ts_save'])) {
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <title>Hello, world!</title>
+    <link rel="stylesheet" href="css/main.css">
+    <title>Trading Sales Form</title>
   </head>
   <body>
    
     <?php require('navbar.php');?>
 
     <div class="container">
-        <h3 class="display-4">Trading Sales</h3>
+        <h3 class="display-4 my-4 page-title">Trading Sales</h3>
         <form action="<?php echo $path_parts['basename'];?>" method="POST" id="ts_information">
             <div class="form-row">
                 <div class="form-group col-md-5">

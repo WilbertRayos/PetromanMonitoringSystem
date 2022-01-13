@@ -24,20 +24,20 @@ require_once('db_ops.php');
     href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" 
     integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" 
     crossorigin="anonymous">
-
-    <title>Hello, world!</title>
+    <link rel="stylesheet" href="css/main.css">
+    <title>Finance Job Order</title>
   </head>
   <body>
     <?php require 'navbar.php'; ?>
     <div class="container">
-        <h3 class="display-4">Job Orders</h3>
+        <h3 class="display-4 my-4 page-title">Job Orders</h3>
         <div class="row md-mt-3 justify-content-end">
             <div class="col-4">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Job Order #" aria-label="Job Order #" aria-describedby="basic-addon2">
+                    <!-- <input type="text" class="form-control" placeholder="Job Order #" aria-label="Job Order #" aria-describedby="basic-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" type="submit">Search</button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -61,16 +61,16 @@ require_once('db_ops.php');
                 <td>
                 <a href="#" id="job_order_number"><?php echo $jo_arr['job_order_number']; ?></button>
                 </td>
-                <?php 
-                  if ($jo_arr['status'] == 0) {
-                ?>
+                  <?php 
+                    if ($jo_arr['status'] == 0) {
+                  ?>
                 <td><?php echo "0 Php"; ?></td>               
                 <td><?php echo $jo_arr['last_payment']; ?></td>
-                <td><?php echo "Fully Paid" ?></td>
+                <td><?php echo "Fully Paid"; ?></td>
                 <?php
                   }else {
                 ?>
-                  <td><?php echo $jo_arr['remaining_balance']." Php"; ?></td>               
+                  <td><?php echo number_format($jo_arr['status'],2,".","")." Php"; ?></td>               
                   <td><?php echo $jo_arr['aging']; ?></td>
                   <td><?php echo "Unpaid" ?></td>
                 <?php

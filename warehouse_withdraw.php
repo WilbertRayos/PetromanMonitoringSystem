@@ -4,8 +4,6 @@ require_once('db_ops.php');
 if (!isset($_SESSION['loggedIn']) ) {
     header('Location: index.php');
 }
-$today = date("F j, Y, l");   
-echo $today;
 
 $obj_products = new Fetch_Warehouse_Products;
 $obj_products->fetchProductFromDatabase();
@@ -96,7 +94,7 @@ if (isset($_POST['withdraw_save'])) {
                     <button type="submit" class="form-control btn btn-primary" id="withdraw_save" name="withdraw_save">Save</button>
                 </div>
                 <div class="form-group col-md-3">
-                    <a href="projects.php" type="button" class="form-control btn btn-danger" id="withdraw_cancel" name="withdraw_cancel">Cancel</a>
+                    <a href="warehouse.php" type="button" class="form-control btn btn-danger" id="withdraw_cancel" name="withdraw_cancel">Cancel</a>
                 </div>
             </div>
             

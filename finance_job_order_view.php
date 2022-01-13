@@ -4,7 +4,6 @@ require_once('db_ops.php');
 if (!isset($_SESSION['loggedIn']) ) {
     header('Location: index.php');
 }
-
 $job_order_number = $_GET['jo_num'];
 require_once("db_ops.php");
 $db_obj_joFinance = new Finance_Job_Order();
@@ -42,36 +41,39 @@ if (isset($_POST['save_payment'])) {
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <title>Hello, world!</title>
+    <link rel="stylesheet" href="css/main.css">
+    <title>Job Order Finance</title>
   </head>
   <body>
     <?php require('navbar.php');?>
     <div class="container">
-        <h3 class="display-4"><?php echo $job_order_number; ?> Finance </h3>
+        <h3 class="display-4 my-4 page-title"><?php echo $job_order_number; ?> Finance </h3>
         <hr />
             <div class="form-row">
                 <div class="col-md-6">
                     <form action="<?php echo $path_parts['basename'];?>" method="POST" id="payment">
                         <div class="form-group col-md-12">
                             <label for="date_created">Date Created</label>
-                            <input class="form-control" id="date_created" name="date_created" value="<?php echo $date_created?>" readonly />
+                            <input class="form-control" id="date_created" name="date_created" value="<?php echo $date_created;?>" readonly />
                         </div>
                         <div class="form-group col-md-12">
                             <label for="total_amount">Total Amount</label>
-                            <input class="form-control" id="total_amount" name="total_amount" value="<?php echo $total_amount?>" readonly />
+                            <input class="form-control" id="total_amount" name="total_amount" value="<?php echo number_format($total_amount,2,".","");?>" readonly />
                         </div>
                         <div class="form-group col-md-12">
                             <label for="terms_of_payment">Terms of Payment</label>
-                            <input class="form-control" id="terms_of_payment" name="terms_of_payment" value="<?php echo $terms_of_payment?>" readonly />
+                            <input class="form-control" id="terms_of_payment" name="terms_of_payment" value="<?php echo $terms_of_payment;?>" readonly />
                         </div>
                         <div class="form-group col-md-12">
                             <label for="remaining_balance">Remaining Balance</label>
-                            <input class="form-control" id="remaining_balance" name="remaining_balance" value="<?php echo $remaining_balance?>" readonly />
+                            <input class="form-control" id="remaining_balance" name="remaining_balance" value="<?php echo number_format($remaining_balance,2,".",""); ?>" readonly />
                         </div>
                     </form>
                 </div>
-                <div class="col-md-6" style="background-color:yellowgreen">
+                <?php 
+                    if ($_SESSION["employee_role"] == "Admin") {
+                ?>
+                <div class="col-md-6 px-2 py-3 mb-4 menu-box">
                     <form action="<?php echo $path_parts['basename'];?>" method="POST" id="payment_information">
                         <div class="form-group col-md-12">
                             <label for="amount_paid">Amount Paid</label>
@@ -92,8 +94,37 @@ if (isset($_POST['save_payment'])) {
                         <button type="submit" class="form-control btn btn-primary" id="save_payment" name="save_payment" form="payment_information">Save Payment</button>
                     </form>
                 </div>
-                
+                <?php 
+                    }
+                ?>
             </div>
+
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Deposit Date</th>
+                        <th scope="col">Bank</th>
+                        <th scope="col">Reference Number</th>
+                        <th scope="col">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                        $all_transactions = $db_obj_joFinance->fetchSpecificJobOrderTransaction($job_order_number);
+                        foreach($all_transactions as $transaction) {
+                    ?>
+                        <tr>
+                            <td><?php echo $transaction["deposit_date"]; ?></td>
+                            <td><?php echo $transaction["bank"]; ?></td>
+                            <td><?php echo $transaction["reference_number"]; ?></td>
+                            <td><?php echo number_format($transaction["amount"], 2,'.',''); ?></td>
+                        </tr>
+                    <?php
+                        }
+                    
+                    ?>
+
+                </tbody>
     </div>
 
     <!-- Optional JavaScript -->

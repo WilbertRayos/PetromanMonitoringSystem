@@ -20,7 +20,8 @@ if (isset($_POST['ts_update'])){
     $db_obj_updateTradingSales->updateTradingSalesInformation($_POST['ts_number'], $_POST['ts_clientName'], $_POST['ts_representative'],
     $_POST['ts_address'],$_POST['ts_date'],$_POST['ts_tin'],$_POST['ts_cod']);
     $db_obj_updateTradingSales->withdrawStocksFromWarehouse($_POST['ts_number'],$_POST['ts_date'],$_POST['ts_clientName'],$arr);
-    // header('Location: trading_sales.php');
+    
+    header('Reload: 0');
 }
 
 
@@ -81,7 +82,6 @@ if (isset($_POST['save_checklist'])) {
         echo "Fill-up total_material_used information";
     } else {
         if ($ts_count['total_number'] == 0) {
-            echo "wes";
             $db_obj_2 = new Add_New_Trading_Sales_Checklist($_GET['ts_num'], 
                                             $_POST['or_control_number'], $_POST['or_date'], 
                                             $_POST['ar_control_number'], $_POST['ar_date'], 
@@ -104,9 +104,10 @@ if (isset($_POST['save_checklist'])) {
     }
     
 }  
-
 if (isset($_POST['ts_delete'])) {
-    $obj_ts_delete = new Delete_Specific_Trading_Sales($_POST["ts_number"]);
+    $arr_items = json_decode($_POST['ts_item_array']);
+    $obj_ts_delete = new Delete_Specific_Trading_Sales($_POST["ts_number"],$_SESSION['employee_fName']." ".$_SESSION['employee_mName']." ".$_SESSION['employee_lName'],  $arr_items);
+    $obj_ts_delete->returnItemsToWarehouse();
     $obj_ts_delete->deleteTradingSales();
     header("Location: trading_sales.php");
 }
@@ -123,15 +124,15 @@ if (isset($_POST['ts_delete'])) {
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <title>Hello, world!</title>
+    <link rel="stylesheet" href="css/main.css">
+    <title>View Trading Sales</title>
   </head>
   <body>
    
     <?php require('navbar.php');?>
 
     <div class="container">
-        <h3 class="display-4">Trading Sales</h3>
+        <h3 class="display-4 my-4 page-title">Trading Sales</h3>
         <form action="<?php echo $path_parts['basename'];?>" method="POST" id="ts_information">
             <div class="form-row">
                 <div class="form-group col-md-5">
@@ -144,7 +145,7 @@ if (isset($_POST['ts_delete'])) {
                 </div>
                 <div class="form-group col-md-4">
                     <label for="ts_date">Date(mm/dd/yyyy) </label>
-                    <input class="form-control" id="ts_date" name="ts_date" value="<?php echo $ts_information['trading_sales_date']; ?>" readonly/>
+                    <input class="form-control" id="ts_date" name="ts_date" value="<?php echo $ts_information['trading_sales_date'];?>" readonly/>
                 </div>
                 <div class="form-group col-md-8">
                     <label for="ts_representative">Representative</label>
@@ -193,7 +194,7 @@ if (isset($_POST['ts_delete'])) {
                 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="ts_totalPayment">Total Payment</label>
-                    <input type="number" class="form-control" id="ts_totalPayment" value="<?php echo $ts_information['ts_sum']; ?>" readonly/>
+                    <input type="number" class="form-control" id="ts_totalPayment" value="<?php echo number_format((float)$ts_information['ts_sum'],2,'.',''); ?>" readonly/>
                 </div>
             </div>
             <input type="hidden" id="ts_item_array" name="ts_item_array">
@@ -268,7 +269,7 @@ if (isset($_POST['ts_delete'])) {
                             <td><?php echo $tsb_order_item['quantity'] ?></td>
                             <td><?php echo $tsb_order_item['unit_price'] ?></td>
                             <td><?php echo $tsb_order_item['quantity']*$tsb_order_item['unit_price'] ?></td>
-                            <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Deletee</button><td>
+                            <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Delete</button></td>
                         </tr>
 
                     <?php 

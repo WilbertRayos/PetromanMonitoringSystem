@@ -18,37 +18,37 @@ require_once('db_ops.php');
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="css/main.css">
     <title>Warehouse</title>
     <script src="js/main.js"></script>
   </head>
   <body>
     <?php require 'navbar.php';?>
     <div class="container">
-      <h4 class="display-4">Warehouse</h4>
-      <div class="row mt-md-3">
+    <h1 class="display-4 my-4 page-title">Warehouse</h1>
+      <div class="row mt-md-12">
         <!-- Search Bar Column -->
-        <div class="col-md-4 order-md-12">
+        <!-- <div class="col-md-4 order-md-12">
           <div class="input-group mb-3">
             <input type="text" class="form-control" placeholder="Job Order #" aria-label="Job Order #" aria-describedby="basic-addon2">
             <div class="input-group-append">
               <button class="btn btn-outline-secondary" type="submit">Search</button>
             </div>
           </div>
-        </div>
+        </div> -->
         <!-- Create Job Order Column -->
-        <div class="col-md-1 order-md-1" >
-          <a href="warehouse_receive.php" class="btn btn-success">Receive</a>
+        <div class="col-md-12 order-md-12 " >
+          <a href="warehouse_receive.php" class="btn btn-success btn-xl float-right">Receive</a>
         </div>
-        <div class="col-md-7 order-md-1" >
+        <!-- <div class="col-md-7 order-md-1" >
           <a href="warehouse_withdraw.php" class="btn btn-warning">Withdraw</a>
-        </div>
+        </div> -->
       </div>
  
 
       
 
-      <h4 class="display-5">Summary</h4>
+      <h4 class="display-5 my-5 menu-box-title">Summary</h4>
       <table class="table table-sm">
         <thead class="thead-dark">
           <tr>
@@ -84,7 +84,7 @@ require_once('db_ops.php');
         </tbody>
       </table>
       <hr/>
-      <h4 class="display-5">All Transactions</h4>
+      <h4 class="display-5 my-5 menu-box-title">All Transactions</h4>
       
           <?php
             $obj_fetch_warehouse_summary = new Fetch_Warehouse_Summary;

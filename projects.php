@@ -19,26 +19,27 @@ require_once('db_ops.php');
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
-    <title>Hello, world!</title>
+    <title>Projects</title>
     <script src="js/main.js"></script>
+    <link rel="stylesheet" href="css/main.css">
   </head>
   <body>
     <?php require 'navbar.php';?>
     <div class="container">
-      <h3 class="display-4">Projects / Job Orders</h3>
+      <h3 class="display-4 my-4 page-title">Projects / Job Orders</h3>
       <div class="row mt-md-3">
         <!-- Search Bar Column -->
-        <div class="col-md-4 order-md-12">
+        <!-- <div class="col-md-4 order-md-12">
           <div class="input-group mb-3">
             <input type="text" class="form-control" placeholder="Job Order #" aria-label="Job Order #" aria-describedby="basic-addon2">
             <div class="input-group-append">
               <button class="btn btn-outline-secondary" type="submit">Search</button>
             </div>
           </div>
-        </div>
+        </div> -->
         <!-- Create Job Order Column -->
-        <div class="col-md-8 order-md-1" >
-          <a href="job_order_form.php" class="btn btn-primary">Create Job Order</a>
+        <div class="col-md-12 order-md-1 my-5" >
+          <a href="job_order_form.php" class="btn btn-xl float-right">Create Job Order</a>
         </div>
       </div>
  

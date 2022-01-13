@@ -24,20 +24,20 @@ require_once('db_ops.php');
     href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" 
     integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" 
     crossorigin="anonymous">
-
+    <link rel="stylesheet" href="css/main.css">
     <title>Finance Trading Sales</title>
   </head>
   <body>
     <?php require 'navbar.php'; ?>
     <div class="container">
-        <h3 class="display-4">Trading Sales</h3>
+        <h3 class="display-4 my-4 page-title">Trading Sales</h3>
         <div class="row md-mt-3 justify-content-end">
             <div class="col-4">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Job Order #" aria-label="Job Order #" aria-describedby="basic-addon2">
+                    <!-- <input type="text" class="form-control" placeholder="Job Order #" aria-label="Job Order #" aria-describedby="basic-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary" type="submit">Search</button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

@@ -57,23 +57,23 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <title>Hello, world!</title>
+    <link rel="stylesheet" href="css/main.css">
+    <title>Accounts</title>
     <script src="js/main.js"></script>
   </head>
   <body>
     <?php include("navbar.php"); ?>
     <div class="container">
         <div class="row float-right">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#newAccountModal">
+            <button type="button" class="btn btn-xl my-2" data-toggle="modal" data-target="#newAccountModal">
               Create New Account
             </button>
         </div>
-        <h2 class="display-4">Admins</h2>
+        <h2 class="display-4 my-4 page-title">Admins</h2>
         <hr />
         <div class="row">
-            <div class="col-md-10">        
-                <p class="lead">Table of admin accounts</p>
+            <div class="col-md-12">        
+                <p class="lead my-4 menu-box-title">Table of admin accounts</p>
             </div>
             <div class="col-md-2">
                 
@@ -174,9 +174,9 @@
         </tbody>
         </table>
 
-        <h2 class="display-4">Agents</h2>
+        <h2 class="display-4 my-4 page-title">Agents</h2>
         <hr />
-        <p class="lead">Table of agent accounts</p>
+        <p class="lead my-4 menu-box-title">Table of agent accounts</p>
 
         <table class="table table-striped table-sm">
         <thead class="thead-dark">

@@ -42,13 +42,13 @@ if (isset($_POST['save_payment'])) {
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <title>Hello, world!</title>
+    <link rel="stylesheet" href="css/main.css">
+    <title>Trading Sales Finance</title>
   </head>
   <body>
     <?php require('navbar.php');?>
     <div class="container">
-        <h3 class="display-4"><?php echo $trading_sales_number; ?> Finance </h3>
+        <h3 class="display-4 my-5 page-title"><?php echo $trading_sales_number; ?> Finance </h3>
         <hr />
             <div class="form-row">
                 <div class="col-md-6">
@@ -71,7 +71,7 @@ if (isset($_POST['save_payment'])) {
                         </div>
                     </form>
                 </div>
-                <div class="col-md-6" style="background-color:yellowgreen">
+                <div class="col-md-6 px-2 py-3 menu-box" >
                     <form action="<?php echo $path_parts['basename'];?>" method="POST" id="payment_information">
                         <div class="form-group col-md-12">
                             <label for="amount_paid">Amount Paid</label>
@@ -92,8 +92,35 @@ if (isset($_POST['save_payment'])) {
                         <button type="submit" class="form-control btn btn-primary" id="save_payment" name="save_payment" form="payment_information">Save Payment</button>
                     </form>
                 </div>
-                
             </div>
+            <hr />
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Deposit Date</th>
+                        <th scope="col">Bank</th>
+                        <th scope="col">Reference Number</th>
+                        <th scope="col">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                        $all_transactions = $db_obj_tsFinance->fetchSpecificTradingSalesTransaction($trading_sales_number);
+                        foreach($all_transactions as $transaction) {
+                    ?>
+                        <tr>
+                            <td><?php echo $transaction["deposit_date"]; ?></td>
+                            <td><?php echo $transaction["bank"]; ?></td>
+                            <td><?php echo $transaction["reference_number"]; ?></td>
+                            <td><?php echo number_format($transaction["amount"], 2,'.',''); ?></td>
+                        </tr>
+                    <?php
+                        }
+                    
+                    ?>
+
+                </tbody>
+            </table>
     </div>
 
     <!-- Optional JavaScript -->

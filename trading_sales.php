@@ -17,27 +17,27 @@ require_once('db_ops.php');
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="css/main.css">
     <title>Trading Sales</title>
     <script src="js/main.js"></script>
   </head>
   <body>
     <?php require 'navbar.php';?>
     <div class="container">
-      <h3 class="display-4">Trading Sales</h3>
+      <h3 class="display-4 my-4 page-title">Trading Sales</h3>
       <div class="row mt-md-3">
         <!-- Search Bar Column -->
-        <div class="col-md-4 order-md-12">
+        <!-- <div class="col-md-4 order-md-12">
           <div class="input-group mb-3">
             <input type="text" class="form-control" placeholder="Trading Form #" aria-label="Trading Form #" aria-describedby="basic-addon2">
             <div class="input-group-append">
               <button class="btn btn-outline-secondary" type="submit">Search</button>
             </div>
           </div>
-        </div>
+        </div> -->
         <!-- Create Trading Sales Column -->
-        <div class="col-md-8 order-md-1" >
-          <a href="trading_sales_form.php" class="btn btn-primary">Create Trading Sales</a>
+        <div class="col-md-12 order-md-1" >
+          <a href="trading_sales_form.php" class="btn my-3 btn-xl float-right">Create Trading Sales</a>
         </div>
       </div>
  
@@ -47,7 +47,7 @@ require_once('db_ops.php');
             <th scope="col">Order Form #</th>
             <th scope="col">Company Name</th>
             <th scope="col">Trade Value</th>
-            <th scope="col">Agent</th>
+            <th scope="col">Creator</th>
           </tr>
         </thead>
         <tbody>

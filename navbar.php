@@ -31,8 +31,19 @@
 
 ?>
 
+<html>
+  <head>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <style>
+      a:hover {
+        background-color: #ff8c1a;
+        border-radius: 5px;
+        color:#000000 !important;  
+      }
+    </style>
+  </head>
+  <body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#" data-toggle="modal" data-target="#exampleModal">
         <?php
             if($_SESSION['employee_role'] == 'Admin'){
@@ -144,4 +155,8 @@
   </div>
   
 </nav>
+  </body>
+</html>
+
+
 

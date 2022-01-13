@@ -656,7 +656,7 @@ class Delete_Specific_Job_Order extends Dbh {
             $stm->execute();
             $stm->closeCursor();
         } catch (PDOException $e) {
-            echo $e;
+            echo "<script>alert('You cannot delete this Job Order. If payment has been made.');</script>";
         }
     }
 }
@@ -1114,7 +1114,7 @@ class Finance_Job_Order extends Dbh {
         $query = "SELECT j.job_order_number, COALESCE(SUM(i.quantity*i.unit_price), 0)+j.mobilization AS remaining_balance, (CURDATE() - j.date) AS aging, COALESCE(SUM(i.quantity*i.unit_price)+j.mobilization, 0)-COALESCE(SUM(p.amount),0) AS status, CURDATE()-MAX(p.deposit_date) as last_payment
                     FROM job_order j
                     LEFT JOIN job_order_items i ON j.job_order_number = i.job_order_number
-                    LEFT JOIN payments p ON j.job_order_number = p.job_order_number
+                    LEFT JOIN job_order_payment p ON j.job_order_number = p.job_order_number
                     GROUP BY j.job_order_number";
         $stm = $this->connect()->prepare($query);
         $stm->execute();
@@ -1125,12 +1125,11 @@ class Finance_Job_Order extends Dbh {
     }
 
     function fetchSpecificJobOrderFinance($job_order_number) {
-        echo $job_order_number;
         try {
             $query = "SELECT j.date AS date_created, COALESCE(SUM(i.quantity*i.unit_price), 0)+j.mobilization AS total_amount, j.terms_of_payment, COALESCE(SUM(i.quantity*i.unit_price)+j.mobilization, 0)-COALESCE(SUM(p.amount),0) AS remaining_balance
                         FROM job_order j
                         LEFT JOIN job_order_items i ON j.job_order_number = i.job_order_number
-                        LEFT JOIN payments p ON j.job_order_number = p.job_order_number
+                        LEFT JOIN job_order_payment p ON j.job_order_number = p.job_order_number
                         WHERE j.job_order_number = :job_order_number";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':job_order_number', $job_order_number);
@@ -1146,11 +1145,10 @@ class Finance_Job_Order extends Dbh {
 
     function insertPayment($job_order_number, $amount, $bank, $reference_number, $deposit_date) {
         try {
-            $query = "INSERT INTO payments (job_order_number, collectibles_type, amount, bank, reference_number, deposit_date) 
-                        VALUES (:job_order_number, :collectibles_type, :amount, :bank, :reference_number, :deposit_date)";
+            $query = "INSERT INTO job_order_payment (job_order_number, amount, bank, reference_number, deposit_date) 
+                        VALUES (:job_order_number, :amount, :bank, :reference_number, :deposit_date)";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':job_order_number', $job_order_number);
-            $stm->bindValue(':collectibles_type', "JO");
             $stm->bindValue(':amount', $amount);
             $stm->bindValue(':bank', $bank);
             $stm->bindValue(':reference_number', $reference_number);
@@ -1158,6 +1156,21 @@ class Finance_Job_Order extends Dbh {
             $stm->execute();
             $stm->closeCursor();
         } catch(PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function fetchSpecificJobOrderTransaction($job_order_number) {
+        try {
+            $query = "SELECT amount, bank, reference_number, deposit_date FROM job_order_payment WHERE job_order_number = :job_order_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":job_order_number", $job_order_number);
+            $stm->execute();
+            $jo_transaction = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+
+            return $jo_transaction;
+        } catch (PDOException $e) {
             echo $e;
         }
     }
@@ -1299,9 +1312,23 @@ class Create_New_Trading_Sales extends Dbh {
 
 class Delete_Specific_Trading_Sales extends Dbh {
     private $trading_sales_number;
+    private $name;
+    private $arr_items;
 
-    function __construct($trading_sales_number){
+    function __construct($trading_sales_number, $name, $arr_items){
         $this->trading_sales_number = $trading_sales_number;
+        $this->name = $name;
+        $this->arr_items = $arr_items;
+    }
+
+    function returnItemsToWarehouse() {
+        $item_mod = array();
+        foreach ($this->arr_items as $item) {
+            array_push($item_mod, array($item[0], $item[2]));
+        }
+        print_r($item_mod);
+        $warehouse_obj = new Process_Warehouse_Products("Receive", $this->trading_sales_number, date("Y-m-d"), $this->name, $item_mod);
+        $warehouse_obj->productController();
     }
 
     function deleteTradingSales() {
@@ -1460,6 +1487,7 @@ class Update_Trading_Sales extends Dbh {
 
     function returnStockToWarehouse() {
         $obj_warehouse = new Process_Warehouse_Products("Receive", $this->trading_sales_number, $this->current_trading_sales_date, $this->current_client_name, $this->current_items_arr);
+        echo "restock";
         $obj_warehouse->productController();
     }
 
@@ -1469,6 +1497,7 @@ class Update_Trading_Sales extends Dbh {
             array_push($warehouse_items_arr, array($items[0], $items[2]));
         }
         $obj_warehouse = new Process_Warehouse_Products("Withdraw",$nts_number,$nts_date,$nts_client_name,$warehouse_items_arr);
+        echo "withdraw";
         $obj_warehouse->productController();
     }
 
@@ -1919,7 +1948,6 @@ class Finance_Trading_Sales extends Dbh {
 
     function insertPayment($trading_sales_number, $amount, $bank, $reference_number, $deposit_date) {
         try {
-            echo "ewewew";
             $query = "INSERT INTO trading_sales_payment (trading_sales_number, amount, bank, reference_number, deposit_date) 
                         VALUES (:trading_sales_number, :amount, :bank, :reference_number, :deposit_date)";
             $stm = $this->connect()->prepare($query);
@@ -1932,6 +1960,21 @@ class Finance_Trading_Sales extends Dbh {
             $stm->closeCursor();
             
         } catch(PDOException $e) {
+            echo $e;
+        }
+    }
+
+    function fetchSpecificTradingSalesTransaction($trading_sales_number) {
+        try {
+            $query = "SELECT amount, bank, reference_number, deposit_date FROM trading_sales_payment WHERE trading_sales_number = :trading_sales_number";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":trading_sales_number", $trading_sales_number);
+            $stm->execute();
+            $ts_transaction = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+
+            return $ts_transaction;
+        } catch (PDOException $e) {
             echo $e;
         }
     }
@@ -2084,7 +2127,7 @@ class Process_Warehouse_Products extends Dbh {
 
     function fetchPreviousEnd($product) {
         try{
-            $query = "SELECT ending_qty FROM warehouse WHERE product_id=(SELECT product_id FROM products WHERE product_desc = :product_desc) ORDER BY operation_date DESC LIMIT 1";
+            $query = "SELECT ending_qty FROM warehouse WHERE product_id=(SELECT product_id FROM products WHERE product_desc = :product_desc) ORDER BY warehouse_id DESC LIMIT 1";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':product_desc', $product);
             $stm->execute();
@@ -2118,13 +2161,20 @@ class Process_Warehouse_Products extends Dbh {
     }
 
     function productController() {
+        print_r($this->arr_products);
+        echo "<br />";
         foreach($this->arr_products as $product) {
+            echo "<script>alert('arr');</script>";
             $product_name = $product[0];
+            echo $product_name;
             $new_beg = $this->fetchPreviousEnd($product[0]);
             $new_end = 0;
             if ($this->activity === "Receive") {
+                echo "<script>alert('{$new_beg}');</script>";
                 $new_end = $new_beg + $product[1];
+
             } else if ($this->activity === "Withdraw") {
+                echo "<script>alert('withdraw');</script>";
                 $new_end = $new_beg - $product[1];
             }
             
@@ -2156,7 +2206,7 @@ class Fetch_Warehouse_Summary extends Dbh {
                         FROM warehouse w 
                         RIGHT JOIN products p ON w.product_id = p.product_id 
                         WHERE p.product_desc = :product_name 
-                        ORDER BY w.warehouse_id DESC 
+                        ORDER BY w.warehouse_id DESC
                         LIMIT 1";
             // $query = "SELECT p.product_desc, w.activity, w.control_number, w.person_name, w.operation_date, w.beginning_qty, w.ending_qty 
             //             FROM warehouse w
