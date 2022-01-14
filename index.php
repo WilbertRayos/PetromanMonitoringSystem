@@ -98,7 +98,7 @@
   <body>
     <div class="container h-75 d-flex">
         <div class="jumbotron my-auto mx-auto w-50">
-            <img src="img/l.png" class="mx-auto d-block img-fluid" />
+            <img src="img/logo.png" class="mx-auto d-block img-fluid" />
             <hr />
             <form action="index.php" method="POST" id="loginForm">
                 <div class="form-group">
