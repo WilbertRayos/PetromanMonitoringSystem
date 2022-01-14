@@ -1816,6 +1816,7 @@ class Update_Trading_Sales_Checklist extends Dbh {
 
     function updateChecklist() {
         try {
+            echo "ere";
             $this->updateOR();
             $this->updateAR();
             $this->updateWS();
@@ -1913,7 +1914,7 @@ class Update_Trading_Sales_Checklist extends Dbh {
             $stm->execute();
             $stm->closeCursor();
         }catch (PDOException $e) {
-            echo "wews".$e;
+            echo $e;
         }
         
     }

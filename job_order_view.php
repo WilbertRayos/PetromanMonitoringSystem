@@ -62,21 +62,21 @@ if ($jo_count > 0) {
 
 if (isset($_POST['save_checklist']) && !($jo_count > 0)) {
     if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
-        echo "Fill-up OR information";
+        echo "<script>alert('Fill-up OR information');</script>";
     } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
-        echo "Fill-up AR information";
+        echo "<script>alert('Fill-up AR information');</script>";
     } else if (!isset($_POST['ws_control_number']) || empty($_POST['ws_control_number']) || !isset($_POST['ws_date']) || empty($_POST['ws_date'])) {
-        echo "Fill-up WS information";
+        echo "<script>alert('Fill-up WS information');</script>";
     } else if (!isset($_POST['cr_control_number']) || empty($_POST['cr_control_number']) || !isset($_POST['cr_date']) || empty($_POST['cr_date'])) {
-        echo "Fill-up CR information";
+        echo "<script>alert('Fill-up CR information');</script>";
     } else if (!isset($_POST['dr_control_number']) || empty($_POST['dr_control_number']) || !isset($_POST['dr_date']) || empty($_POST['dr_date'])) {
-        echo "Fill-up DR information";
+        echo "<script>alert('Fill-up DR information');</script>";
     } else if (!isset($_POST['2307']) || empty($_POST['2307'])) {
-        echo "Fill-up 2303/2307 information";
+        echo "<script>alert('Fill-up 2303/2307 information');</script>";
     } else if (!isset($_POST['soa']) || empty($_POST['soa'])) {
-        echo "Fill-up SOA information";
+        echo "<script>alert('Fill-up SOA information');</script>";
     } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
-        echo "Fill-up total_material_used information";
+        echo "<script>alert('Fill-up total_material_used information');</script>";
     } else {
         $db_obj_2 = new Add_New_Checklist($_GET['jo_num'], 
                                         $_POST['or_control_number'], $_POST['or_date'], 
@@ -89,23 +89,23 @@ if (isset($_POST['save_checklist']) && !($jo_count > 0)) {
         $new_checklist = $db_obj_2->addNewChecklist();
         header("Refresh:0");
     }
-} else if (isset($_POST['save_checklist']) && ($jo_count > 1)) {
+} else if (isset($_POST['save_checklist']) && ($jo_count >= 1)) {
     if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
-        echo "Fill-up OR information";
+        echo "<script>alert('Fill-up OR information');</script>";
     } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
-        echo "Fill-up AR information";
+        echo "<script>alert('Fill-up AR information');</script>";
     } else if (!isset($_POST['ws_control_number']) || empty($_POST['ws_control_number']) || !isset($_POST['ws_date']) || empty($_POST['ws_date'])) {
-        echo "Fill-up WS information";
+        echo "<script>alert('Fill-up WS information');</script>";
     } else if (!isset($_POST['cr_control_number']) || empty($_POST['cr_control_number']) || !isset($_POST['cr_date']) || empty($_POST['cr_date'])) {
-        echo "Fill-up CR information";
+        echo "<script>alert('Fill-up CR information');</script>";
     } else if (!isset($_POST['dr_control_number']) || empty($_POST['dr_control_number']) || !isset($_POST['dr_date']) || empty($_POST['dr_date'])) {
-        echo "Fill-up DR information";
+        echo "<script>alert('Fill-up DR information');</script>";
     } else if (!isset($_POST['2307']) || empty($_POST['2307'])) {
-        echo "Fill-up 2303/2307 information";
+        echo "<script>alert('Fill-up 2303/2307 information');</script>";
     } else if (!isset($_POST['soa']) || empty($_POST['soa'])) {
-        echo "Fill-up SOA information";
+        echo "<script>alert('Fill-up SOA information');</script>";
     } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
-        echo "Fill-up total_material_used information";
+        echo "<script>alert('Fill-up total_material_used information');</script>";
     } else {
         $db_obj_3 = new Update_Checklist(
             $_GET['jo_num'], $_POST['or_control_number'], $_POST['or_date'],
