@@ -87,7 +87,9 @@ require_once('db_ops.php');
     <script>
       $('a#trading_sales_number').on('click', function() {
         var ts_num = $(this).text();
-        window.location.href = "/petroman/trading_sales_view.php?ts_num="+ts_num;
+        var loc = window.location.pathname;
+        var dir = loc.substring(0, loc.lastIndexOf('/'));
+        window.location.href = dir+"/trading_sales_view.php?ts_num="+ts_num;
       })
     </script>
   </body>

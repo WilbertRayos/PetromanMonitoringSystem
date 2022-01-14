@@ -9,10 +9,12 @@ require_once("db_ops.php");
 $db_obj_joFinance = new Finance_Job_Order();
 $jo_finance_info = $db_obj_joFinance->fetchSpecificJobOrderFinance($job_order_number);
 
+$company = $jo_finance_info['client_name'];
 $date_created = $jo_finance_info['date_created'];
 $total_amount = $jo_finance_info['total_amount'];
 $terms_of_payment = $jo_finance_info['terms_of_payment'];
-$remaining_balance = $jo_finance_info['remaining_balance'];
+$amount_paid = $jo_finance_info['amount_paid'];
+$remaining_balance = $total_amount - $amount_paid;
 
 
 if (isset($_POST['save_payment'])) {
@@ -47,7 +49,8 @@ if (isset($_POST['save_payment'])) {
   <body>
     <?php require('navbar.php');?>
     <div class="container">
-        <h3 class="display-4 my-4 page-title"><?php echo $job_order_number; ?> Finance </h3>
+        <h3 class="display-4 mt-4 page-title"><?php echo $job_order_number; ?> Finance </h3>
+        <h5 class="display-5 mb-5"><?php echo $company; ?></h5>
         <hr />
             <div class="form-row">
                 <div class="col-md-6">

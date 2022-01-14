@@ -107,7 +107,7 @@
                 echo "active";
             }
         ?>">
-        <a class="nav-link" href="calendar.php">Itenerary Calendar<span class="sr-only"></span></a>
+        <a class="nav-link" href="calendar.php">Itinerary Calendar<span class="sr-only"></span></a>
       </li>
     </ul>
     <form class="form-inline my-2 my-lg-0" action="#" method="POST">
@@ -120,7 +120,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Account Information</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -134,11 +134,11 @@
                 <input type="input" class="form-control" id="employee_role" value="<?php echo $_SESSION['employee_role']; ?>" readonly>
                 <label for="employee_fName">First Name</label>
                 <input type="input" class="form-control" id="employee_fName" name="employee_fName" value="<?php echo $_SESSION['employee_fName'] ?>">
-                <label for="employee_mName">First Name</label>
+                <label for="employee_mName">Middle Name</label>
                 <input type="input" class="form-control" id="employee_mName" name="employee_mName" value="<?php echo $_SESSION['employee_mName'] ?>">
-                <label for="employee_lName">First Name</label>
+                <label for="employee_lName">Last Name</label>
                 <input type="input" class="form-control" id="employee_lName" name="employee_lName" value="<?php echo $_SESSION['employee_lName'] ?>">
-                <label for="employee_email">First Name</label>
+                <label for="employee_email">Email</label>
                 <input type="email" class="form-control" id="employee_email" name="employee_email" value="<?php echo $_SESSION['employee_email'] ?>">
                 <label for="employee_password">Password</label>
                 <input class="form-control" type="password" id="employee_password" name="employee_password" value="<?php echo $_SESSION['employee_password'] ?>">

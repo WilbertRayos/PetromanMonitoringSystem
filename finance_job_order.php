@@ -46,6 +46,7 @@ require_once('db_ops.php');
         <thead class="thead-dark">
           <tr>
             <th scope="col">Job Order #</th>
+            <th scope="col">Company</th>
             <th scope="col">Remaining Balance</th>
             <th scope="col">Aging</th>
             <th scope="col">Status</th>
@@ -56,13 +57,15 @@ require_once('db_ops.php');
             $obj_1 = new Finance_Job_Order;
             $all_jo = $obj_1->fetchAllJobOrderFinance();
             foreach ($all_jo as $jo_arr) {
+              $remaining_balance = $jo_arr['total_amount'] - $jo_arr['amount_paid'];
           ?>
             <tr>
                 <td>
-                <a href="#" id="job_order_number"><?php echo $jo_arr['job_order_number']; ?></button>
+                  <a href="#" id="job_order_number"><?php echo $jo_arr['job_order_number']; ?></button>
                 </td>
+                <td><?php echo $jo_arr['client_name']; ?></td>
                   <?php 
-                    if ($jo_arr['status'] == 0) {
+                    if ($remaining_balance == 0) {
                   ?>
                 <td><?php echo "0 Php"; ?></td>               
                 <td><?php echo $jo_arr['last_payment']; ?></td>
@@ -70,7 +73,7 @@ require_once('db_ops.php');
                 <?php
                   }else {
                 ?>
-                  <td><?php echo number_format($jo_arr['status'],2,".","")." Php"; ?></td>               
+                  <td><?php echo number_format($remaining_balance,2,".","")." Php"; ?></td>               
                   <td><?php echo $jo_arr['aging']; ?></td>
                   <td><?php echo "Unpaid" ?></td>
                 <?php
@@ -93,7 +96,9 @@ require_once('db_ops.php');
   <script>
       $('a#job_order_number').on('click', function() {
         var jo_num = $(this).text();
-        window.location.href = "/petroman/finance_job_order_view.php?jo_num="+jo_num;
+        var loc = window.location.pathname;
+        var dir = loc.substring(0, loc.lastIndexOf('/'));
+        window.location.href = dir+"/finance_job_order_view.php?jo_num="+jo_num;
       })
   </script>
 </html>

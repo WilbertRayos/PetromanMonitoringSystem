@@ -57,6 +57,7 @@ require_once('db_ops.php');
             <th scope="col">Control Number</th>
             <th scope="col">Person Name</th>
             <th scope="col">Operation Date</th>
+            <th scope="col">Quantity</th>
             <th scope="col">Beginning Quantity</th>
             <th scope="col">Ending Quantity</th>
           </tr>
@@ -74,6 +75,7 @@ require_once('db_ops.php');
               <td><?php echo $product['control_number']; ?></td>
               <td><?php echo $product['person_name']; ?></td>
               <td><?php echo $product['operation_date']; ?></td>
+              <td><?php echo abs($product['ending_qty'] - $product['beginning_qty']); ?></td>
               <td><?php echo $product['beginning_qty']; ?></td>
               <td><?php echo $product['ending_qty']; ?></td>
             </tr>
@@ -103,6 +105,7 @@ require_once('db_ops.php');
                     <th scope="col">Control Number</th>
                     <th scope="col">Person Name</th>
                     <th scope="col">Operation Date</th>
+                    <th scope="col">Quantity</th>
                     <th scope="col">Beginning Quantity</th>
                     <th scope="col">Ending Quantity</th>
                   </tr>
@@ -114,6 +117,7 @@ require_once('db_ops.php');
                     <td><?php echo $transaction['control_number']; ?></td>
                     <td><?php echo $transaction['person_name']; ?></td>
                     <td><?php echo $transaction['operation_date']; ?></td>
+                    <td><?php echo abs($transaction['ending_qty'] - $transaction['beginning_qty']); ?></td>
                     <td><?php echo $transaction['beginning_qty']; ?></td>
                     <td><?php echo $transaction['ending_qty']; ?></td> 
                   </tr>
@@ -130,6 +134,7 @@ require_once('db_ops.php');
                     <th scope="col">Control Number</th>
                     <th scope="col">Person Name</th>
                     <th scope="col">Operation Date</th>
+                    <th scope="col">Quantity</th>
                     <th scope="col">Beginning Quantity</th>
                     <th scope="col">Ending Quantity</th>
                   </tr>
@@ -141,6 +146,7 @@ require_once('db_ops.php');
                     <td><?php echo $transaction['control_number']; ?></td>
                     <td><?php echo $transaction['person_name']; ?></td>
                     <td><?php echo $transaction['operation_date']; ?></td>
+                    <td><?php echo abs($transaction['ending_qty'] - $transaction['beginning_qty']); ?></td>
                     <td><?php echo $transaction['beginning_qty']; ?></td>
                     <td><?php echo $transaction['ending_qty']; ?></td> 
                   </tr>
@@ -153,6 +159,7 @@ require_once('db_ops.php');
                     <td><?php echo $transaction['control_number']; ?></td>
                     <td><?php echo $transaction['person_name']; ?></td>
                     <td><?php echo $transaction['operation_date']; ?></td>
+                    <td><?php echo abs($transaction['ending_qty'] - $transaction['beginning_qty']); ?></td>
                     <td><?php echo $transaction['beginning_qty']; ?></td>
                     <td><?php echo $transaction['ending_qty']; ?></td>  
                   </tr>  

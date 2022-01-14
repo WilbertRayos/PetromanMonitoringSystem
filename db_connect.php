@@ -25,7 +25,10 @@
             $this->DB_PASSWORD = "";
             $this->DB_NAME = "petroman";
     
-            
+            // $this->DB_SERVER = "sql213.epizy.com";
+            // $this->DB_USER = "epiz_30808673";
+            // $this->DB_PASSWORD = "pmh72jA8cQ";
+            // $this->DB_NAME = "epiz_30808673_petroman";
     
             try{
                 $dsn = "mysql:host={$this->DB_SERVER};dbname={$this->DB_NAME}";

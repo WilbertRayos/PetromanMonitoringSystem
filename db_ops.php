@@ -254,7 +254,6 @@ class Add_New_Account extends Dbh{
     }
 
     function addNewEmployee(){
-        echo $this->employee_password;
         try{
             $query = "INSERT INTO employees (employee_fName, employee_mName, employee_lName, employee_email, employee_password, role_id) 
             VALUES (:fName, :mName, :lName, :email, :password, (SELECT role_id FROM roles WHERE role_desc = :role))";
@@ -269,8 +268,9 @@ class Add_New_Account extends Dbh{
             $stm->closeCursor();
             
         }catch(PDOException $e){
-            include('db_error.php');
-            $error_msg = $e->getMessage();
+            echo "<script>alert('Failed to create the account. Check for duplicate account');</script>";
+            // include('db_error.php');
+            // $error_msg = $e->getMessage();
         }
         
 
@@ -290,7 +290,6 @@ class Add_New_Account extends Dbh{
 
     function setEmployee_email($email){
         $this->employee_email = $email;
-        echo $email;
     }
 
     // function setEmployee_password($password){
@@ -298,7 +297,6 @@ class Add_New_Account extends Dbh{
     // }
 
     function setEmployee_role($role){
-        echo $role;
         if ($role == "admin") {
             $this->employee_password = "admin123";
         }else if ($role == "agent") {
@@ -1111,10 +1109,10 @@ class Update_Job_Order extends Dbh {
 
 class Finance_Job_Order extends Dbh {
     function fetchAllJobOrderFinance() {
-        $query = "SELECT j.job_order_number, COALESCE(SUM(i.quantity*i.unit_price), 0)+j.mobilization AS remaining_balance, (CURDATE() - j.date) AS aging, COALESCE(SUM(i.quantity*i.unit_price)+j.mobilization, 0)-COALESCE(SUM(p.amount),0) AS status, CURDATE()-MAX(p.deposit_date) as last_payment
+        $query = "SELECT j.job_order_number, j.client_name, j.date AS date_created, i.sub_total+j.mobilization AS total_amount, j.terms_of_payment, p.amount_paid, (CURDATE() - j.date) AS aging, CURDATE()- p.last_deposit as last_payment
                     FROM job_order j
-                    LEFT JOIN job_order_items i ON j.job_order_number = i.job_order_number
-                    LEFT JOIN job_order_payment p ON j.job_order_number = p.job_order_number
+                    LEFT JOIN (SELECT job_order_number, SUM(quantity*unit_price) AS sub_total FROM job_order_items GROUP BY job_order_number) i ON j.job_order_number = i.job_order_number
+                    LEFT JOIN (SELECT job_order_number, SUM(amount) AS amount_paid, MAX(deposit_date) AS last_deposit FROM job_order_payment GROUP BY job_order_number) p ON j.job_order_number = p.job_order_number
                     GROUP BY j.job_order_number";
         $stm = $this->connect()->prepare($query);
         $stm->execute();
@@ -1126,11 +1124,12 @@ class Finance_Job_Order extends Dbh {
 
     function fetchSpecificJobOrderFinance($job_order_number) {
         try {
-            $query = "SELECT j.date AS date_created, COALESCE(SUM(i.quantity*i.unit_price), 0)+j.mobilization AS total_amount, j.terms_of_payment, COALESCE(SUM(i.quantity*i.unit_price)+j.mobilization, 0)-COALESCE(SUM(p.amount),0) AS remaining_balance
+            $query = "SELECT j.job_order_number, j.client_name, j.date AS date_created, i.sub_total+j.mobilization AS total_amount, j.terms_of_payment, p.amount_paid
                         FROM job_order j
-                        LEFT JOIN job_order_items i ON j.job_order_number = i.job_order_number
-                        LEFT JOIN job_order_payment p ON j.job_order_number = p.job_order_number
-                        WHERE j.job_order_number = :job_order_number";
+                        LEFT JOIN (SELECT job_order_number, SUM(quantity*unit_price) AS sub_total FROM job_order_items GROUP BY job_order_number) i ON j.job_order_number = i.job_order_number
+                        LEFT JOIN (SELECT job_order_number, SUM(amount) AS amount_paid FROM job_order_payment GROUP BY job_order_number) p ON j.job_order_number = p.job_order_number
+                        WHERE j.job_order_number = :job_order_number
+                        GROUP BY j.job_order_number";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':job_order_number', $job_order_number);
             $stm->execute();
@@ -1180,6 +1179,7 @@ class Create_New_Trading_Sales extends Dbh {
     private $trading_sales_number;
     private $client_name;
     private $representative;
+    private $contact_number;
     private $address;
     private $date;
     private $tin_number;
@@ -1188,13 +1188,14 @@ class Create_New_Trading_Sales extends Dbh {
 
     function addTradingSales() {
         try {
-            $query = "INSERT INTO trading_sales (trading_sales_number, client_name, representative, address, trading_sales_date, tin_number, 
+            $query = "INSERT INTO trading_sales (trading_sales_number, client_name, representative, contact_number, address, trading_sales_date, tin_number, 
             terms_of_payment, employee_id) VALUES (:trading_sales_number, :client_name, 
-            :representative, :address, :date, :tin_number, :terms_of_payment, :employee_id)";
+            :representative, :contact_number, :address, :date, :tin_number, :terms_of_payment, :employee_id)";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
             $stm->bindValue(':client_name', $this->client_name);
             $stm->bindValue(':representative', $this->representative);
+            $stm->bindValue(':contact_number', $this->contact_number);
             $stm->bindValue(':address', $this->address);
             $stm->bindValue(':date', $this->date);
             $stm->bindValue(':tin_number', $this->tin_number);
@@ -1256,12 +1257,13 @@ class Create_New_Trading_Sales extends Dbh {
     function fetchTradingSalesID() {
         try{
             $query = "SELECT trading_sales_id FROM trading_sales WHERE trading_sales_number = :trading_sales_number AND client_name = :client_name AND 
-            representative = :representative AND address = :address AND trading_sales_date = :date AND tin_number = :tin_number AND 
+            representative = :representative AND contact_number = :contact_number AND address = :address AND trading_sales_date = :date AND tin_number = :tin_number AND 
             terms_of_payment = :terms_of_payment AND employee_id = :employee_id";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
             $stm->bindValue(':client_name', $this->client_name);
             $stm->bindValue(':representative', $this->representative);
+            $stm->bindValue(':contact_number', $this->contact_number);
             $stm->bindValue(':address', $this->address);
             $stm->bindValue(':date', $this->date);
             $stm->bindValue(':tin_number', $this->tin_number);
@@ -1287,6 +1289,10 @@ class Create_New_Trading_Sales extends Dbh {
 
     function setRepresentative($representative) {
         $this->representative = $representative;
+    }
+
+    function setContactNumber($contact_number) {
+        $this->contact_number = $contact_number;
     }
 
     function setAddress($address) {
@@ -1384,7 +1390,7 @@ class Fetch_Specific_Trading_Sales extends Dbh {
     }
 
     function fetchTradingSalesInformation() {
-        $query = "SELECT t.trading_sales_number, t.client_name, t.representative, t.address, t.trading_sales_date, t.tin_number, t.terms_of_payment, 
+        $query = "SELECT t.trading_sales_number, t.client_name, t.representative, t.contact_number, t.address, t.trading_sales_date, t.tin_number, t.terms_of_payment, 
         CONCAT(e.employee_fName, e.employee_mName, e.employee_lName) as employee_name, SUM(i.quantity*i.unit_price) as ts_sum
         FROM trading_sales t
         INNER JOIN employees e ON e.employee_id = t.employee_id
@@ -1513,9 +1519,9 @@ class Update_Trading_Sales extends Dbh {
     //     }
     // }
 
-    function updateTradingSalesInformation($nTrading_sales_number, $nClient_name, $nRepresentative, $nAddress, $nTrading_sales_date, $nTin_number, $nTerms_of_payment) {
+    function updateTradingSalesInformation($nTrading_sales_number, $nClient_name, $nRepresentative, $nContact_number, $nAddress, $nTrading_sales_date, $nTin_number, $nTerms_of_payment) {
         $query = "UPDATE trading_sales SET trading_sales_number=:nTrading_sales_number, client_name =:nClient_name, 
-                    representative=:nRepresentative, address=:nAddress, trading_sales_date=:nTrading_sales_date, tin_number=:nTin_number, 
+                    representative=:nRepresentative, contact_number=:nContact_number ,address=:nAddress, trading_sales_date=:nTrading_sales_date, tin_number=:nTin_number, 
                     terms_of_payment=:nTerms_of_payment
                     WHERE trading_sales_number = :trading_sales_number";
         
@@ -1523,6 +1529,7 @@ class Update_Trading_Sales extends Dbh {
         $stm->bindValue(':nTrading_sales_number',$nTrading_sales_number);
         $stm->bindValue(':nClient_name',$nClient_name);
         $stm->bindValue(':nRepresentative',$nRepresentative);
+        $stm->bindValue(':nContact_number',$nContact_number);
         $stm->bindValue(':nAddress',$nAddress);
         $stm->bindValue(':nTrading_sales_date',$nTrading_sales_date);
         $stm->bindValue(':nTin_number',$nTin_number);
@@ -1914,7 +1921,7 @@ class Update_Trading_Sales_Checklist extends Dbh {
 
 class Finance_Trading_Sales extends Dbh {
     function fetchAllTradingSalesFinance() {
-        $query = "SELECT t.trading_sales_number,sum(i.quantity*i.unit_price)-COALESCE(amount,0) AS remaining_balance, (CURDATE() - t.trading_sales_date) AS aging
+        $query = "SELECT t.trading_sales_number, t.client_name,sum(i.quantity*i.unit_price)-COALESCE(amount,0) AS remaining_balance, (CURDATE() - t.trading_sales_date) AS aging
                     FROM trading_sales t
                     LEFT JOIN trading_sales_items i ON i.trading_sales_number = t.trading_sales_number
                     LEFT JOIN (SELECT p.trading_sales_number, SUM(p.amount) AS amount FROM trading_sales_payment p 
@@ -1930,7 +1937,7 @@ class Finance_Trading_Sales extends Dbh {
 
     function fetchSpecificTradingSalesFinance($trading_sales_number) {
         try {
-            $query = "SELECT t.trading_sales_date AS date_created, COALESCE(SUM(i.quantity*i.unit_price), 0) AS total_amount, t.terms_of_payment, COALESCE(SUM(i.quantity*i.unit_price), 0)-COALESCE(amount,0) AS remaining_balance
+            $query = "SELECT t.client_name, t.trading_sales_date AS date_created, COALESCE(SUM(i.quantity*i.unit_price), 0) AS total_amount, t.terms_of_payment, COALESCE(SUM(i.quantity*i.unit_price), 0)-COALESCE(amount,0) AS remaining_balance
                         FROM trading_sales t
                         LEFT JOIN trading_sales_items i ON t.trading_sales_number = i.trading_sales_number
                         LEFT JOIN (SELECT trading_sales_number, SUM(amount) AS amount FROM trading_sales_payment GROUP BY trading_sales_number)  p ON p.trading_sales_number = t.trading_sales_number
@@ -2161,20 +2168,15 @@ class Process_Warehouse_Products extends Dbh {
     }
 
     function productController() {
-        print_r($this->arr_products);
-        echo "<br />";
         foreach($this->arr_products as $product) {
-            echo "<script>alert('arr');</script>";
             $product_name = $product[0];
             echo $product_name;
             $new_beg = $this->fetchPreviousEnd($product[0]);
             $new_end = 0;
             if ($this->activity === "Receive") {
-                echo "<script>alert('{$new_beg}');</script>";
                 $new_end = $new_beg + $product[1];
 
             } else if ($this->activity === "Withdraw") {
-                echo "<script>alert('withdraw');</script>";
                 $new_end = $new_beg - $product[1];
             }
             
@@ -2267,7 +2269,8 @@ class Itinerary_Calendar extends Dbh {
         try {
             $query = "SELECT m.memo_id, CONCAT(e.employee_fName,' ',e.employee_mName,' ',e.employee_lName) AS employee_name, m.memo_date, m.memo_title, m.memo_message
                         FROM memos m
-                        INNER JOIN employees e ON e.employee_id = m.memo_user_id;";
+                        INNER JOIN employees e ON e.employee_id = m.memo_user_id
+                        ORDER BY m.memo_date;";
             $stm = $this->connect()->prepare($query);
             $stm->execute();
             $all_memos = $stm->fetchAll(PDO::FETCH_ASSOC);

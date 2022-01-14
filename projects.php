@@ -88,7 +88,9 @@ require_once('db_ops.php');
     <script>
       $('a#job_order_number').on('click', function() {
         var jo_num = $(this).text();
-        window.location.href = "/petroman/job_order_view.php?jo_num="+jo_num;
+        var loc = window.location.pathname;
+        var dir = loc.substring(0, loc.lastIndexOf('/'));
+        window.location.href = dir+"/job_order_view.php?jo_num="+jo_num;
       })
     </script>
   </body>

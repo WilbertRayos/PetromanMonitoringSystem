@@ -6,41 +6,59 @@ if (!isset($_SESSION['loggedIn']) ) {
 }
 
 if (isset($_POST['ts_save'])) {
-    $db_obj1 = new Create_New_Trading_Sales;
-    $db_obj1->setTradingSalesNumber($_POST['ts_number']);
-    $db_obj1->setClientName($_POST['ts_clientName']);
-    $db_obj1->setDate($_POST['ts_date']);
-    $db_obj1->setRepresentative($_POST['ts_representative']);
-    $db_obj1->setTinNumber($_POST['ts_tin']);
-    $db_obj1->setAddress($_POST['ts_address']);
-    $db_obj1->setTermsOfPayment($_POST['ts_cod']);
-    $db_obj1->setEmployeeID($_SESSION['employee_id']);
-    $arr = json_decode($_POST['ts_item_array']);
-    try{
-        $db_obj1->addTradingSales();
-        $all_products_available = true;
-        //Check if stock is enought for all items
-        foreach($arr as $items[]) {
-            foreach($items as $item) {
-                // $db_obj1->addTradingSalesItems($item[0],$item[1],$item[2],$item[3]);
-                $product_stock = $db_obj1->checkWarehouseStock($item[0]);
-                if (($product_stock - $item[2]) < 0) {
-                    $all_products_available = false;
-                    echo "<script>alert('Not enough stock of {$item}');</script>";
-                    break;
+    if(!isset($_POST['ts_number']) || empty($_POST['ts_number'])) {
+        echo "<script>alert('Please Fill-up Trading Sales Number');</script>";
+    } else if(!isset($_POST['ts_clientName']) || empty($_POST['ts_clientName'])) {
+        echo "<script>alert('Please Fill-up Client');</script>";
+    } else if(!isset($_POST['ts_date']) || empty($_POST['ts_date'])) {
+        echo "<script>alert('Please Fill-up Date');</script>";
+    } else if(!isset($_POST['ts_representative']) || empty($_POST['ts_representative'])) {
+        echo "<script>alert('Please Fill-up Representative');</script>";
+    } else if(!isset($_POST['ts_contact']) || empty($_POST['ts_contact']) || is_numeric($_POST['ts_contact']) != 1) {
+        echo "<script>alert('Please Fill-up Contact Number Properly');</script>";
+    } else if(!isset($_POST['ts_tin']) || empty($_POST['ts_tin'])) {
+        echo "<script>alert('Please Fill-up Tin');</script>";
+    } else if(!isset($_POST['ts_address']) || empty($_POST['ts_address'])) {
+        echo "<script>alert('Please Fill-up Address');</script>";
+    } else if(!isset($_POST['ts_item_array']) || empty($_POST['ts_item_array'])) {
+        echo "<script>alert('Please Input at least 1 item');</script>";
+    } else {
+        $db_obj1 = new Create_New_Trading_Sales;
+        $db_obj1->setTradingSalesNumber($_POST['ts_number']);
+        $db_obj1->setClientName($_POST['ts_clientName']);
+        $db_obj1->setDate($_POST['ts_date']);
+        $db_obj1->setRepresentative($_POST['ts_representative']);
+        $db_obj1->setContactNumber($_POST['ts_contact']);
+        $db_obj1->setTinNumber($_POST['ts_tin']);
+        $db_obj1->setAddress($_POST['ts_address']);
+        $db_obj1->setTermsOfPayment($_POST['ts_cod']);
+        $db_obj1->setEmployeeID($_SESSION['employee_id']);
+        $arr = json_decode($_POST['ts_item_array']);
+        try{
+            $db_obj1->addTradingSales();
+            $all_products_available = true;
+            //Check if stock is enought for all items
+            foreach($arr as $items[]) {
+                foreach($items as $item) {
+                    // $db_obj1->addTradingSalesItems($item[0],$item[1],$item[2],$item[3]);
+                    $product_stock = $db_obj1->checkWarehouseStock($item[0]);
+                    if (($product_stock - $item[2]) < 0) {
+                        $all_products_available = false;
+                        echo "<script>alert('Not enough stock of {$item}');</script>";
+                        break;
+                    }
                 }
             }
-        }
 
-        if ($all_products_available) {
-            foreach($arr as $items) {
-                $db_obj1->addTradingSalesItems($items[0],$items[1],$items[2],$items[3]);
+            if ($all_products_available) {
+                foreach($arr as $items) {
+                    $db_obj1->addTradingSalesItems($items[0],$items[1],$items[2],$items[3]);
+                }
             }
+        } catch(Exception $e) {
+            echo "<script>alert('Unexpected Error Occured');</script>";
         }
-    } catch(Exception $e) {
-        echo "<script>alert('Unexpected Error Occured');</script>";
     }
-    
 }
 
 
@@ -77,9 +95,13 @@ if (isset($_POST['ts_save'])) {
                     <label for="ts_date">Date(mm/dd/yyyy) </label>
                     <input class="form-control" id="ts_date" name="ts_date" value="<?php echo date('m/d/Y');?>" readonly/>
                 </div>
-                <div class="form-group col-md-8">
+                <div class="form-group col-md-4">
                     <label for="ts_representative">Representative</label>
                     <input class="form-control" id="ts_representative" name="ts_representative" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="ts_contact">Contact Number</label>
+                    <input class="form-control" id="ts_contact" name="ts_contact" />
                 </div>
                 <div class="form-group col-md-4">
                     <label for="ts_tin">TIN#</label>
@@ -90,8 +112,9 @@ if (isset($_POST['ts_save'])) {
                     <input class="form-control" id="ts_address" name="ts_address" />
                 </div>
                 <div class="form-group col-sm-12 col-md-6">
-                    <label for="ts_cod">COD(Days)</label>
+                    <label for="ts_cod">Terms of Payment</label>
                     <select class="form-control" id="ts_cod" name="ts_cod">
+                    <option>COD</option>
                     <option>30</option>
                     <option>60</option>
                     <option>90</option>

@@ -150,30 +150,46 @@ if (isset($_POST['receive_save'])) {
             $("#receive_add").on('click', function() {
                 description = $('#receive_description').val();
                 quantity = $('#receive_quantity').val();
+                
                 if (!description) {
                     alert("Item description must not be empty");
                 } else if ((!quantity) || quantity <= 0) {
                     alert("Quantity must be greater than 0");
                 }else {
-                    arr_receive_items.push([description, quantity]);
+                    if (quantity >= 1000) {
+                        confirmation = confirm('are you sure you want to receive an quantity of '+quantity+' of '+description+'?');
+                        if(confirmation) {
+                            arr_receive_items.push([description, quantity]);
+                            new_row = "<tr> \
+                                        <td>"+description+"</td> \
+                                        <td>"+quantity+"</td> \
+                                        <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Delete</button></td>";
+                                        
+                            receive_items_tbl = $('table tbody');
+                            receive_items_tbl.append(new_row);
+                            $('#receive_item_array').val(JSON.stringify(arr_receive_items));
+                        }
+                    } else {
+                        arr_receive_items.push([description, quantity]);
 
-                    for (x of arr_receive_items) {
-                        alert(x);
-                    }
+                        // for (x of arr_receive_items) {
+                        //     alert(x);
+                        // }
 
-                    new_row = "<tr> \
-                                <td>"+description+"</td> \
-                                <td>"+quantity+"</td> \
-                                <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Delete</button></td>";
-                                
-                    receive_items_tbl = $('table tbody');
-                    receive_items_tbl.append(new_row);
-                    // $('#receive_totalPayment').val(computeTotal);
-                    // $('#receive_description').val("");
-                    // $('#receive_unit').val("");
-                    // $('#receive_quantity').val("");
-                    // $('#receive_unitPrice').val("");
-                    $('#receive_item_array').val(JSON.stringify(arr_receive_items));
+                        new_row = "<tr> \
+                                    <td>"+description+"</td> \
+                                    <td>"+quantity+"</td> \
+                                    <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Delete</button></td>";
+                                    
+                        receive_items_tbl = $('table tbody');
+                        receive_items_tbl.append(new_row);
+                        // $('#receive_totalPayment').val(computeTotal);
+                        // $('#receive_description').val("");
+                        // $('#receive_unit').val("");
+                        // $('#receive_quantity').val("");
+                        // $('#receive_unitPrice').val("");
+                        $('#receive_item_array').val(JSON.stringify(arr_receive_items));
+                    }  
                 }
                 // description = $('#receive_description').val();
                 // unit = $('#receive_unit').val();

@@ -60,7 +60,7 @@ if (isset($_POST["memo_delete"])) {
     <?php require('navbar.php');?>
 
     <div class="container">
-        <h1 class="display-4 my-4 page-title">Itenerary Calendar</h1>
+        <h1 class="display-4 my-4 page-title">Itinerary Calendar</h1>
         <div class="row">
             <div class="col-md-4 menu-box">
                 <h3 class="h3 mt-3 menu-box-title">Add Memo</h3>

@@ -46,6 +46,7 @@ require_once('db_ops.php');
         <thead class="thead-dark">
           <tr>
             <th scope="col">Order Form #</th>
+            <th scope="col">Company</th>
             <th scope="col">Remaining Balance</th>
             <th scope="col">Aging</th>
             <th scope="col">Status</th>
@@ -59,8 +60,9 @@ require_once('db_ops.php');
           ?>
             <tr>
                 <td>
-                <a href="#" id="trading_sales_number"><?php echo $ts_arr['trading_sales_number']; ?></button>
+                  <a href="#" id="trading_sales_number"><?php echo $ts_arr['trading_sales_number']; ?></button>
                 </td>
+                <td><?php echo $ts_arr['client_name']; ?></td>
                 <?php 
                   if ($ts_arr['remaining_balance'] == 0) {
                 ?>
@@ -93,7 +95,9 @@ require_once('db_ops.php');
   <script>
       $('a#trading_sales_number').on('click', function() {
         var ts_num = $(this).text();
-        window.location.href = "/petroman/finance_trading_sales_view.php?ts_num="+ts_num;
+        var loc = window.location.pathname;
+        var dir = loc.substring(0, loc.lastIndexOf('/'));
+        window.location.href = dir+"/finance_trading_sales_view.php?ts_num="+ts_num;
       })
   </script>
 </html>

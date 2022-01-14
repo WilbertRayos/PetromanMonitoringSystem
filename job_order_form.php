@@ -6,30 +6,46 @@ if (!isset($_SESSION['loggedIn']) ) {
 }
 
 if (isset($_POST['jo_save'])) {
-    $db_obj1 = new Add_New_Job_Order;
-    $db_obj1->setJobOrderNumber($_POST['jo_number']);
-    $db_obj1->setClientName($_POST['jo_clientName']);
-    $db_obj1->setDate($_POST['jo_date']);
-    $db_obj1->setRepresentative($_POST['jo_representative']);
-    $db_obj1->setContactNumber($_POST['jo_contact']);
-    $db_obj1->setTinNumber($_POST['jo_tin']);
-    $db_obj1->setAddress($_POST['jo_address']);
-    $db_obj1->setProjectLocation($_POST['jo_location']);
-    $db_obj1->setTermsOfPayment($_POST['jo_cod']);
-    $db_obj1->setMobilization($_POST['jo_mobilization']);
-    $db_obj1->setEmployeeID($_SESSION['employee_id']);
-    $arr = json_decode($_POST['jo_item_array']);
-    try{
-        $db_obj1->addNewJobOrder();
-        foreach($arr as $items) {
-            $db_obj1->addJobOrderItems($items[0],$items[1],$items[2],$items[3]);  
-        }
-        echo "<script>alert('Job Order has been created');</script>";
-        header("Location: projects.php");
-    } catch(Exception $e) {
-        echo "<script>alert('Unexpected Error Occured');</script>";
+    if(!isset($_POST['jo_number']) || empty($_POST['jo_number'])) {
+        echo "<script>alert('Please Fill-up Trading Sales Number');</script>";
+    } else if(!isset($_POST['jo_clientName']) || empty($_POST['jo_clientName'])) {
+        echo "<script>alert('Please Fill-up Client');</script>";
+    } else if(!isset($_POST['jo_date']) || empty($_POST['jo_date'])) {
+        echo "<script>alert('Please Fill-up Date');</script>";
+    } else if(!isset($_POST['jo_representative']) || empty($_POST['jo_representative'])) {
+        echo "<script>alert('Please Fill-up Representative');</script>";
+    } else if(!isset($_POST['jo_contact']) || empty($_POST['jo_contact']) || is_numeric($_POST['jo_contact']) != 1) {
+        echo "<script>alert('Please Fill-up Contact Number Properly');</script>";
+    } else if(!isset($_POST['jo_tin']) || empty($_POST['jo_tin'])) {
+        echo "<script>alert('Please Fill-up Tin');</script>";
+    } else if(!isset($_POST['jo_address']) || empty($_POST['jo_address'])) {
+        echo "<script>alert('Please Fill-up Address');</script>";
+    } else if(!isset($_POST['jo_item_array']) || empty($_POST['jo_item_array'])) {
+        echo "<script>alert('Please Input at least 1 item');</script>";
+    } else {
+        $db_obj1 = new Add_New_Job_Order;
+        $db_obj1->setJobOrderNumber($_POST['jo_number']);
+        $db_obj1->setClientName($_POST['jo_clientName']);
+        $db_obj1->setDate($_POST['jo_date']);
+        $db_obj1->setRepresentative($_POST['jo_representative']);
+        $db_obj1->setContactNumber($_POST['jo_contact']);
+        $db_obj1->setTinNumber($_POST['jo_tin']);
+        $db_obj1->setAddress($_POST['jo_address']);
+        $db_obj1->setProjectLocation($_POST['jo_location']);
+        $db_obj1->setTermsOfPayment($_POST['jo_cod']);
+        $db_obj1->setMobilization($_POST['jo_mobilization']);
+        $db_obj1->setEmployeeID($_SESSION['employee_id']);
+        $arr = json_decode($_POST['jo_item_array']);
+        try{
+            $db_obj1->addNewJobOrder();
+            foreach($arr as $items) {
+                $db_obj1->addJobOrderItems($items[0],$items[1],$items[2],$items[3]);  
+            }
+            header("Location: projects.php");
+        } catch(Exception $e) {
+            echo "<script>alert('Unexpected Error Occured');</script>";
+        } 
     }
-    
 }
 
 
@@ -92,8 +108,9 @@ if (isset($_POST['jo_save'])) {
                     <input class="form-control" id="jo_mobilization" name="jo_mobilization" />
                 </div>
                 <div class="form-group col-sm-12 col-md-6">
-                    <label for="jo_cod">COD(Days)</label>
+                    <label for="jo_cod">Terms of Payment</label>
                     <select class="form-control" id="jo_cod" name="jo_cod">
+                    <option>COD</option>
                     <option>30</option>
                     <option>60</option>
                     <option>90</option>

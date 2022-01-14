@@ -223,13 +223,14 @@ if (isset($_POST['jo_delete'])) {
                     <input class="form-control" id="jo_mobilization" name="jo_mobilization" value="<?php echo $jo_information['mobilization']; ?>"/>
                 </div>
                 <div class="form-group col-sm-12 col-md-6">
-                    <label for="jo_cod">COD(Days)</label>
+                    <label for="jo_cod">Terms of Payment</label>
                     <select class="form-control" id="jo_cod" name="jo_cod" value="<?php echo $jo_information['terms_of_payment']; ?>">
-                    <option>30</option>
-                    <option>60</option>
-                    <option>90</option>
-                    <option>150</option>
-                    <option>180</option>
+                    <option value="COD" <?php if($jo_information['terms_of_payment'] == "COD") echo 'selected="selected"';?>>COD</option>
+                    <option value="30" <?php if($jo_information['terms_of_payment'] == "30") echo 'selected="selected"';?>>30</option>
+                    <option value="60" <?php if($jo_information['terms_of_payment'] == "60") echo 'selected="selected"';?>>60</option>
+                    <option value="90" <?php if($jo_information['terms_of_payment'] == "90") echo 'selected="selected"';?>>90</option>
+                    <option value="150" <?php if($jo_information['terms_of_payment'] == "150") echo 'selected="selected"';?>>150</option>
+                    <option value="180" <?php if($jo_information['terms_of_payment'] == "180") echo 'selected="selected"';?>>180</option>
                     </select>
                 </div> 
             </div>
@@ -248,9 +249,15 @@ if (isset($_POST['jo_delete'])) {
             </div>
             <input type="hidden" id="jo_item_array" name="jo_item_array">
             <div class="form-row">
+                    <?php 
+                        if ($_SESSION['employee_role'] == "Admin") {
+                    ?>
                 <div class="form-group col-md-3">
                     <button type="submit" class="form-control btn btn-primary" id="jo_update" name="jo_update" form="jo_information">Update</button>
                 </div>
+                    <?php 
+                        }
+                    ?>
                 <div class="form-group col-md-2">
                     <button type="button" class="form-control btn btn-info" data-toggle="modal" data-target="#checklistModal">
                         Checklist
@@ -260,12 +267,12 @@ if (isset($_POST['jo_delete'])) {
                     <button type="button" class="form-control btn btn-primary" data-toggle="modal" data-target="#phasesModal">
                         Phases
                     </button>
-                </div>
+                </div> 
                 <div class="form-group col-md-3">
                     <a href="projects.php" type="button" class="form-control btn btn-danger" id="jo_cancel" name="jo_cancel">Cancel</a>
-                </div>
+                </div> 
                 <div class="form-group col-md-2">
-                    <button type="submit" class="form-control btn btn-outline-danger" id="jo_delete" name="jo_delete" form="jo_information">Delete</button>
+                    <!-- <button type="submit" class="form-control btn btn-outline-danger" id="jo_delete" name="jo_delete" form="jo_information">Delete</button> -->
                 </div> 
                 
             </div>

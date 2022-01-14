@@ -10,6 +10,7 @@ require_once("db_ops.php");
 $db_obj_tsFinance = new Finance_Trading_Sales();
 $ts_finance_info = $db_obj_tsFinance->fetchSpecificTradingSalesFinance($trading_sales_number);
 
+$company = $ts_finance_info['client_name'];
 $date_created = $ts_finance_info['date_created'];
 $total_amount = $ts_finance_info['total_amount'];
 $terms_of_payment = $ts_finance_info['terms_of_payment'];
@@ -27,7 +28,7 @@ if (isset($_POST['save_payment'])) {
         echo "Please enter deposit date";
     } else {
         $db_obj_tsFinance->insertPayment($trading_sales_number, $_POST['amount_paid'], $_POST['bank'], $_POST['reference_number'],$_POST['deposit_date']);
-        // header('Refresh:0');
+        header('Location: finance_trading_sales.php');
     }
 }
 
@@ -48,7 +49,8 @@ if (isset($_POST['save_payment'])) {
   <body>
     <?php require('navbar.php');?>
     <div class="container">
-        <h3 class="display-4 my-5 page-title"><?php echo $trading_sales_number; ?> Finance </h3>
+        <h3 class="display-4 mt-5 page-title"><?php echo $trading_sales_number; ?> Finance </h3>
+        <h5 class="display-5 mb-5"><?php echo $company; ?></h5>
         <hr />
             <div class="form-row">
                 <div class="col-md-6">
@@ -71,6 +73,9 @@ if (isset($_POST['save_payment'])) {
                         </div>
                     </form>
                 </div>
+                <?php 
+                    if ($_SESSION["employee_role"] == "Admin") {
+                ?>
                 <div class="col-md-6 px-2 py-3 menu-box" >
                     <form action="<?php echo $path_parts['basename'];?>" method="POST" id="payment_information">
                         <div class="form-group col-md-12">
@@ -92,6 +97,9 @@ if (isset($_POST['save_payment'])) {
                         <button type="submit" class="form-control btn btn-primary" id="save_payment" name="save_payment" form="payment_information">Save Payment</button>
                     </form>
                 </div>
+                <?php 
+                    }
+                ?>
             </div>
             <hr />
             <table class="table">

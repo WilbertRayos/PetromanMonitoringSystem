@@ -17,7 +17,7 @@ if (isset($_POST['ts_update'])){
     $db_obj_updateTradingSales->returnStockToWarehouse();
     $db_obj_updateTradingSales->deleteTradingSalesItem($arr);
     $db_obj_updateTradingSales->updateTradingSalesItems($arr);
-    $db_obj_updateTradingSales->updateTradingSalesInformation($_POST['ts_number'], $_POST['ts_clientName'], $_POST['ts_representative'],
+    $db_obj_updateTradingSales->updateTradingSalesInformation($_POST['ts_number'], $_POST['ts_clientName'], $_POST['ts_representative'], $_POST['ts_contact'],
     $_POST['ts_address'],$_POST['ts_date'],$_POST['ts_tin'],$_POST['ts_cod']);
     $db_obj_updateTradingSales->withdrawStocksFromWarehouse($_POST['ts_number'],$_POST['ts_date'],$_POST['ts_clientName'],$arr);
     
@@ -128,7 +128,7 @@ if (isset($_POST['ts_delete'])) {
     <title>View Trading Sales</title>
   </head>
   <body>
-   
+
     <?php require('navbar.php');?>
 
     <div class="container">
@@ -147,9 +147,13 @@ if (isset($_POST['ts_delete'])) {
                     <label for="ts_date">Date(mm/dd/yyyy) </label>
                     <input class="form-control" id="ts_date" name="ts_date" value="<?php echo $ts_information['trading_sales_date'];?>" readonly/>
                 </div>
-                <div class="form-group col-md-8">
+                <div class="form-group col-md-4">
                     <label for="ts_representative">Representative</label>
                     <input class="form-control" id="ts_representative" name="ts_representative" value="<?php echo $ts_information['representative']; ?>"/>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="ts_contact">Contact Number</label>
+                    <input class="form-control" id="ts_contact" name="ts_contact" value="<?php echo $ts_information['contact_number']; ?>" />
                 </div>
                 <div class="form-group col-md-4">
                     <label for="ts_tin">TIN#</label>
@@ -160,27 +164,15 @@ if (isset($_POST['ts_delete'])) {
                     <input class="form-control" id="ts_address" name="ts_address" value="<?php echo $ts_information['address']; ?>"/>
                 </div>
                 <div class="form-group col-sm-12 col-md-6">
-                    <label for="ts_cod">COD(Days)</label>
+                    <label for="ts_cod">Terms of Payment</label>
                     <select class="form-control" id="ts_cod" name="ts_cod">
-                        <?php 
-                            echo "asdasdasd";
-                            if($ts_information['terms_of_payment'] == 30){
-                                echo '<option selected="selected">30</option>';
-                            } else if ($ts_information['terms_of_payment'] == 60) {
-                                echo '<option selected="selected">60</option>';
-                            } else if ($ts_information['terms_of_payment'] == 90) {
-                                echo '<option selected="selected">90</option>';
-                            } else if ($ts_information['terms_of_payment'] == 150) {
-                                echo '<option selected="selected">150</option>';
-                            } else if ($ts_information['terms_of_payment'] == 180) {
-                                echo '<option selected="selected">180</option>';
-                            }
-                        ?>
-                    <option>60</option>
-                    <option>60</option>
-                    <option>90</option>
-                    <option>150</option>
-                    <option>180</option>
+                        <label for="jo_cod">Terms of Payment</label>
+                        <option value="COD" <?php if($ts_information['terms_of_payment'] == "COD") echo 'selected="selected"';?>>COD</option>
+                        <option value="30" <?php if($ts_information['terms_of_payment'] == "30") echo 'selected="selected"';?>>30</option>
+                        <option value="60" <?php if($ts_information['terms_of_payment'] == "60") echo 'selected="selected"';?>>60</option>
+                        <option value="90" <?php if($ts_information['terms_of_payment'] == "90") echo 'selected="selected"';?>>90</option>
+                        <option value="150" <?php if($ts_information['terms_of_payment'] == "150") echo 'selected="selected"';?>>150</option>
+                        <option value="180" <?php if($ts_information['terms_of_payment'] == "180") echo 'selected="selected"';?>>180</option>
                     </select>
                 </div> 
             </div>
@@ -199,9 +191,13 @@ if (isset($_POST['ts_delete'])) {
             </div>
             <input type="hidden" id="ts_item_array" name="ts_item_array">
             <div class="form-row">
+                    <?php 
+                        if ($_SESSION['employee_role'] == "Admin") {
+                    ?>
                 <div class="form-group col-md-3">
                     <button type="submit" class="form-control btn btn-primary" id="ts_update" name="ts_update" form="ts_information">Update</button>
                 </div>
+                    <?php } ?>
                 <div class="form-group col-md-3">
                     <button type="button" class="font-control btn btn-info" data-toggle="modal" data-target="#checklistModal">
                         Checklist
@@ -211,7 +207,7 @@ if (isset($_POST['ts_delete'])) {
                     <a href="trading_sales.php" type="button" class="form-control btn btn-danger" id="ts_cancel" name="ts_cancel">Cancel</a>
                 </div>
                 <div class="form-group col-md-3">
-                    <button type="submit" class="form-control btn btn-outline-danger" id="ts_delete" name="ts_delete" form="ts_information">Delete</button>
+                    <!-- <button type="submit" class="form-control btn btn-outline-danger" id="ts_delete" name="ts_delete" form="ts_information">Delete</button> -->
                 </div> 
             </div>
             
