@@ -190,6 +190,7 @@ if (isset($_POST["btn_delete_phase"])) {
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/main.css">
+    <script src="js/main.js"></script>
     <title>View Job Order</title>
   </head>
   <body>
@@ -234,17 +235,17 @@ if (isset($_POST["btn_delete_phase"])) {
                 </div>
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="jo_mobilization">Mobilization</label>
-                    <input class="form-control" id="jo_mobilization" name="jo_mobilization" value="<?php echo $jo_information['mobilization']; ?>"/>
+                    <input class="form-control" id="jo_mobilization" name="jo_mobilization" value="<?php echo number_format($jo_information['mobilization'],2); ?>"/>
                 </div>
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="jo_cod">Terms of Payment</label>
                     <select class="form-control" id="jo_cod" name="jo_cod" value="<?php echo $jo_information['terms_of_payment']; ?>">
                     <option value="COD" <?php if($jo_information['terms_of_payment'] == "COD") echo 'selected="selected"';?>>COD</option>
-                    <option value="30" <?php if($jo_information['terms_of_payment'] == "30") echo 'selected="selected"';?>>30</option>
-                    <option value="60" <?php if($jo_information['terms_of_payment'] == "60") echo 'selected="selected"';?>>60</option>
-                    <option value="90" <?php if($jo_information['terms_of_payment'] == "90") echo 'selected="selected"';?>>90</option>
-                    <option value="150" <?php if($jo_information['terms_of_payment'] == "150") echo 'selected="selected"';?>>150</option>
-                    <option value="180" <?php if($jo_information['terms_of_payment'] == "180") echo 'selected="selected"';?>>180</option>
+                    <option value="30" <?php if($jo_information['terms_of_payment'] == "30") echo 'selected="selected"';?>>30 Days</option>
+                    <option value="60" <?php if($jo_information['terms_of_payment'] == "60") echo 'selected="selected"';?>>60 Days</option>
+                    <option value="90" <?php if($jo_information['terms_of_payment'] == "90") echo 'selected="selected"';?>>90 Days</option>
+                    <option value="150" <?php if($jo_information['terms_of_payment'] == "150") echo 'selected="selected"';?>>150 Days</option>
+                    <option value="180" <?php if($jo_information['terms_of_payment'] == "180") echo 'selected="selected"';?>>180 Days</option>
                     </select>
                 </div> 
             </div>
@@ -258,7 +259,7 @@ if (isset($_POST["btn_delete_phase"])) {
                 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="jo_totalPayment">Total Payment</label>
-                    <input type="number" class="form-control" id="jo_totalPayment" value="<?php echo $jo_information['jo_sum']+$jo_information['mobilization']; ?>" readonly/>
+                    <input type="number" class="form-control" id="jo_totalPayment" value="<?php echo number_format($jo_information['jo_sum']+$jo_information['mobilization'],2); ?>" readonly/>
                 </div>
             </div>
             <input type="hidden" id="jo_item_array" name="jo_item_array">
@@ -301,7 +302,13 @@ if (isset($_POST["btn_delete_phase"])) {
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="jo_unit">Unit</label>
-                    <input class="form-control" id="jo_unit" name="jo_unit" />
+                    <select class="form-control" id="jo_unit" name="jo_unit">
+                        <option selected="selected">SQM</option>
+                        <option>PC</option>
+                        <option>BAGS</option>
+                        <option>KG</option>
+                        <option>BOX</option>
+                    </select>
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="jo_quantity">Qty.</label>
@@ -335,9 +342,9 @@ if (isset($_POST["btn_delete_phase"])) {
                         <tr>
                             <td><?php echo $job_order_item['description'] ?></td>
                             <td><?php echo $job_order_item['unit'] ?></td>
-                            <td><?php echo $job_order_item['quantity'] ?></td>
-                            <td><?php echo $job_order_item['unit_price'] ?></td>
-                            <td><?php echo $job_order_item['quantity']*$job_order_item['unit_price'] ?></td>
+                            <td><?php echo number_format($job_order_item['quantity'],2) ?></td>
+                            <td><?php echo number_format($job_order_item['unit_price'],2) ?></td>
+                            <td><?php echo number_format($job_order_item['quantity']*$job_order_item['unit_price'],2) ?></td>
                             <td><button type='button' class='btn btn-outline-danger btn-sm' onClick='deleteRow(this)'>Delete</button></td>
                         </tr>
 
@@ -554,10 +561,6 @@ if (isset($_POST["btn_delete_phase"])) {
                 
                 arr_jo_items.push([description, unit, quantity, unitPrice]);
                 $('#jo_item_array').val(JSON.stringify(arr_jo_items));
-                for (x of arr_jo_items) {
-                    alert(x);
-                }
-
 
                 new_row = "<tr> \
                             <td>"+description+"</td> \

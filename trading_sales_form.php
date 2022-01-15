@@ -44,7 +44,7 @@ if (isset($_POST['ts_save'])) {
                     $product_stock = $db_obj1->checkWarehouseStock($item[0]);
                     if (($product_stock - $item[2]) < 0) {
                         $all_products_available = false;
-                        echo "<script>alert('Not enough stock of {$item}');</script>";
+                        echo "<script>alert('Not enough stock');</script>";
                         break;
                     }
                 }
@@ -73,6 +73,7 @@ if (isset($_POST['ts_save'])) {
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/main.css">
+    <script src="js/main.js"></script>
     <title>Trading Sales Form</title>
   </head>
   <body>
@@ -115,11 +116,11 @@ if (isset($_POST['ts_save'])) {
                     <label for="ts_cod">Terms of Payment</label>
                     <select class="form-control" id="ts_cod" name="ts_cod">
                     <option>COD</option>
-                    <option>30</option>
-                    <option>60</option>
-                    <option>90</option>
-                    <option>150</option>
-                    <option>180</option>
+                    <option>30 Days</option>
+                    <option>60 Days</option>
+                    <option>90 Days</option>
+                    <option>150 Days</option>
+                    <option>180 Days</option>
                     </select>
                 </div> 
             </div>
@@ -163,7 +164,13 @@ if (isset($_POST['ts_save'])) {
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="ts_unit">Unit</label>
-                    <input class="form-control" id="ts_unit" name="ts_unit" />
+                    <select class="form-control" id="ts_unit" name="ts_unit">
+                        <option>SQM</option>
+                        <option>PC</option>
+                        <option>BAGS</option>
+                        <option>KG</option>
+                        <option>BOX</option>
+                    </select>
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="ts_quantity">Qty.</label>

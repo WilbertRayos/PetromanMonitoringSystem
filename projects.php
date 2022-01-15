@@ -63,7 +63,7 @@ require_once('db_ops.php');
               <a href="#" id="job_order_number"><?php echo $jo_arr[0]; ?></button>
             </td>
             <td><?php echo $jo_arr[1]; ?></td>
-            <td><?php echo $jo_arr[2]; ?></td>
+            <td><?php echo number_format($jo_arr[2],2); ?></td>
             <td><?php echo $jo_arr[3]; ?></td>
           </tr>
           <?php

@@ -25,6 +25,7 @@ require_once('db_ops.php');
     integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" 
     crossorigin="anonymous">
     <link rel="stylesheet" href="css/main.css">
+    <script src="js/main.js"></script>
     <title>Finance Job Order</title>
   </head>
   <body>
@@ -67,13 +68,13 @@ require_once('db_ops.php');
                   <?php 
                     if ($remaining_balance <= 0) {
                   ?>
-                <td><?php echo "0 Php"; ?></td>               
+                <td><?php echo "0.00 Php"; ?></td>               
                 <td><?php echo $jo_arr['last_payment']; ?></td>
                 <td><?php echo "Fully Paid"; ?></td>
                 <?php
                   }else {
                 ?>
-                  <td><?php echo number_format($remaining_balance,2,".","")." Php"; ?></td>               
+                  <td><?php echo number_format($remaining_balance,2)." Php"; ?></td>               
                   <td><?php echo $jo_arr['aging']; ?></td>
                   <td><?php echo "Unpaid" ?></td>
                 <?php

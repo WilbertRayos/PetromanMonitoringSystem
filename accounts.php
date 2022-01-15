@@ -10,6 +10,7 @@
     // Add New Account
     if(isset($_POST['addAccount'])){
       $db_obj2 = new Add_New_Account;
+      $db_obj2->setEmployee_number($_POST['create_employee_number']);
       $db_obj2->setEmployee_fName($_POST['create_employee_fName']);
       $db_obj2->setEmployee_mName($_POST['create_employee_mName']);
       $db_obj2->setEmployee_lName($_POST['create_employee_lName']);
@@ -23,6 +24,7 @@
     if(isset($_POST['editAccount'])){
       $db_obj4 = new Update_Account;
       $db_obj4->setEmployeeID($_POST['edit_employee_id']);
+      $db_obj4->setEmployeeNumber($_POST['edit_employee_number']);
       $db_obj4->setEmployeeRole($_POST['edit_roles']);
       $db_obj4->setEmployeeFName($_POST['edit_employee_fName']);
       $db_obj4->setEmployeeMName($_POST['edit_employee_mName']);
@@ -108,6 +110,10 @@
                         </div>
                     </div>
                     <div class="form-group">
+                      <label for="create_employee_number">Employee Number</label>
+                      <input type="input" class="form-control" id="create_employee_number" name="create_employee_number">
+                    </div>
+                    <div class="form-group">
                       <label for="create_employee_fName">First Name</label>
                       <input type="input" class="form-control" id="create_employee_fName" name="create_employee_fName">
                     </div>
@@ -142,7 +148,8 @@
         <table class="table table-striped table-sm">
         <thead class="thead-dark">
             <tr>
-            <th scope="col">ID</th>
+            <th scope="col">Employee ID</th>
+            <th scope="col">Employee Number</th>
             <th scope="col">First Name</th>
             <th scope="col">Middle Name</th>
             <th scope="col">Last Name</th>
@@ -158,6 +165,7 @@
             ?>
                     <tr>
                         <td><?php echo $employee['employee_id'] ?></th>
+                        <td><?php echo $employee['employee_number'] ?></th>
                         <td><?php echo $employee['employee_fName'] ?></td>
                         <td><?php echo $employee['employee_mName'] ?></td>
                         <td><?php echo $employee['employee_lName'] ?></td>
@@ -181,7 +189,8 @@
         <table class="table table-striped table-sm">
         <thead class="thead-dark">
             <tr>
-            <th scope="col">ID</th>
+            <th scope="col">Employee ID</th>
+            <th scope="col">Employee Number</th>
             <th scope="col">First Name</th>
             <th scope="col">Middle Name</th>
             <th scope="col">Last Name</th>
@@ -197,6 +206,7 @@
             ?>
                         <tr>
                             <td><?php echo $employee['employee_id'] ?></th>
+                            <td><?php echo $employee['employee_number'] ?></th>
                             <td><?php echo $employee['employee_fName'] ?></td>
                             <td><?php echo $employee['employee_mName'] ?></td>
                             <td><?php echo $employee['employee_lName'] ?></td>
@@ -249,6 +259,10 @@
                         </div>
                     </div> 
                     <div class="form-group">
+                      <label for="edit_employee_number">Employee Number</label>
+                      <input type="input" class="form-control" id="edit_employee_number" name="edit_employee_number">
+                    </div>
+                    <div class="form-group">
                       <label for="edit_employee_fName">First Name</label>
                       <input type="input" class="form-control" id="edit_employee_fName" name="edit_employee_fName">
                     </div>
@@ -295,10 +309,11 @@
             $('#edit_employee_id').val(data[0]);
             $('#edit_employee_id').prop('');
             $('#edit_admin').prop('checked',true);
-            $('#edit_employee_fName').val(data[1]);
-            $('#edit_employee_mName').val(data[2]);
-            $('#edit_employee_lName').val(data[3]);
-            $('#edit_employee_email').val(data[4]);
+            $('#edit_employee_number').val(data[1]);
+            $('#edit_employee_fName').val(data[2]);
+            $('#edit_employee_mName').val(data[3]);
+            $('#edit_employee_lName').val(data[4]);
+            $('#edit_employee_email').val(data[5]);
         });
 
         $('.btnAgent_edit').on('click', function() {
@@ -310,10 +325,11 @@
             console.log(data);
             $('#edit_employee_id').val(data[0]);
             $('#edit_agent').prop('checked',true);
-            $('#edit_employee_fName').val(data[1]);
-            $('#edit_employee_mName').val(data[2]);
-            $('#edit_employee_lName').val(data[3]);
-            $('#edit_employee_email').val(data[4]);
+            $('#edit_employee_number').val(data[1]);
+            $('#edit_employee_fName').val(data[2]);
+            $('#edit_employee_mName').val(data[3]);
+            $('#edit_employee_lName').val(data[4]);
+            $('#edit_employee_email').val(data[5]);
         });
       });
     </script>

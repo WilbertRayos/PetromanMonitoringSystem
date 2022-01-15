@@ -44,7 +44,9 @@ if (isset($_POST['save_payment'])) {
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/main.css">
+    <script src="js/main.js"></script>
     <title>Job Order Finance</title>
+    
   </head>
   <body>
     <?php require('navbar.php');?>
@@ -120,7 +122,7 @@ if (isset($_POST['save_payment'])) {
                             <td><?php echo $transaction["deposit_date"]; ?></td>
                             <td><?php echo $transaction["bank"]; ?></td>
                             <td><?php echo $transaction["reference_number"]; ?></td>
-                            <td><?php echo number_format($transaction["amount"], 2,'.',''); ?></td>
+                            <td><?php echo number_format($transaction["amount"], 2); ?></td>
                         </tr>
                     <?php
                         }

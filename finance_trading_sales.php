@@ -25,6 +25,7 @@ require_once('db_ops.php');
     integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" 
     crossorigin="anonymous">
     <link rel="stylesheet" href="css/main.css">
+    <script src="js/main.js"></script>
     <title>Finance Trading Sales</title>
   </head>
   <body>
@@ -72,7 +73,7 @@ require_once('db_ops.php');
                 <?php
                   }else {
                 ?>
-                  <td><?php echo round($ts_arr['remaining_balance'],2)." Php"; ?></td>               
+                  <td><?php echo number_format($ts_arr['remaining_balance'],2)." Php"; ?></td>               
                   <td><?php echo $ts_arr['aging']; ?></td>
                   <td><?php echo "Unpaid" ?></td>
                 <?php

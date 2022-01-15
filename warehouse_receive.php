@@ -19,7 +19,7 @@ if (isset($_POST['receive_save'])) {
     } else if (count($arr) < 1) {
         echo "<script>alert('Please enter products');</script>";
     } else {
-        $db_obj1 = new Process_Warehouse_Products("Receive",$_POST["receive_number"], $_POST["receive_date"], $_POST["receive_clientName"], $arr);
+        $db_obj1 = new Process_Warehouse_Products("Receive",$_POST["receive_number"], date("Y-m-d", strtotime($_POST["receive_date"])), $_POST["receive_clientName"], $arr);
         $db_obj1->productController();
     }
 
@@ -64,6 +64,7 @@ if (isset($_POST['receive_save'])) {
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/main.css">
+    <script src="js/main.js"></script>
     <title>Warehouse Receive</title>
   </head>
   <body>
@@ -80,7 +81,7 @@ if (isset($_POST['receive_save'])) {
                 </div>
                 <div class="form-group col-md-6">
                     <label for="receive_date">Date(mm/dd/yyyy) </label>
-                    <input class="form-control" id="receive_date" name="receive_date" value="<?php echo date('m/d/Y');?>" readonly/>
+                    <input type="date" class="form-control" id="receive_date" name="receive_date" value="<?php echo date('m/d/Y');?>" />
                 </div>
                 
                 <div class="form-group col-md-12">

@@ -44,6 +44,7 @@ if (isset($_POST['save_payment'])) {
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/main.css">
+    <script src="js/main.js"></script>
     <title>Trading Sales Finance</title>
   </head>
   <body>
@@ -61,7 +62,7 @@ if (isset($_POST['save_payment'])) {
                         </div>
                         <div class="form-group col-md-12">
                             <label for="total_amount">Total Amount</label>
-                            <input class="form-control" id="total_amount" name="total_amount" value="<?php echo round($total_amount,2)?>" readonly />
+                            <input class="form-control" id="total_amount" name="total_amount" value="<?php echo number_format($total_amount,2)?>" readonly />
                         </div>
                         <div class="form-group col-md-12">
                             <label for="terms_of_payment">Terms of Payment</label>
@@ -69,7 +70,7 @@ if (isset($_POST['save_payment'])) {
                         </div>
                         <div class="form-group col-md-12">
                             <label for="remaining_balance">Remaining Balance</label>
-                            <input class="form-control" id="remaining_balance" name="remaining_balance" value="<?php echo round($remaining_balance,2)?>" readonly />
+                            <input class="form-control" id="remaining_balance" name="remaining_balance" value="<?php echo number_format($remaining_balance,2)?>" readonly />
                         </div>
                     </form>
                 </div>

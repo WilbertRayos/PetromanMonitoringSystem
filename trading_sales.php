@@ -62,7 +62,7 @@ require_once('db_ops.php');
               <a href="#" id="trading_sales_number"><?php echo $ts_arr[0]; ?></button>
             </td>
             <td><?php echo $ts_arr[1]; ?></td>
-            <td><?php echo $ts_arr[2]; ?></td>
+            <td><?php echo number_format($ts_arr[2],2); ?></td>
             <td><?php echo $ts_arr[3]; ?></td>
           </tr>
           <?php

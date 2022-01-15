@@ -23,28 +23,33 @@ if (isset($_POST['jo_save'])) {
     } else if(!isset($_POST['jo_item_array']) || empty($_POST['jo_item_array'])) {
         echo "<script>alert('Please Input at least 1 item');</script>";
     } else {
-        $db_obj1 = new Add_New_Job_Order;
-        $db_obj1->setJobOrderNumber($_POST['jo_number']);
-        $db_obj1->setClientName($_POST['jo_clientName']);
-        $db_obj1->setDate($_POST['jo_date']);
-        $db_obj1->setRepresentative($_POST['jo_representative']);
-        $db_obj1->setContactNumber($_POST['jo_contact']);
-        $db_obj1->setTinNumber($_POST['jo_tin']);
-        $db_obj1->setAddress($_POST['jo_address']);
-        $db_obj1->setProjectLocation($_POST['jo_location']);
-        $db_obj1->setTermsOfPayment($_POST['jo_cod']);
-        $db_obj1->setMobilization($_POST['jo_mobilization']);
-        $db_obj1->setEmployeeID($_SESSION['employee_id']);
-        $arr = json_decode($_POST['jo_item_array']);
-        try{
-            $db_obj1->addNewJobOrder();
-            foreach($arr as $items) {
-                $db_obj1->addJobOrderItems($items[0],$items[1],$items[2],$items[3]);  
-            }
-            header("Location: projects.php");
-        } catch(Exception $e) {
-            echo "<script>alert('Unexpected Error Occured');</script>";
-        } 
+        if(isset($_POST['jo_mobilization']) && $_POST['jo_mobilization'] < 0) {
+            echo "<script>alert('Mobilization must not be negative');</script>";
+        } else {
+            $db_obj1 = new Add_New_Job_Order;
+            $db_obj1->setJobOrderNumber($_POST['jo_number']);
+            $db_obj1->setClientName($_POST['jo_clientName']);
+            $db_obj1->setDate($_POST['jo_date']);
+            $db_obj1->setRepresentative($_POST['jo_representative']);
+            $db_obj1->setContactNumber($_POST['jo_contact']);
+            $db_obj1->setTinNumber($_POST['jo_tin']);
+            $db_obj1->setAddress($_POST['jo_address']);
+            $db_obj1->setProjectLocation($_POST['jo_location']);
+            $db_obj1->setTermsOfPayment($_POST['jo_cod']);
+            $db_obj1->setMobilization($_POST['jo_mobilization']);
+            $db_obj1->setEmployeeID($_SESSION['employee_id']);
+            $arr = json_decode($_POST['jo_item_array']);
+            try{
+                $db_obj1->addNewJobOrder();
+                foreach($arr as $items) {
+                    $db_obj1->addJobOrderItems($items[0],$items[1],$items[2],$items[3]);  
+                }
+                header("Location: projects.php");
+            } catch(Exception $e) {
+                echo "<script>alert('Unexpected Error Occured');</script>";
+            } 
+        }
+       
     }
 }
 
@@ -61,6 +66,7 @@ if (isset($_POST['jo_save'])) {
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/main.css">
+    <script src="js/main.js"></script>
     <title>Job Order Form</title>
   </head>
   <body>
@@ -110,12 +116,12 @@ if (isset($_POST['jo_save'])) {
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="jo_cod">Terms of Payment</label>
                     <select class="form-control" id="jo_cod" name="jo_cod">
-                    <option>COD</option>
-                    <option>30</option>
-                    <option>60</option>
-                    <option>90</option>
-                    <option>150</option>
-                    <option>180</option>
+                        <option>COD</option>
+                        <option>30 Days</option>
+                        <option>60 Days</option>
+                        <option>90 Days</option>
+                        <option>150 Days</option>
+                        <option>180 Days</option>
                     </select>
                 </div> 
             </div>
@@ -152,7 +158,13 @@ if (isset($_POST['jo_save'])) {
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="jo_unit">Unit</label>
-                    <input class="form-control" id="jo_unit" name="jo_unit" />
+                    <select class="form-control" id="jo_unit" name="jo_unit">
+                        <option>SQM</option>
+                        <option>PC</option>
+                        <option>BAGS</option>
+                        <option>KG</option>
+                        <option>BOX</option>
+                    </select>
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="jo_quantity">Qty.</label>
@@ -214,9 +226,7 @@ if (isset($_POST['jo_save'])) {
                 } else {
                     arr_jo_items.push([description, unit, quantity, unitPrice, item_amount]);
 
-                    for (x of arr_jo_items) {
-                        alert(x);
-                    }
+                   
 
 
                     new_row = "<tr> \

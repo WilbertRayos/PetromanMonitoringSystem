@@ -220,7 +220,8 @@ class Fetch_All_Users extends Dbh{
 
    function fetchAllUsers(){
     try{
-        $query = "SELECT e.employee_id, 
+        $query = "SELECT e.employee_id,
+                        e.employee_number, 
                         e.employee_fName, 
                         e.employee_mName, 
                         e.employee_lName, 
@@ -241,6 +242,7 @@ class Fetch_All_Users extends Dbh{
 }
 
 class Add_New_Account extends Dbh{
+    private $employee_number;
     private $employee_fName;
     private $employee_mName;
     private $employee_lName;
@@ -255,9 +257,10 @@ class Add_New_Account extends Dbh{
 
     function addNewEmployee(){
         try{
-            $query = "INSERT INTO employees (employee_fName, employee_mName, employee_lName, employee_email, employee_password, role_id) 
-            VALUES (:fName, :mName, :lName, :email, :password, (SELECT role_id FROM roles WHERE role_desc = :role))";
+            $query = "INSERT INTO employees (employee_number, employee_fName, employee_mName, employee_lName, employee_email, employee_password, role_id) 
+            VALUES (:employee_number, :fName, :mName, :lName, :email, :password, (SELECT role_id FROM roles WHERE role_desc = :role))";
             $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':employee_number', $this->employee_number);
             $stm->bindValue(':fName', $this->employee_fName);
             $stm->bindValue(':mName', $this->employee_mName);
             $stm->bindValue(':lName', $this->employee_lName);
@@ -274,6 +277,10 @@ class Add_New_Account extends Dbh{
         }
         
 
+    }
+
+    function setEmployee_number($eNumber) {
+        $this->employee_number = $eNumber;
     }
 
     function setEmployee_fName($fName){
@@ -354,6 +361,7 @@ class Delete_Account extends Dbh{
 
 class Update_Account extends Dbh{
     private $employee_id;
+    private $employee_number;
     private $employee_fName;
     private $employee_mName;
     private $employee_lName;
@@ -367,7 +375,8 @@ class Update_Account extends Dbh{
     function updateAccount(){
         try{
             $query = "UPDATE employees 
-            SET employee_fName = :fName, 
+            SET employee_number = :employee_number,
+            employee_fName = :fName, 
             employee_mName = :mName, 
             employee_lName = :lName, 
             employee_email = :email, 
@@ -375,6 +384,7 @@ class Update_Account extends Dbh{
             WHERE employee_id = :id";
 
             $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':employee_number', $this->employee_number);
             $stm->bindValue(':fName', $this->employee_fName);
             $stm->bindValue(':mName', $this->employee_mName);
             $stm->bindValue(':lName', $this->employee_lName);
@@ -392,6 +402,10 @@ class Update_Account extends Dbh{
 
     function setEmployeeID($id){
         $this->employee_id = $id;
+    }
+
+    function setEmployeeNumber($eNumber) {
+        $this->employee_number = $eNumber;
     }
 
     function setEmployeeFName($fName){
@@ -1236,7 +1250,7 @@ class Create_New_Trading_Sales extends Dbh {
             $stm->bindValue(':representative', $this->representative);
             $stm->bindValue(':contact_number', $this->contact_number);
             $stm->bindValue(':address', $this->address);
-            $stm->bindValue(':date', $this->date);
+            $stm->bindValue(':date', date("Y-m-d", strtotime($this->date)));
             $stm->bindValue(':tin_number', $this->tin_number);
             $stm->bindValue(':terms_of_payment', $this->terms_of_payment);
             $stm->bindValue(':employee_id', $this->employee_id);
@@ -1371,7 +1385,6 @@ class Delete_Specific_Trading_Sales extends Dbh {
         foreach ($this->arr_items as $item) {
             array_push($item_mod, array($item[0], $item[2]));
         }
-        print_r($item_mod);
         $warehouse_obj = new Process_Warehouse_Products("Receive", $this->trading_sales_number, date("Y-m-d"), $this->name, $item_mod);
         $warehouse_obj->productController();
     }
@@ -1520,7 +1533,8 @@ class Update_Trading_Sales extends Dbh {
             foreach ($ts_current_info as $items) {
                 if ($this->current_client_name == "") {
                     $this->current_client_name = $items["client_name"];
-                } else if ($this->current_trading_sales_date == "") {
+                }
+                if ($this->current_trading_sales_date == "") {
                     $this->current_trading_sales_date = $items["trading_sales_date"];
                 }
                 array_push($this->current_items_arr, array($items["description"],$items["quantity"]));
@@ -1532,7 +1546,6 @@ class Update_Trading_Sales extends Dbh {
 
     function returnStockToWarehouse() {
         $obj_warehouse = new Process_Warehouse_Products("Receive", $this->trading_sales_number, $this->current_trading_sales_date, $this->current_client_name, $this->current_items_arr);
-        echo "restock";
         $obj_warehouse->productController();
     }
 
@@ -1542,7 +1555,6 @@ class Update_Trading_Sales extends Dbh {
             array_push($warehouse_items_arr, array($items[0], $items[2]));
         }
         $obj_warehouse = new Process_Warehouse_Products("Withdraw",$nts_number,$nts_date,$nts_client_name,$warehouse_items_arr);
-        echo "withdraw";
         $obj_warehouse->productController();
     }
 
@@ -1570,7 +1582,7 @@ class Update_Trading_Sales extends Dbh {
         $stm->bindValue(':nRepresentative',$nRepresentative);
         $stm->bindValue(':nContact_number',$nContact_number);
         $stm->bindValue(':nAddress',$nAddress);
-        $stm->bindValue(':nTrading_sales_date',$nTrading_sales_date);
+        $stm->bindValue(':nTrading_sales_date',date("Y-m-d", strtotime($nTrading_sales_date)));
         $stm->bindValue(':nTin_number',$nTin_number);
         $stm->bindValue(':nTerms_of_payment',$nTerms_of_payment);
         $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
@@ -2209,7 +2221,6 @@ class Process_Warehouse_Products extends Dbh {
     function productController() {
         foreach($this->arr_products as $product) {
             $product_name = $product[0];
-            echo $product_name;
             $new_beg = $this->fetchPreviousEnd($product[0]);
             $new_end = 0;
             if ($this->activity === "Receive") {
