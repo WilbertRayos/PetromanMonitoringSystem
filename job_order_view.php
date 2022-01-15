@@ -12,14 +12,19 @@ $jo_information = $db_obj_1->fetchJobOrderInformation();
 $all_jo_items = $db_obj_1->fetchJobOrderItems();
 
 if (isset($_POST['jo_update'])){
-    $arr = json_decode($_POST['jo_item_array']);
+    if (is_numeric($_POST['jo_contact']) != 1) {
+        echo "<script>alert('Please Fill-up Contact Number Properly');</script>";
+    } else {
+        $arr = json_decode($_POST['jo_item_array']);
 
-    $db_obj_updateJobOrder = new Update_Job_Order($job_order_number);
-    $db_obj_updateJobOrder->deleteJobOrderItem($arr);
-    $db_obj_updateJobOrder->updateJobOrderItems($arr);
-    $db_obj_updateJobOrder->updateJobOrderInformation($_POST['jo_number'], $_POST['jo_clientName'], $_POST['jo_representative'], $_POST['jo_contact'],
-    $_POST['jo_address'],$_POST['jo_date'],$_POST['jo_tin'],$_POST['jo_location'],$_POST['jo_cod'],$_POST['jo_mobilization']);
-    header('Location: projects.php');
+        $db_obj_updateJobOrder = new Update_Job_Order($job_order_number);
+        $db_obj_updateJobOrder->deleteJobOrderItem($arr);
+        $db_obj_updateJobOrder->updateJobOrderItems($arr);
+        $db_obj_updateJobOrder->updateJobOrderInformation($_POST['jo_number'], $_POST['jo_clientName'], $_POST['jo_representative'], $_POST['jo_contact'],
+        $_POST['jo_address'],$_POST['jo_date'],$_POST['jo_tin'],$_POST['jo_location'],$_POST['jo_cod'],$_POST['jo_mobilization']);
+        header('Location: projects.php');
+    }
+    
 }
 
 
@@ -61,23 +66,23 @@ if ($jo_count > 0) {
 
 
 if (isset($_POST['save_checklist']) && !($jo_count > 0)) {
-    if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
-        echo "<script>alert('Fill-up OR information');</script>";
-    } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
-        echo "<script>alert('Fill-up AR information');</script>";
-    } else if (!isset($_POST['ws_control_number']) || empty($_POST['ws_control_number']) || !isset($_POST['ws_date']) || empty($_POST['ws_date'])) {
-        echo "<script>alert('Fill-up WS information');</script>";
-    } else if (!isset($_POST['cr_control_number']) || empty($_POST['cr_control_number']) || !isset($_POST['cr_date']) || empty($_POST['cr_date'])) {
-        echo "<script>alert('Fill-up CR information');</script>";
-    } else if (!isset($_POST['dr_control_number']) || empty($_POST['dr_control_number']) || !isset($_POST['dr_date']) || empty($_POST['dr_date'])) {
-        echo "<script>alert('Fill-up DR information');</script>";
-    } else if (!isset($_POST['2307']) || empty($_POST['2307'])) {
-        echo "<script>alert('Fill-up 2303/2307 information');</script>";
-    } else if (!isset($_POST['soa']) || empty($_POST['soa'])) {
-        echo "<script>alert('Fill-up SOA information');</script>";
-    } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
-        echo "<script>alert('Fill-up total_material_used information');</script>";
-    } else {
+    // if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
+    //     echo "<script>alert('Fill-up OR information');</script>";
+    // } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
+    //     echo "<script>alert('Fill-up AR information');</script>";
+    // } else if (!isset($_POST['ws_control_number']) || empty($_POST['ws_control_number']) || !isset($_POST['ws_date']) || empty($_POST['ws_date'])) {
+    //     echo "<script>alert('Fill-up WS information');</script>";
+    // } else if (!isset($_POST['cr_control_number']) || empty($_POST['cr_control_number']) || !isset($_POST['cr_date']) || empty($_POST['cr_date'])) {
+    //     echo "<script>alert('Fill-up CR information');</script>";
+    // } else if (!isset($_POST['dr_control_number']) || empty($_POST['dr_control_number']) || !isset($_POST['dr_date']) || empty($_POST['dr_date'])) {
+    //     echo "<script>alert('Fill-up DR information');</script>";
+    // } else if (!isset($_POST['2307']) || empty($_POST['2307'])) {
+    //     echo "<script>alert('Fill-up 2303/2307 information');</script>";
+    // } else if (!isset($_POST['soa']) || empty($_POST['soa'])) {
+    //     echo "<script>alert('Fill-up SOA information');</script>";
+    // } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
+    //     echo "<script>alert('Fill-up total_material_used information');</script>";
+    // } else {
         $db_obj_2 = new Add_New_Checklist($_GET['jo_num'], 
                                         $_POST['or_control_number'], $_POST['or_date'], 
                                         $_POST['ar_control_number'], $_POST['ar_date'], 
@@ -88,25 +93,25 @@ if (isset($_POST['save_checklist']) && !($jo_count > 0)) {
                                     );
         $new_checklist = $db_obj_2->addNewChecklist();
         header("Refresh:0");
-    }
+    // }
 } else if (isset($_POST['save_checklist']) && ($jo_count >= 1)) {
-    if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
-        echo "<script>alert('Fill-up OR information');</script>";
-    } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
-        echo "<script>alert('Fill-up AR information');</script>";
-    } else if (!isset($_POST['ws_control_number']) || empty($_POST['ws_control_number']) || !isset($_POST['ws_date']) || empty($_POST['ws_date'])) {
-        echo "<script>alert('Fill-up WS information');</script>";
-    } else if (!isset($_POST['cr_control_number']) || empty($_POST['cr_control_number']) || !isset($_POST['cr_date']) || empty($_POST['cr_date'])) {
-        echo "<script>alert('Fill-up CR information');</script>";
-    } else if (!isset($_POST['dr_control_number']) || empty($_POST['dr_control_number']) || !isset($_POST['dr_date']) || empty($_POST['dr_date'])) {
-        echo "<script>alert('Fill-up DR information');</script>";
-    } else if (!isset($_POST['2307']) || empty($_POST['2307'])) {
-        echo "<script>alert('Fill-up 2303/2307 information');</script>";
-    } else if (!isset($_POST['soa']) || empty($_POST['soa'])) {
-        echo "<script>alert('Fill-up SOA information');</script>";
-    } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
-        echo "<script>alert('Fill-up total_material_used information');</script>";
-    } else {
+    // if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
+    //     echo "<script>alert('Fill-up OR information');</script>";
+    // } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
+    //     echo "<script>alert('Fill-up AR information');</script>";
+    // } else if (!isset($_POST['ws_control_number']) || empty($_POST['ws_control_number']) || !isset($_POST['ws_date']) || empty($_POST['ws_date'])) {
+    //     echo "<script>alert('Fill-up WS information');</script>";
+    // } else if (!isset($_POST['cr_control_number']) || empty($_POST['cr_control_number']) || !isset($_POST['cr_date']) || empty($_POST['cr_date'])) {
+    //     echo "<script>alert('Fill-up CR information');</script>";
+    // } else if (!isset($_POST['dr_control_number']) || empty($_POST['dr_control_number']) || !isset($_POST['dr_date']) || empty($_POST['dr_date'])) {
+    //     echo "<script>alert('Fill-up DR information');</script>";
+    // } else if (!isset($_POST['2307']) || empty($_POST['2307'])) {
+    //     echo "<script>alert('Fill-up 2303/2307 information');</script>";
+    // } else if (!isset($_POST['soa']) || empty($_POST['soa'])) {
+    //     echo "<script>alert('Fill-up SOA information');</script>";
+    // } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
+    //     echo "<script>alert('Fill-up total_material_used information');</script>";
+    // } else {
         $db_obj_3 = new Update_Checklist(
             $_GET['jo_num'], $_POST['or_control_number'], $_POST['or_date'],
             $_POST['ar_control_number'], $_POST['ar_date'], $_POST['ws_control_number'], $_POST['ws_date'],
@@ -115,7 +120,7 @@ if (isset($_POST['save_checklist']) && !($jo_count > 0)) {
         );
         $db_obj_3->updateChecklist();
         header("Refresh:0");
-    }
+    // }
 }
 
 $db_obj_4 = new Job_Order_Phases($_GET['jo_num']);
@@ -161,6 +166,15 @@ if (isset($_POST['jo_delete'])) {
     $obj_delete_jo = new Delete_Specific_Job_Order($_POST["jo_number"]);
     $obj_delete_jo->deleteJobOrder();
     
+}
+
+if (isset($_POST["btn_delete_phase"])) {
+    if (!isset($_POST["delete_phase"]) || empty($_POST["delete_phase"])) {
+        echo "<script>alert('Please enter the phase ID you want to delete');</script>";
+    } else {
+        $db_obj_4->deletePhase($_POST["delete_phase"]);
+        header('Location: projects.php');
+    }
 }
 
 
@@ -467,18 +481,32 @@ if (isset($_POST['jo_delete'])) {
                                 </div>
                             </div>  
                         </form>    
+                        <hr />
+                        <form action="<?php echo $path_parts['basename'];?>" method="POST" id="delete_phase_form" enctype="multipart/form-data">
+                            <div class="form-row">
+                                <div class="form-group col-md-5">
+                                    <label for="delete_phase">Phase ID</label>
+                                    <input type="number" class="form-control" id="delete_phase" name="delete_phase">
+                                    <button type="submit" class="btn btn-danger mt-1" name="btn_delete_phase" form="delete_phase_form">Delete</button>
+                                </div>
+                            </div>  
+                        </form>  
                         <hr /> 
                         <h4>Phases</h4>
                         <?php
                                 foreach($jo_phases as $jo_phase) {
                                     
                         ?>
-                            <div>
-                                Phase # <?php echo $jo_phase['stage']; ?>
+                        <div>
+                            Phase ID: <?php echo $jo_phase['project_phases_id']; ?>
+                        </div>
+                        <div>
+                            Phase Stage: <?php echo $jo_phase['stage']; ?>
+                        </div>
+                            <div class="col-md-12">
+                                    <img src="phases_pictures/<?php echo $jo_phase['image']; ?>" class="img-thumbnail"/>
                             </div>
-                            <div>
-                                <img src="phases_pictures/<?php echo $jo_phase['image']; ?>" class="img-thumbnail"/>
-                            </div>
+                            
                         <?php
                             }
                                     

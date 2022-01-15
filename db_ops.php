@@ -307,11 +307,21 @@ class Add_New_Account extends Dbh{
 }
 
 class Delete_Account extends Dbh{
+    
     function deleteAccount($id){
+        $new_status = "";
+
+        if ($this->fetchUserStatus($id) == "active") {
+            $new_status = "inactive";
+        } else {
+            $new_status = "active";
+        }
         try{
-            $query = "UPDATE employees SET employee_stats = 'inactive' WHERE employee_id = :id";
+            
+            $query = "UPDATE employees SET employee_stats = :new_status WHERE employee_id = :id";
             // $query = "DELETE FROM employees WHERE employee_id = :id";
             $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':new_status', $new_status);
             $stm->bindValue(':id', $id);
             $stm->execute();
             $stm->closeCursor();
@@ -322,6 +332,23 @@ class Delete_Account extends Dbh{
             include('db_error.php');
         }
         
+    }
+
+    function fetchUserStatus($id) {
+        try{
+            $query = "SELECT employee_stats FROM employees WHERE employee_id = :id";
+            // $query = "DELETE FROM employees WHERE employee_id = :id";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':id', $id);
+            $stm->execute();
+            $status = $stm->fetch(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            return $status['employee_stats'];
+            //echo "<meta http-equiv='refresh' content='0'>";
+        }catch(PDOException $e){
+            $error_msg = $e;
+            include('db_error.php');
+        }
     }
 }
 
@@ -931,7 +958,7 @@ class Update_Checklist extends Dbh {
             $stm->execute();
             $stm->closeCursor();
         }catch (PDOException $e) {
-            echo "wews".$e;
+            echo $e;
         }
         
     }
@@ -970,9 +997,21 @@ class Job_Order_Phases extends Dbh {
             $stm->execute();
             $stm->closeCursor();
         } catch (PDOException $e) {
-            echo $e;
+            echo "Error Occured";
         }
         
+    }
+
+    function deletePhase ($phase_id) {
+        try {
+            $query = "DELETE FROM project_phases WHERE project_phases_id = :project_phases_id";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':project_phases_id', $phase_id);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch(PDOException $e ) {
+            echo $e;
+        }
     }
 }
 
@@ -1816,7 +1855,6 @@ class Update_Trading_Sales_Checklist extends Dbh {
 
     function updateChecklist() {
         try {
-            echo "ere";
             $this->updateOR();
             $this->updateAR();
             $this->updateWS();

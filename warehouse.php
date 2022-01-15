@@ -77,7 +77,7 @@ require_once('db_ops.php');
               <td><?php echo $product['operation_date']; ?></td>
               <td><?php echo abs($product['ending_qty'] - $product['beginning_qty']); ?></td>
               <td><?php echo $product['beginning_qty']; ?></td>
-              <td><?php echo $product['ending_qty']; ?></td>
+              <td class="<?php if($product['ending_qty'] <= 20) echo 'bg-danger';?>"><?php echo $product['ending_qty']; ?></td>
             </tr>
           <?php
             }
@@ -119,7 +119,7 @@ require_once('db_ops.php');
                     <td><?php echo $transaction['operation_date']; ?></td>
                     <td><?php echo abs($transaction['ending_qty'] - $transaction['beginning_qty']); ?></td>
                     <td><?php echo $transaction['beginning_qty']; ?></td>
-                    <td><?php echo $transaction['ending_qty']; ?></td> 
+                    <td class="<?php if ($transaction['ending_qty'] <= 20) echo 'bg-danger';?>"><?php echo $transaction['ending_qty']; ?></td> 
                   </tr>
             <?php
               } else if ($current_date != $transaction['operation_date']) {
@@ -148,7 +148,7 @@ require_once('db_ops.php');
                     <td><?php echo $transaction['operation_date']; ?></td>
                     <td><?php echo abs($transaction['ending_qty'] - $transaction['beginning_qty']); ?></td>
                     <td><?php echo $transaction['beginning_qty']; ?></td>
-                    <td><?php echo $transaction['ending_qty']; ?></td> 
+                    <td class="<?php if($transaction['ending_qty'] <= 20) echo 'bg-danger'?>"><?php echo $transaction['ending_qty']; ?></td> 
                   </tr>
             <?php
               } else if ($current_date == $transaction['operation_date']) {
@@ -161,7 +161,7 @@ require_once('db_ops.php');
                     <td><?php echo $transaction['operation_date']; ?></td>
                     <td><?php echo abs($transaction['ending_qty'] - $transaction['beginning_qty']); ?></td>
                     <td><?php echo $transaction['beginning_qty']; ?></td>
-                    <td><?php echo $transaction['ending_qty']; ?></td>  
+                    <td class="<?php if($transaction['ending_qty'] <= 20) echo 'bg-danger'?>"><?php echo $transaction['ending_qty']; ?></td>  
                   </tr>  
             <?php
               }

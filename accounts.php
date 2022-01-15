@@ -17,7 +17,7 @@
       // $db_obj2->setEmployee_password($_POST['create_employee_password']);
       $db_obj2->setEmployee_role($_POST['role']);
       $db_obj2->addNewEmployee();
-      // header('Location: accounts.php');
+      header('Location: accounts.php');
     }
 
     if(isset($_POST['editAccount'])){
@@ -41,8 +41,8 @@
 
 
     if(isset($_POST['deleteAccount'])){
-      $db_obj4 = new Delete_Account;
-      $db_obj4->deleteAccount($_POST['edit_employee_id']);
+      $db_obj5 = new Delete_Account;
+      $db_obj5->deleteAccount($_POST['edit_employee_id']);
       header('Location: accounts.php');
     }
 
@@ -142,7 +142,7 @@
         <table class="table table-striped table-sm">
         <thead class="thead-dark">
             <tr>
-            <th scope="col">#</th>
+            <th scope="col">ID</th>
             <th scope="col">First Name</th>
             <th scope="col">Middle Name</th>
             <th scope="col">Last Name</th>
@@ -181,7 +181,7 @@
         <table class="table table-striped table-sm">
         <thead class="thead-dark">
             <tr>
-            <th scope="col">#</th>
+            <th scope="col">ID</th>
             <th scope="col">First Name</th>
             <th scope="col">Middle Name</th>
             <th scope="col">Last Name</th>
@@ -219,17 +219,17 @@
         
 
         <!-- Modal -->
-        <div class="modal fade" id="employees_accounts" tabindex="-1" role="dialog" aria-labelledby="employeeInfoModalLabel" aria-hidden="true">
+        <div class="modal fade" id="employees_accounts" tabindex="-1" role="dialog" aria-labelledby="employeeModifyModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="employeeInfoModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="employeeModifyModalLabel">Modify User</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form action="<?php echo $path_parts['basename'];?>" method="POST" id="employeeInfo">
+                <form action="<?php echo $path_parts['basename'];?>" method="POST" id="employeeInfoModify">
                     <div class="form-group">
                         <label for="employee_id">Employee ID</label>
                         <input type="input" class="form-control" id="edit_employee_id" name="edit_employee_id" readonly>
@@ -253,22 +253,22 @@
                       <input type="input" class="form-control" id="edit_employee_fName" name="edit_employee_fName">
                     </div>
                     <div class="form-group">
-                      <label for="edit_employee_mName">First Name</label>
+                      <label for="edit_employee_mName">Middle Name</label>
                       <input type="input" class="form-control" id="edit_employee_mName" name="edit_employee_mName">
                     </div>
                     <div class="form-group">
-                      <label for="edit_employee_lName">First Name</label>
+                      <label for="edit_employee_lName">Last Name</label>
                       <input type="input" class="form-control" id="edit_employee_lName" name="edit_employee_lName">
                     </div>
                     <div class="form-group">
-                      <label for="edit_employee_email">First Name</label>
+                      <label for="edit_employee_email">Email</label>
                       <input type="email" class="form-control" id="edit_employee_email" name="edit_employee_email">
                     </div> 
                 </form>
             </div>
             <div class="modal-footer justify-content-start">
-                <button type="submit" class="btn btn-primary mr-auto" form="employeeInfo" name="editAccount">Save changes</button>
-                <button type="submit" class="btn btn-danger" form="employeeInfo" name="deleteAccount">Deactivate</button>
+                <button type="submit" class="btn btn-primary mr-auto" form="employeeInfoModify" name="editAccount">Save changes</button>
+                <button type="submit" class="btn btn-danger" form="employeeInfoModify" name="deleteAccount">Change Status</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
             </div>

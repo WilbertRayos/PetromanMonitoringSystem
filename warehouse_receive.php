@@ -82,9 +82,10 @@ if (isset($_POST['receive_save'])) {
                     <label for="receive_date">Date(mm/dd/yyyy) </label>
                     <input class="form-control" id="receive_date" name="receive_date" value="<?php echo date('m/d/Y');?>" readonly/>
                 </div>
+                
                 <div class="form-group col-md-12">
                     <label for="receive_clientName">Received By </label>
-                    <input class="form-control" id="receive_clientName" name="receive_clientName" />
+                    <input class="form-control" id="receive_clientName" name="receive_clientName" value="<?php echo $_SESSION['employee_fName'].' '.$_SESSION['employee_mName'].' '.$_SESSION['employee_lName']?>" readonly/>
                 </div>
             </div>
             <hr />

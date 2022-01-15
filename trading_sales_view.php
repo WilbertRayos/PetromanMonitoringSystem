@@ -12,16 +12,21 @@ $ts_information = $db_obj_1->fetchTradingSalesInformation();
 $all_ts_items = $db_obj_1->fetchTradingSalesItems();
 
 if (isset($_POST['ts_update'])){
-    $arr = json_decode($_POST['ts_item_array']);
-    $db_obj_updateTradingSales = new Update_Trading_Sales($trading_sales_number);
-    $db_obj_updateTradingSales->returnStockToWarehouse();
-    $db_obj_updateTradingSales->deleteTradingSalesItem($arr);
-    $db_obj_updateTradingSales->updateTradingSalesItems($arr);
-    $db_obj_updateTradingSales->updateTradingSalesInformation($_POST['ts_number'], $_POST['ts_clientName'], $_POST['ts_representative'], $_POST['ts_contact'],
-    $_POST['ts_address'],$_POST['ts_date'],$_POST['ts_tin'],$_POST['ts_cod']);
-    $db_obj_updateTradingSales->withdrawStocksFromWarehouse($_POST['ts_number'],$_POST['ts_date'],$_POST['ts_clientName'],$arr);
+    if (is_numeric($_POST['ts_contact']) != 1) {
+        echo "<script>alert('Please Fill-up Contact Number Properly');</script>";
+    } else {
+        $arr = json_decode($_POST['ts_item_array']);
+        $db_obj_updateTradingSales = new Update_Trading_Sales($trading_sales_number);
+        $db_obj_updateTradingSales->returnStockToWarehouse();
+        $db_obj_updateTradingSales->deleteTradingSalesItem($arr);
+        $db_obj_updateTradingSales->updateTradingSalesItems($arr);
+        $db_obj_updateTradingSales->updateTradingSalesInformation($_POST['ts_number'], $_POST['ts_clientName'], $_POST['ts_representative'], $_POST['ts_contact'],
+        $_POST['ts_address'],$_POST['ts_date'],$_POST['ts_tin'],$_POST['ts_cod']);
+        $db_obj_updateTradingSales->withdrawStocksFromWarehouse($_POST['ts_number'],$_POST['ts_date'],$_POST['ts_clientName'],$arr);
+        
+        header('Reload: 0');
+    }
     
-    header('Reload: 0');
 }
 
 
@@ -32,7 +37,6 @@ $ts_count = $db_obj_1->checkExistingChecklist();
 // If checklist already exists
 if ($ts_count > 0) {
     $ts_checklist = $db_obj_1->fetchExistingChecklist();
-
     $or_control_number = $ts_checklist['or_cn'];
     $or_date = $ts_checklist['or_date'];
     $ar_control_number = $ts_checklist['ar_cn'];
@@ -64,24 +68,24 @@ if ($ts_count > 0) {
 
 
 if (isset($_POST['save_checklist'])) {
-    if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
-        echo "Fill-up OR information";
-    } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
-        echo "Fill-up AR information";
-    } else if (!isset($_POST['ws_control_number']) || empty($_POST['ws_control_number']) || !isset($_POST['ws_date']) || empty($_POST['ws_date'])) {
-        echo "Fill-up WS information";
-    } else if (!isset($_POST['cr_control_number']) || empty($_POST['cr_control_number']) || !isset($_POST['cr_date']) || empty($_POST['cr_date'])) {
-        echo "Fill-up CR information";
-    } else if (!isset($_POST['dr_control_number']) || empty($_POST['dr_control_number']) || !isset($_POST['dr_date']) || empty($_POST['dr_date'])) {
-        echo "Fill-up DR information";
-    } else if (!isset($_POST['2307']) || empty($_POST['2307'])) {
-        echo "Fill-up 2303/2307 information";
-    } else if (!isset($_POST['soa']) || empty($_POST['soa'])) {
-        echo "Fill-up SOA information";
-    } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
-        echo "Fill-up total_material_used information";
-    } else {
-        if ($ts_count['total_number'] == 0) {
+    // if (!isset($_POST['or_control_number']) || empty($_POST['or_control_number']) || !isset($_POST['or_date']) || empty($_POST['or_date'])) {
+    //     echo "Fill-up OR information";
+    // } else if (!isset($_POST['ar_control_number']) || empty($_POST['ar_control_number']) || !isset($_POST['ar_date']) || empty($_POST['ar_date'])) {
+    //     echo "Fill-up AR information";
+    // } else if (!isset($_POST['ws_control_number']) || empty($_POST['ws_control_number']) || !isset($_POST['ws_date']) || empty($_POST['ws_date'])) {
+    //     echo "Fill-up WS information";
+    // } else if (!isset($_POST['cr_control_number']) || empty($_POST['cr_control_number']) || !isset($_POST['cr_date']) || empty($_POST['cr_date'])) {
+    //     echo "Fill-up CR information";
+    // } else if (!isset($_POST['dr_control_number']) || empty($_POST['dr_control_number']) || !isset($_POST['dr_date']) || empty($_POST['dr_date'])) {
+    //     echo "Fill-up DR information";
+    // } else if (!isset($_POST['2307']) || empty($_POST['2307'])) {
+    //     echo "Fill-up 2303/2307 information";
+    // } else if (!isset($_POST['soa']) || empty($_POST['soa'])) {
+    //     echo "Fill-up SOA information";
+    // } else if (!isset($_POST['total_material_used']) || empty($_POST['total_material_used'])) {
+    //     echo "Fill-up total_material_used information";
+    // } else {
+        if ($ts_count == 0) {
             $db_obj_2 = new Add_New_Trading_Sales_Checklist($_GET['ts_num'], 
                                             $_POST['or_control_number'], $_POST['or_date'], 
                                             $_POST['ar_control_number'], $_POST['ar_date'], 
@@ -100,8 +104,8 @@ if (isset($_POST['save_checklist'])) {
             );
             $db_obj_3->updateChecklist();
         }
-        header("Location: trading_sales.php");
-    }
+    //     header("Location: trading_sales.php");
+    // }
     
 }  
 if (isset($_POST['ts_delete'])) {

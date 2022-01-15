@@ -65,7 +65,7 @@ require_once('db_ops.php');
                 </td>
                 <td><?php echo $jo_arr['client_name']; ?></td>
                   <?php 
-                    if ($remaining_balance == 0) {
+                    if ($remaining_balance <= 0) {
                   ?>
                 <td><?php echo "0 Php"; ?></td>               
                 <td><?php echo $jo_arr['last_payment']; ?></td>
