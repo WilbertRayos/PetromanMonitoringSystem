@@ -95,6 +95,14 @@
       </li>
       <li class="nav-item 
         <?php 
+            if($path_parts['filename'] == 'report_generation'){
+                echo "active";
+            }
+        ?>">
+        <a class="nav-link" href="report_generation.php">Report Generation<span class="sr-only"></span></a>
+      </li>
+      <li class="nav-item 
+        <?php 
             if($path_parts['filename'] == 'warehouse'){
                 echo "active";
             }
@@ -108,6 +116,28 @@
             }
         ?>">
         <a class="nav-link" href="calendar.php">Itinerary Calendar<span class="sr-only"></span></a>
+      </li>
+      <li class="nav-item 
+        <?php 
+            if($path_parts['filename'] == 'maintenance'){
+                echo "active";
+            }
+        ?>">
+        <?php if($_SESSION['employee_role'] == 'Admin'){
+                echo "<a class=\"nav-link\" href=\"maintenance.php\">Maintenance<span class=\"sr-only\"></span></a>";
+          } 
+        ?>
+      </li>
+      <li class="nav-item 
+        <?php 
+            if($path_parts['filename'] == 'history'){
+                echo "active";
+            }
+        ?>">
+        <?php if($_SESSION['employee_role'] == 'Admin'){
+                echo "<a class=\"nav-link\" href=\"history.php\">History<span class=\"sr-only\"></span></a>";
+          } 
+        ?>
       </li>
     </ul>
     <form class="form-inline my-2 my-lg-0" action="#" method="POST">

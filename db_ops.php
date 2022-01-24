@@ -119,16 +119,18 @@ class Change_Password extends Dbh{
     }
 
     function changeUserPassword(){
+        $obj_history = new History;
         try{
             $query = "UPDATE employees SET employee_password = :newPassword WHERE employee_email = :employee_email";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':newPassword',password_hash($this->newPassword, PASSWORD_DEFAULT));
             $stm->bindValue(':employee_email',$this->email);
             $execute_verdict = $stm->execute();
-            $stm->closeCursor();
-
+            $stm->closeCursor();           
+            $obj_history->saveHistory("Change user password","Success");
             return $execute_verdict;
         } catch (PDOException $e) {
+            $obj_history->saveHistory("Change user password","Failed");
             $error_msg = $e;
             include('db_error.php');
         }
@@ -157,6 +159,7 @@ class Update_User_Information extends Dbh{
     }
 
     function updateUserInformation(){
+        $obj_history = new History();
         try{
             $query = "UPDATE employees SET employee_fName = :fName, 
                     employee_mName = :mName, 
@@ -181,7 +184,9 @@ class Update_User_Information extends Dbh{
                 $_SESSION['employee_email'] = $this->email;
                 $_SESSION['employee_password'] = $this->password;
             }
+            $obj_history->saveHistory("Update user information","Success");
         } catch(PDOException $e){
+            $obj_history->saveHistory("Update user information","Success");
             $error_msg = $e;
             include('db_error.php');
         }
@@ -214,10 +219,20 @@ class Update_User_Information extends Dbh{
 }
 
 class Fetch_All_Users extends Dbh{
-
-    function __construct(){
+    function fetchAllRoles() {
+        try{
+            $query = "SELECT role_desc FROM roles";
+            $stm = $this->connect()->prepare($query);
+            $stm->execute();
+            $roles = $stm->fetchAll();
+            $stm -> closeCursor();
+    
+            return $roles;
+        }catch(PDOException $e){
+            $error_msg = $e;
+            include('db_error.php');
+        } 
     }
-
    function fetchAllUsers(){
     try{
         $query = "SELECT e.employee_id,
@@ -227,7 +242,8 @@ class Fetch_All_Users extends Dbh{
                         e.employee_lName, 
                         e.employee_email, 
                         e.employee_stats,
-                        r.role_desc FROM employees e INNER JOIN roles r ON r.role_id = e.role_id";
+                        r.role_desc FROM employees e INNER JOIN roles r ON r.role_id = e.role_id
+                        ORDER BY r.role_desc";
         $stm = $this->connect()->prepare($query);
         $stm->execute();
         $employees = $stm->fetchAll();
@@ -256,6 +272,7 @@ class Add_New_Account extends Dbh{
     }
 
     function addNewEmployee(){
+        $obj_history = new History();
         try{
             $query = "INSERT INTO employees (employee_number, employee_fName, employee_mName, employee_lName, employee_email, employee_password, role_id) 
             VALUES (:employee_number, :fName, :mName, :lName, :email, :password, (SELECT role_id FROM roles WHERE role_desc = :role))";
@@ -269,8 +286,9 @@ class Add_New_Account extends Dbh{
             $stm->bindValue(':role', $this->employee_role);
             $stm->execute();
             $stm->closeCursor();
-            
+            $obj_history->saveHistory("Added employee {$this->employee_email}","Success");
         }catch(PDOException $e){
+            $obj_history->saveHistory("Added employee {$this->employee_email}","Failed");
             echo "<script>alert('Failed to create the account. Check for duplicate account');</script>";
             // include('db_error.php');
             // $error_msg = $e->getMessage();
@@ -316,6 +334,7 @@ class Add_New_Account extends Dbh{
 class Delete_Account extends Dbh{
     
     function deleteAccount($id){
+        $obj_history = new History;
         $new_status = "";
 
         if ($this->fetchUserStatus($id) == "active") {
@@ -332,9 +351,10 @@ class Delete_Account extends Dbh{
             $stm->bindValue(':id', $id);
             $stm->execute();
             $stm->closeCursor();
-            
+            $obj_history->saveHistory("Changed employee {$id} status to {$new_status}","Success");
             //echo "<meta http-equiv='refresh' content='0'>";
         }catch(PDOException $e){
+            $obj_history->saveHistory("Changed employee {$id} status to {$new_status}","Failed");
             $error_msg = $e;
             include('db_error.php');
         }
@@ -373,6 +393,7 @@ class Update_Account extends Dbh{
     }
 
     function updateAccount(){
+        $obj_history = new History;
         try{
             $query = "UPDATE employees 
             SET employee_number = :employee_number,
@@ -392,8 +413,10 @@ class Update_Account extends Dbh{
             $stm->bindValue(':role', $this->employee_role);
             $stm->bindValue('id', $this->employee_id);
             $stm->execute();
-            $stm->closeCursor();;
+            $stm->closeCursor();
+            $obj_history->saveHistory("Updated Account Information","Success");
         }catch(PDOException $e){
+            $obj_history->saveHistory("Updated Account Information","Failed");
             $error_msg = $e;
             include('db_error.php');
         }
@@ -443,6 +466,7 @@ class Add_New_Job_Order extends Dbh {
     private $employee_id;
 
     function addNewJobOrder() {
+        $obj_history = new History;
         try {
             $query = "INSERT INTO job_order (job_order_number, client_name, representative, contact_number, address, date, tin_number, 
             project_location, terms_of_payment, mobilization, employee_id) VALUES (:job_order_number, :client_name, 
@@ -461,7 +485,9 @@ class Add_New_Job_Order extends Dbh {
             $stm->bindValue(':employee_id', $this->employee_id);
             $stm->execute();
             $stm->closeCursor();
+            $obj_history->saveHistory("Added new Job Order, with JO# {$this->job_order_number}","Success");
         } catch(PDOException $e){
+            $obj_history->saveHistory("Added new Job Order, with JO# {$this->job_order_number}","Success");
             $error_msg = $e. "<br />";
             include('db_error.php');
         }
@@ -688,13 +714,16 @@ class Delete_Specific_Job_Order extends Dbh {
     }
 
     function deleteJobOrder() {
+        $obj_history = new History;
         try {
             $query = "DELETE FROM job_order WHERE job_order_number = :job_order_number";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':job_order_number', $this->job_order_number);
             $stm->execute();
             $stm->closeCursor();
+            $obj_history->saveHistory("Delete Job Order, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $obj_history->saveHistory("Delete Job Order, with JO# {$this->job_order_number}","Failed");
             echo "<script>alert('You cannot delete this Job Order. If payment has been made.');</script>";
         }
     }
@@ -715,6 +744,7 @@ class Add_New_Checklist extends Dbh {
     private $checklist_2303;
     private $soa;
     private $total_materials_used;
+    private $obj_history;
 
     function __construct($job_order_number, 
                         $or_control_number, $or_date, $ar_control_number, $ar_date, 
@@ -735,6 +765,7 @@ class Add_New_Checklist extends Dbh {
         $this->checklist_2303 = $checklist_2303;
         $this->soa = $soa;
         $this->total_materials_used = $total_materials_used;
+        $this->obj_history = new History;
     }
 
     function addNewChecklist() {
@@ -756,7 +787,9 @@ class Add_New_Checklist extends Dbh {
             $stm->bindValue(':or_date', $this->or_date);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Added new OR, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Added new OR, with JO# {$this->job_order_number}","Failed");
             echo $e;
         }
         
@@ -772,7 +805,9 @@ class Add_New_Checklist extends Dbh {
             $stm->bindValue(':ar_date', $this->ar_date);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Added new AR, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Added new AR, with JO# {$this->job_order_number}","Failed");
             echo $e;
         }
     }
@@ -787,7 +822,9 @@ class Add_New_Checklist extends Dbh {
             $stm->bindValue(':ws_date', $this->ws_date);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Added new WS, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Added new WS, with JO# {$this->job_order_number}","Failed");
             echo $e;
         }
     }
@@ -802,7 +839,9 @@ class Add_New_Checklist extends Dbh {
             $stm->bindValue(':cr_date', $this->cr_date);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Added new CR, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Added new CR, with JO# {$this->job_order_number}","Failed");
             echo $e;
         }
     }
@@ -817,7 +856,9 @@ class Add_New_Checklist extends Dbh {
             $stm->bindValue(':dr_date', $this->dr_date);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Added new DR, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Added new DR, with JO# {$this->job_order_number}","Failed");
             echo $e;
         }
     }
@@ -833,7 +874,9 @@ class Add_New_Checklist extends Dbh {
             $stm->bindValue(':total_materials_used', $this->total_materials_used);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Added new Checklist Information, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Added new Checklist Information, with JO# {$this->job_order_number}","Failed");
             echo $e;
         }
     }
@@ -854,6 +897,7 @@ class Update_Checklist extends Dbh {
     private $checklist_2303;
     private $checklist_soa;
     private $checklist_materials;
+    private $obj_history;
 
     function __construct($job_order_number, $or_cn, $or_date, $ar_cn, $ar_date, $ws_cn, $ws_date, $cr_cn, $cr_date, $dr_cn, $dr_date, $checklist_2303, $soa, $materials) {
         $this->job_order_number = $job_order_number;
@@ -870,6 +914,7 @@ class Update_Checklist extends Dbh {
         $this->checklist_2303 = $checklist_2303;
         $this->checklist_soa = $soa;
         $this->checklist_materials = $materials;
+        $this->obj_history = new History;
     }
 
     function updateChecklist() {
@@ -894,7 +939,9 @@ class Update_Checklist extends Dbh {
             $stm->bindValue(':job_order_number', $this->job_order_number);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated OR, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Updated OR, with JO# {$this->job_order_number}","Failed");
             echo "Error in update OR";
             echo $e;
         }
@@ -909,7 +956,9 @@ class Update_Checklist extends Dbh {
             $stm->bindValue(':job_order_number', $this->job_order_number);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated AR, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Updated AR, with JO# {$this->job_order_number}","Failed");
             echo "Error in update AR";
             echo $e;
         }
@@ -924,7 +973,9 @@ class Update_Checklist extends Dbh {
             $stm->bindValue(':job_order_number', $this->job_order_number);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated WS, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Updated WS, with JO# {$this->job_order_number}","Failed");
             echo "Error in update WS";
             echo $e;
         }
@@ -939,7 +990,9 @@ class Update_Checklist extends Dbh {
             $stm->bindValue(':job_order_number', $this->job_order_number);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated CR, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Updated CR, with JO# {$this->job_order_number}","Failed");
             echo "Error in update CR";
             echo $e;
         }
@@ -954,7 +1007,9 @@ class Update_Checklist extends Dbh {
             $stm->bindValue(':job_order_number', $this->job_order_number);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated DR, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Updated DR, with JO# {$this->job_order_number}","Failed");
             echo "Error in update DR";
             echo $e;
         }
@@ -971,7 +1026,9 @@ class Update_Checklist extends Dbh {
 
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated Checklist Information, with JO# {$this->job_order_number}","Success");
         }catch (PDOException $e) {
+            $this->obj_history->saveHistory("Updated Checklist Information, with JO# {$this->job_order_number}","Failed");
             echo $e;
         }
         
@@ -980,9 +1037,11 @@ class Update_Checklist extends Dbh {
 
 class Job_Order_Phases extends Dbh {
     private $job_order_number;
+    private $obj_history;
     
     function __construct($job_order_number) {
         $this->job_order_number = $job_order_number;
+        $this->obj_history = new History;
     }
 
     function fetchAllJOPhases() {
@@ -1010,7 +1069,9 @@ class Job_Order_Phases extends Dbh {
             $stm->bindValue(':image', $image, PDO::PARAM_LOB);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Added new Phase, with JO# {$this->job_order_number}","Success");
         } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Added new Phase, with JO# {$this->job_order_number}","Failed");
             echo "Error Occured";
         }
         
@@ -1023,7 +1084,9 @@ class Job_Order_Phases extends Dbh {
             $stm->bindValue(':project_phases_id', $phase_id);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Deleted Phase, with JO# {$this->job_order_number}","Success");
         } catch(PDOException $e ) {
+            $this->obj_history->saveHistory("Deleted Phase, with JO# {$this->job_order_number}","Failed");
             echo $e;
         }
     }
@@ -1031,33 +1094,41 @@ class Job_Order_Phases extends Dbh {
 
 class Update_Job_Order extends Dbh {
     private $job_order_number;
+    private $obj_history;
 
     function __construct($job_order_number) {
-        echo $job_order_number;
         $this->job_order_number = $job_order_number;
+        $this->obj_history = new History;
     }
 
     function updateJobOrderInformation($nJob_order_number, $nClient_name, $nRepresentative, $nContact_number, $nAddress, $nDate, $nTin_number, $nProject_location, $nTerms_of_payment, $nMobilization) {
-        $query = "UPDATE job_order SET job_order_number=:nJob_order_number, client_name =:nClient_name, 
+        try {
+            $query = "UPDATE job_order SET job_order_number=:nJob_order_number, client_name =:nClient_name, 
                     representative=:nRepresentative, contact_number=:nContact_number, address=:nAddress, date=:nDate, tin_number=:nTin_number, 
                     project_location=:nProject_location, terms_of_payment=:nTerms_of_payment, mobilization=:nMobilization 
                     WHERE job_order_number = :job_order_number";
         
-        $stm = $this->connect()->prepare($query);
-        $stm->bindValue(':nJob_order_number',$nJob_order_number);
-        $stm->bindValue(':nClient_name',$nClient_name);
-        $stm->bindValue(':nRepresentative',$nRepresentative);
-        $stm->bindValue(':nContact_number', $nContact_number);
-        $stm->bindValue(':nAddress',$nAddress);
-        $stm->bindValue(':nDate',$nDate);
-        $stm->bindValue(':nTin_number',$nTin_number);
-        $stm->bindValue(':nProject_location',$nProject_location);
-        $stm->bindValue(':nTerms_of_payment',$nTerms_of_payment);
-        $stm->bindValue(':nMobilization',$nMobilization);
-        $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':nJob_order_number',$nJob_order_number);
+            $stm->bindValue(':nClient_name',$nClient_name);
+            $stm->bindValue(':nRepresentative',$nRepresentative);
+            $stm->bindValue(':nContact_number', $nContact_number);
+            $stm->bindValue(':nAddress',$nAddress);
+            $stm->bindValue(':nDate',$nDate);
+            $stm->bindValue(':nTin_number',$nTin_number);
+            $stm->bindValue(':nProject_location',$nProject_location);
+            $stm->bindValue(':nTerms_of_payment',$nTerms_of_payment);
+            $stm->bindValue(':nMobilization',$nMobilization);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
 
-        $stm->execute();
-        $stm->closeCursor();
+            $stm->execute();
+            $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated Job Order Information, with JO# {$this->job_order_number}","Success");
+        } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Updated Job Order Information, with JO# {$this->job_order_number}","Failed");
+            echo "<script>alert('Error occured');</script>";
+        }
+        
     }
 
     function updateJobOrderItems($arr_jo_items) {
@@ -1074,12 +1145,15 @@ class Update_Job_Order extends Dbh {
                     $stm->bindValue(':unit_price', $jo_item[3]);
                     $stm->execute();
                     $stm->closeCursor();
+                    $this->obj_history->saveHistory("Updated Job Order Items, with JO# {$this->job_order_number}, Added {$jo_item[0]} with quantity of {$jo_item[2]}","Success");
                 } catch(PDOException $e) {
-                    echo $e;
+                    $this->obj_history->saveHistory("Updated Job Order Items, with JO# {$this->job_order_number}, Added {$jo_item[0]} with quantity of {$jo_item[2]}","Failed");
+                    echo "<script>alert('Error occured');</script>";
                 }   
             }
             else if ($this->checkJobOrderItem($jo_item[0], $jo_item[1], $jo_item[2], $jo_item[3]) == -1) {
-                echo "Error Occured";
+                $this->obj_history->saveHistory("Updated Job Order Items, with JO# {$this->job_order_number}, Added {$jo_item[0]} with quantity of {$jo_item[2]}","Failed");
+                echo "<script>alert('Error occured');</script>";
             }
         }
     }
@@ -1146,16 +1220,23 @@ class Update_Job_Order extends Dbh {
     }
 
     private function deleteFromJobOrderTable($description, $unit, $quantity, $unit_price) {
-        $query = "DELETE FROM job_order_items WHERE job_order_number = :job_order_number AND description = :description AND unit = :unit AND quantity = :quantity and unit_price = :unit_price";
-        $stm = $this->connect()->prepare($query);
-        $stm->bindValue(':job_order_number', $this->job_order_number);
-        $stm->bindValue(':description', $description);
-        $stm->bindValue(':unit', $unit);
-        $stm->bindValue(':quantity', $quantity);
-        $stm->bindValue(':unit_price', $unit_price);
-
-        $stm->execute();
-        $stm->closeCursor();
+        try {
+            $query = "DELETE FROM job_order_items WHERE job_order_number = :job_order_number AND description = :description AND unit = :unit AND quantity = :quantity and unit_price = :unit_price";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':job_order_number', $this->job_order_number);
+            $stm->bindValue(':description', $description);
+            $stm->bindValue(':unit', $unit);
+            $stm->bindValue(':quantity', $quantity);
+            $stm->bindValue(':unit_price', $unit_price);
+    
+            $stm->execute();
+            $stm->closeCursor();
+            $this->obj_history->saveHistory("Delete Job Order Items, with JO# {$this->job_order_number}, Deleted {$description} with quantity of {$quantity}","Success");
+        } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Delete Job Order Items, with JO# {$this->job_order_number}, Deleted {$description} with quantity of {$quantity}","Failed");
+            echo "<script>alert('Error occured');</script>";
+        }
+        
     }
     
 }
@@ -1207,7 +1288,9 @@ class Finance_Job_Order extends Dbh {
             $stm->bindValue(':deposit_date', $deposit_date);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Inserted payment, with JO# {$job_order_number}, Amount of {$amount}, reference number of {$reference_number}","Success");
         } catch(PDOException $e) {
+            $this->obj_history->saveHistory("Inserted payment, with JO# {$job_order_number}, Amount of {$amount}, reference number of {$reference_number}","Failed");
             echo $e;
         }
     }
@@ -1238,6 +1321,12 @@ class Create_New_Trading_Sales extends Dbh {
     private $tin_number;
     private $terms_of_payment;
     private $employee_id;
+    private $obj_history;
+
+    function __construct()
+    {
+        $this->obj_history = new History;
+    }
 
     function addTradingSales() {
         try {
@@ -1256,7 +1345,9 @@ class Create_New_Trading_Sales extends Dbh {
             $stm->bindValue(':employee_id', $this->employee_id);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Added new Trading Sales, with TS# {$this->trading_sales_number}","Success");
         } catch(PDOException $e){
+            $this->obj_history->saveHistory("Added new Trading Sales, with TS# {$this->trading_sales_number}","Failed");
             $error_msg = $e. "<br />";
             include('db_error.php');
         }
@@ -1301,9 +1392,10 @@ class Create_New_Trading_Sales extends Dbh {
             $stm->bindValue(':trading_sales_quantity', $trading_sales_quantity);
             $stm->bindValue(':trading_sales_unit_price', $trading_sales_unit_price);
             $stm->execute();
-            $stm->closeCursor();
-        } catch(PDOException $e) {
-            echo $e."<br />";
+            $this->obj_history->saveHistory("Added new Trading Sales Item, with TS# {$this->trading_sales_number}, {$trading_sales_description} with quantity of {$trading_sales_quantity}","Success");
+        } catch(PDOException $e){
+            $this->obj_history->saveHistory("Added new Trading Sales Item, with TS# {$this->trading_sales_number}, {$trading_sales_description} with quantity of {$trading_sales_quantity}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -1396,8 +1488,10 @@ class Delete_Specific_Trading_Sales extends Dbh {
             $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
             $stm->execute();
             $stm->closeCursor();
-        } catch (PDOException $e) {
-            echo $e;
+            $this->obj_history->saveHistory("Deleted Trading Sales, with TS# {$this->trading_sales_number}","Success");
+        } catch(PDOException $e){
+            $this->obj_history->saveHistory("Deleted Trading Sales, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 }
@@ -1510,9 +1604,11 @@ class Update_Trading_Sales extends Dbh {
     private $current_items_arr;
     private $current_client_name;
     private $current_trading_sales_date;
+    private $obj_history;
 
 
     function __construct($trading_sales_number) {
+        $this->obj_history = new History;
         $this->trading_sales_number = $trading_sales_number;
         $this->current_client_name = "";
         $this->current_trading_sales_date = "";
@@ -1569,26 +1665,34 @@ class Update_Trading_Sales extends Dbh {
     //         echo $e;
     //     }
     // }
-
+    
     function updateTradingSalesInformation($nTrading_sales_number, $nClient_name, $nRepresentative, $nContact_number, $nAddress, $nTrading_sales_date, $nTin_number, $nTerms_of_payment) {
-        $query = "UPDATE trading_sales SET trading_sales_number=:nTrading_sales_number, client_name =:nClient_name, 
+        try {
+            $query = "UPDATE trading_sales SET trading_sales_number=:nTrading_sales_number, client_name =:nClient_name, 
                     representative=:nRepresentative, contact_number=:nContact_number ,address=:nAddress, trading_sales_date=:nTrading_sales_date, tin_number=:nTin_number, 
                     terms_of_payment=:nTerms_of_payment
                     WHERE trading_sales_number = :trading_sales_number";
         
-        $stm = $this->connect()->prepare($query);
-        $stm->bindValue(':nTrading_sales_number',$nTrading_sales_number);
-        $stm->bindValue(':nClient_name',$nClient_name);
-        $stm->bindValue(':nRepresentative',$nRepresentative);
-        $stm->bindValue(':nContact_number',$nContact_number);
-        $stm->bindValue(':nAddress',$nAddress);
-        $stm->bindValue(':nTrading_sales_date',date("Y-m-d", strtotime($nTrading_sales_date)));
-        $stm->bindValue(':nTin_number',$nTin_number);
-        $stm->bindValue(':nTerms_of_payment',$nTerms_of_payment);
-        $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':nTrading_sales_number',$nTrading_sales_number);
+            $stm->bindValue(':nClient_name',$nClient_name);
+            $stm->bindValue(':nRepresentative',$nRepresentative);
+            $stm->bindValue(':nContact_number',$nContact_number);
+            $stm->bindValue(':nAddress',$nAddress);
+            $stm->bindValue(':nTrading_sales_date',date("Y-m-d", strtotime($nTrading_sales_date)));
+            $stm->bindValue(':nTin_number',$nTin_number);
+            $stm->bindValue(':nTerms_of_payment',$nTerms_of_payment);
+            $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
 
-        $stm->execute();
-        $stm->closeCursor();
+            $stm->execute();
+            $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated Trading Sales, with TS# {$this->trading_sales_number}","Success");
+        } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Updated Trading Sales, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
+        }
+        
+
     }
 
     function updateTradingSalesItems($arr_ts_items) {
@@ -1606,12 +1710,15 @@ class Update_Trading_Sales extends Dbh {
                     $stm->bindValue(':unit_price', $ts_item[3]);
                     $stm->execute();
                     $stm->closeCursor();
-                } catch(PDOException $e) {
-                    echo $e;
+                    $this->obj_history->saveHistory("Updated Trading Sales Item, with TS# {$this->trading_sales_number}, {$ts_item[0]} with quantity of {$ts_item[2]}","Success");
+                } catch (PDOException $e) {
+                    $this->obj_history->saveHistory("Updated Trading Sales Item, with TS# {$this->trading_sales_number}, {$ts_item[0]} with quantity of {$ts_item[2]}","Failed");
+                    echo "<script>alert('Error Occured');</script>";
                 }   
             }
             else if ($this->checkTradingSalesItem($ts_item[0], $ts_item[1], $ts_item[2], $ts_item[3]) == -1) {
-                echo "Error Occured";
+                $this->obj_history->saveHistory("Updated Trading Sales Item, with TS# {$this->trading_sales_number}, {$ts_item[0]} with quantity of {$ts_item[2]}","Failed");
+                echo "<script>alert('Error Occured');</script>";
             }
         }
     }
@@ -1635,7 +1742,7 @@ class Update_Trading_Sales extends Dbh {
             return $verdict['verdict'];
 
         } catch (PDOException $e) {
-            echo $e;
+            echo "<script>alert('Error Occured');</script>";
             return -1;
         } 
     }
@@ -1679,16 +1786,21 @@ class Update_Trading_Sales extends Dbh {
     }
 
     private function deleteFromTradingSalesTable($description, $unit, $quantity, $unit_price) {
-        $query = "DELETE FROM trading_sales_items WHERE trading_sales_number = :trading_sales_number AND description = :description AND unit = :unit AND quantity = :quantity and unit_price = :unit_price";
-        $stm = $this->connect()->prepare($query);
-        $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
-        $stm->bindValue(':description', $description);
-        $stm->bindValue(':unit', $unit);
-        $stm->bindValue(':quantity', $quantity);
-        $stm->bindValue(':unit_price', $unit_price);
+        try {
+            $query = "DELETE FROM trading_sales_items WHERE trading_sales_number = :trading_sales_number AND description = :description AND unit = :unit AND quantity = :quantity and unit_price = :unit_price";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
+            $stm->bindValue(':description', $description);
+            $stm->bindValue(':unit', $unit);
+            $stm->bindValue(':quantity', $quantity);
+            $stm->bindValue(':unit_price', $unit_price);
 
-        $stm->execute();
-        $stm->closeCursor();
+            $stm->execute();
+            $stm->closeCursor();
+        } catch(PDOException $e) {
+            echo "<script>alert('Error Occured');</script>";
+        }
+        
     }
     
 }
@@ -1708,12 +1820,14 @@ class Add_New_Trading_Sales_Checklist extends Dbh {
     private $checklist_2303;
     private $soa;
     private $total_materials_used;
+    private $obj_history;
 
     function __construct($trading_sales_number, 
                         $or_control_number, $or_date, $ar_control_number, $ar_date, 
                         $ws_control_number, $ws_date, $cr_control_number, $cr_date, 
                         $dr_control_number, $dr_date, 
                         $checklist_2303, $soa, $total_materials_used) {
+        $this->obj_history = new History;
         $this->trading_sales_number = $trading_sales_number;
         $this->or_control_number = $or_control_number;
         $this->or_date = $or_date;
@@ -1728,6 +1842,7 @@ class Add_New_Trading_Sales_Checklist extends Dbh {
         $this->checklist_2303 = $checklist_2303;
         $this->soa = $soa;
         $this->total_materials_used = $total_materials_used;
+
     }
 
     function addNewChecklist() {
@@ -1749,8 +1864,10 @@ class Add_New_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':or_date', $this->or_date);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Add new OR, with TS# {$this->trading_sales_number}","Success");
         } catch (PDOException $e) {
-            echo $e;
+            $this->obj_history->saveHistory("Add new OR, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
         
     }
@@ -1765,8 +1882,10 @@ class Add_New_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':ar_date', $this->ar_date);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Add new AR, with TS# {$this->trading_sales_number}","Success");
         } catch (PDOException $e) {
-            echo $e;
+            $this->obj_history->saveHistory("Add new AR, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -1780,8 +1899,10 @@ class Add_New_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':ws_date', $this->ws_date);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Add new WS, with TS# {$this->trading_sales_number}","Success");
         } catch (PDOException $e) {
-            echo $e;
+            $this->obj_history->saveHistory("Add new WS, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -1795,8 +1916,10 @@ class Add_New_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':cr_date', $this->cr_date);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Add new CR, with TS# {$this->trading_sales_number}","Success");
         } catch (PDOException $e) {
-            echo $e;
+            $this->obj_history->saveHistory("Add new CR, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -1810,8 +1933,10 @@ class Add_New_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':dr_date', $this->dr_date);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Add new DR, with TS# {$this->trading_sales_number}","Success");
         } catch (PDOException $e) {
-            echo $e;
+            $this->obj_history->saveHistory("Add new DR, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -1826,8 +1951,10 @@ class Add_New_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':total_materials_used', $this->total_materials_used);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Add new Checklist Information, with TS# {$this->trading_sales_number}","Success");
         } catch (PDOException $e) {
-            echo $e;
+            $this->obj_history->saveHistory("Add new Checklist Information, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 }
@@ -1847,8 +1974,10 @@ class Update_Trading_Sales_Checklist extends Dbh {
     private $checklist_2303;
     private $checklist_soa;
     private $checklist_materials;
+    private $obj_history;
 
     function __construct($trading_sales_number, $or_cn, $or_date, $ar_cn, $ar_date, $ws_cn, $ws_date, $cr_cn, $cr_date, $dr_cn, $dr_date, $checklist_2303, $soa, $materials) {
+        $this->obj_history = new History;
         $this->trading_sales_number = $trading_sales_number;
         $this->or_control_number = $or_cn;
         $this->or_date = $or_date;
@@ -1887,9 +2016,10 @@ class Update_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated OR, with TS# {$this->trading_sales_number}","Success");
         } catch (PDOException $e) {
-            echo "Error in update OR";
-            echo $e;
+            $this->obj_history->saveHistory("Updated OR, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -1902,9 +2032,10 @@ class Update_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated AR, with TS# {$this->trading_sales_number}","Success");
         } catch (PDOException $e) {
-            echo "Error in update AR";
-            echo $e;
+            $this->obj_history->saveHistory("Updated AR, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -1917,9 +2048,10 @@ class Update_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated WS, with TS# {$this->trading_sales_number}","Success");
         } catch (PDOException $e) {
-            echo "Error in update WS";
-            echo $e;
+            $this->obj_history->saveHistory("Updated WS, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -1932,9 +2064,10 @@ class Update_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated CR, with TS# {$this->trading_sales_number}","Success");
         } catch (PDOException $e) {
-            echo "Error in update CR";
-            echo $e;
+            $this->obj_history->saveHistory("Updated CR, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -1947,9 +2080,10 @@ class Update_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
             $stm->execute();
             $stm->closeCursor();
+            $this->obj_history->saveHistory("Updated DR, with TS# {$this->trading_sales_number}","Success");
         } catch (PDOException $e) {
-            echo "Error in update DR";
-            echo $e;
+            $this->obj_history->saveHistory("Updated DR, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -1963,8 +2097,10 @@ class Update_Trading_Sales_Checklist extends Dbh {
             $stm->bindValue(':trading_sales_number', $this->trading_sales_number);
             $stm->execute();
             $stm->closeCursor();
-        }catch (PDOException $e) {
-            echo $e;
+            $this->obj_history->saveHistory("Updated Checklist Information, with TS# {$this->trading_sales_number}","Success");
+        } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Updated Checklist Information, with TS# {$this->trading_sales_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
         
     }
@@ -2005,6 +2141,7 @@ class Finance_Trading_Sales extends Dbh {
     }
 
     function insertPayment($trading_sales_number, $amount, $bank, $reference_number, $deposit_date) {
+        $obj_history = new History;
         try {
             $query = "INSERT INTO trading_sales_payment (trading_sales_number, amount, bank, reference_number, deposit_date) 
                         VALUES (:trading_sales_number, :amount, :bank, :reference_number, :deposit_date)";
@@ -2016,9 +2153,10 @@ class Finance_Trading_Sales extends Dbh {
             $stm->bindValue(':deposit_date', $deposit_date);
             $stm->execute();
             $stm->closeCursor();
-            
-        } catch(PDOException $e) {
-            echo $e;
+            $this->obj_history->saveHistory("Inserted New Payment for Trading Sales, with TS# {$trading_sales_number}, amount of {$amount} with reference number {$reference_number}","Success");
+        } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Inserted New Payment for Trading Sales, with TS# {$trading_sales_number}, amount of {$amount} with reference number {$reference_number}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -2065,6 +2203,7 @@ class Insert_Reset_Unique extends Dbh {
 
     function insert_new_unique()
     {
+        $obj_history = new History;
         try {
             $query = "INSERT INTO reset_password (code, email) VALUES (:code, :email)";
             $stm = $this->connect()->prepare($query);
@@ -2072,9 +2211,10 @@ class Insert_Reset_Unique extends Dbh {
             $stm->bindValue(':email', $this->email);
             $stm->execute();
             $stm->closeCursor();
-
-        }catch(PDOException $e) {
-            echo $e;
+            $this->obj_history->saveHistory("Password Reset for {$this->email}","Success");
+        } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Password Reset for {$this->email}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -2199,6 +2339,7 @@ class Process_Warehouse_Products extends Dbh {
     }
 
     function insertProduct($product_desc, $beginning_qty, $ending_qty) {
+        $obj_history = new History;
         try {
             $query = "INSERT INTO warehouse (product_id, activity, control_number, person_name, operation_date, beginning_qty, ending_qty) 
                         VALUES ((SELECT product_id FROM products WHERE product_desc = :product_desc), :activity, :control_number, :person_name, :operation_date, 
@@ -2213,8 +2354,10 @@ class Process_Warehouse_Products extends Dbh {
             $stm->bindValue(":ending_qty", $ending_qty);
             $stm->execute();
             $stm->closeCursor();
+            $obj_history->saveHistory("Inserted Product to Warehouse, {$product_desc} with quantity of {($ending_qty - $beginning_qty)}","Success");
         } catch (PDOException $e) {
-            echo $e;
+            $obj_history->saveHistory("Inserted Product to Warehouse, {$product_desc} with quantity of {($ending_qty - $beginning_qty)}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -2299,6 +2442,13 @@ class Fetch_Warehouse_Summary extends Dbh {
 }
 
 class Itinerary_Calendar extends Dbh {
+    private $obj_history;
+
+    function __construct()
+    {
+        $this->obj_history = new History;
+    }
+
     function addMemo($employee_id, $memo_date, $memo_title, $memo_message) {
         try {
             $query = "INSERT INTO memos (memo_user_id, memo_date, memo_title, memo_message) VALUES 
@@ -2310,8 +2460,10 @@ class Itinerary_Calendar extends Dbh {
             $stm->bindValue(":memo_message", $memo_message);
             $stm->execute();
             $stm->closeCursor();
-        } catch(PDOException $e) {
-            echo $e;
+            $this->obj_history->saveHistory("Added new Memo, entitled {$memo_title}","Success");
+        } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Added new Memo, entitled {$memo_title}","Failed");
+            echo "<script>alert('Error Occured');</script>";
         }
     }
 
@@ -2342,11 +2494,14 @@ class Itinerary_Calendar extends Dbh {
                 $stm->bindValue(":memo_id", $memo_id);
                 $stm->execute();
                 $stm->closeCursor();
+                $this->obj_history->saveHistory("Added new Memo, with memo ID {$memo_id}","Success");
                 return 1;
-            } catch(PDOException $e) {
-                echo $e;
+            } catch (PDOException $e) {
+                $this->obj_history->saveHistory("Added new Memo, with memo ID {$memo_id}","Failed");
+                echo "<script>alert('Error Occured');</script>";
             }
         } else {
+            $this->obj_history->saveHistory("Added new Memo, with memo ID {$memo_id}","Failed");
             return -1;
         }
         
@@ -2386,4 +2541,296 @@ class Itinerary_Calendar extends Dbh {
             echo $e;
         }
     }
+}
+
+class Report_Generation extends Dbh {
+    private $start_date;
+    private $end_date;
+    private $company_name;
+    private $creator;
+
+
+    function fetchFilterValues() {
+        $obj_history = new History;
+        try {
+            $query = "SELECT CONCAT(e.employee_fName,' ', e.employee_mName,' ',e.employee_lName) AS employee_name,j.job_order_number, j.client_name, j.representative, j.contact_number, j.address, j.date, i.description, i.unit, i.quantity, i.unit_price, i.quantity*i.unit_price as amount
+                FROM job_order j
+                INNER JOIN employees e ON j.employee_id = e.employee_id
+                INNER JOIN job_order_items i ON j.job_order_number = i.job_order_number 
+                WHERE j.date >= :start_date AND j.date <= :end_date AND j.client_name LIKE :company_name AND  e.employee_email LIKE :employee_email
+                UNION
+                SELECT CONCAT(e.employee_fName,' ', e.employee_mName,' ',e.employee_lName) AS employee_name,t.trading_sales_number, t.client_name, t.representative, t.contact_number, t.address, t.trading_sales_date, s.description, s.unit, s.quantity, s.unit_price, s.quantity*s.unit_price as amount
+                FROM trading_sales t
+                INNER JOIN employees e ON t.employee_id = e.employee_id
+                INNER JOIN trading_sales_items s ON t.trading_sales_number = s.trading_sales_number
+                WHERE t.trading_sales_date >= :start_date AND t.trading_sales_date <= :end_date AND t.client_name LIKE :company_name AND  e.employee_email LIKE :employee_email";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":start_date", $this->start_date);
+            $stm->bindValue(":end_date", $this->end_date);
+            $stm->bindValue(":company_name", "%".$this->company_name);
+            $stm->bindValue(":employee_email", "%".$this->creator);
+            $stm->execute();
+            $items = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            $obj_history->saveHistory("Filtered a report","Success");
+            return $items;
+        } catch (PDOException $e) {
+            $obj_history->saveHistory("Filtered a report","Failed");
+            echo "<script>alert('Error Occured');</script>";
+        }
+    }
+
+    function setStartDate($start_date) {
+        if(empty($start_date)) {
+            $this->start_date = "1970-01-01";
+        } else {
+            $this->start_date = $start_date;
+        }
+        
+    }
+
+    function setEndDate($end_date) {
+        if (empty($end_date)) {
+            $this->end_date = date('Y-m-d');
+        } else {
+            $this->end_date = $end_date;
+        }
+        
+    }
+
+    function setCompanyName($company_name) {
+        if (empty($company_name)) {
+            $this->company_name = "";
+        } else {
+            $this->company_name = $company_name;
+        }
+        
+    }
+
+    function setCreator($creator) {
+        if (empty($creator)) {
+            $this->creator = "";
+        } else {
+            $this->creator = $creator;
+        }
+        
+    }
+
+    function setOrderBy($order_by) {
+        if (empty($order_by)) {
+            $this->order_by = "";
+        } else {
+            $this->order_by = $order_by;
+        }
+        
+    }
+
+    function setOrder($order) {
+        if (empty($order)) {
+            $this->order = "";
+        } else {
+            $this->order = $order;
+        }
+        
+    }
+
+    
+
+    
+
+
+    
+}
+
+class Maintenance extends Dbh {
+    private $obj_history;
+
+    function __construct()
+    {
+        $this->obj_history = new History;
+    }
+
+    function addNewItem($category, $new_item) {
+        try {
+            // $query = $this->buildQuery(1, $category);
+            $stm = $this->connect()->prepare($this->buildQuery(1, $category));
+            $stm->bindValue(':new_item', $new_item);
+            $stm->execute();
+            $stm->closeCursor();
+            $this->obj_history->saveHistory("Added new item using maintenance called {$new_item}","Success");
+        } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Added new item using maintenance called {$new_item}","Failed");
+            echo "<script>alert('Error Occured');</script>";
+        }
+    }
+
+    function deleteItem($category, $delete_item) {
+        try {
+            // $query = $this->buildQuery(1, $category);
+            $stm = $this->connect()->prepare($this->buildQuery(2, $category));
+            $stm->bindValue(':delete_item', $delete_item);
+            $stm->execute();
+            $stm->closeCursor();
+            $this->obj_history->saveHistory("Deleted item using maintenance called {$delete_item}","Success");
+        } catch (PDOException $e) {
+            $this->obj_history->saveHistory("Deleted item using maintenance called {$delete_item}","Failed");
+            echo "<script>alert('Error Occured');</script>";
+        }
+    }
+
+    function buildQuery($operation, $category) {
+        $temp_arr = $this->tableIdentifyer($category);
+        $table_name = $temp_arr[0];
+        $column_name = $temp_arr[1];
+
+        // operation 1 = select
+        if ($operation == 1) {
+            $query = "INSERT INTO {$table_name} ({$column_name}) VALUES (:new_item)";
+            return $query;
+        } else if ($operation == 2) {
+            // operation 2 = Delete
+            $query = "DELETE FROM {$table_name} WHERE {$column_name} = :delete_item";
+            return $query;
+        }
+    }
+
+    function tableIdentifyer($category) {
+        if($category == "Account Type") {
+            return array("roles","role_desc");
+        } else if ($category == "Company Name") {
+            return array("company","company_desc");
+        } else if ($category == "Item Description") {
+            return array("products","product_desc");
+        } else if ($category == "Item Unit") {
+            return array("units","unit_desc");
+        }
+    }
+
+    function fetchAllAccountType() {
+        try {
+            $query = "SELECT role_desc FROM roles";
+            $stm = $this->connect()->prepare($query);
+            $stm->execute();
+            $all_roles = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            return $all_roles;
+        } catch (PDOException $e) {
+            echo "<script>alert('An error occured');</script>";
+        }
+    }
+
+    function fetchAllCompany() {
+        try {
+            $query = "SELECT company_desc FROM company";
+            $stm = $this->connect()->prepare($query);
+            $stm->execute();
+            $all_company = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            return $all_company;
+        } catch (PDOException $e) {
+            echo "<script>alert('An error occured');</script>";
+        }
+    }
+
+    function fetchAllUnits() {
+        try {
+            $query = "SELECT unit_desc FROM units";
+            $stm = $this->connect()->prepare($query);
+            $stm->execute();
+            $all_units = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            return $all_units;
+        } catch (PDOException $e) {
+            echo "<script>alert('An error occured');</script>";
+        }
+    }
+
+    function fetchAllTermsOfPayment() {
+        try {
+            $query = "SELECT terms_of_payment_desc FROM terms_of_payment";
+            $stm = $this->connect()->prepare($query);
+            $stm->execute();
+            $all_terms_of_payment = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            return $all_terms_of_payment;
+        } catch (PDOException $e) {
+            echo "<script>alert('An error occured');</script>";
+        }
+    }
+
+    function fetchAllItems() {
+        try {
+            $query = "SELECT product_desc FROM products";
+            $stm = $this->connect()->prepare($query);
+            $stm->execute();
+            $all_products = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+            return $all_products;
+        } catch (PDOException $e) {
+            echo "<script>alert('An error occured');</script>";
+        }
+    }
+
+    function fetchAllUsers() {
+        try {
+            $query = "SELECT employee_email FROM employees";
+            $stm = $this->connect()->prepare($query);
+            $stm->execute();
+            $employeeEmails = $stm->fetchAll(PDO::FETCH_ASSOC);
+            $stm->closeCursor();
+
+            return $employeeEmails;
+        } catch(PDOException $e) {
+            echo $e;
+        }
+    }
+
+}
+
+class History extends Dbh {
+    function saveHistory($hAction="", $hRemarks="") {
+        try {
+            $query = "INSERT INTO history (history_email, history_date, history_action, history_remarks) VALUES (:history_email, :history_date, :history_action, :history_remarks)";
+            $stm = $this->connect()->prepare($query);
+            $stm->bindValue(":history_email", $_SESSION['employee_email']);
+            $stm->bindValue(":history_date", date('Y-m-d H:i:s'));
+            $stm->bindValue(":history_action", $hAction);
+            $stm->bindValue(":history_remarks", $hRemarks);
+            $stm->execute();
+            $stm->closeCursor();
+        } catch (PDOException $e) {
+            echo "<script>alert('Error Occured');</script>";
+        }
+    }
+
+    function fetchHistory($email) {
+        if($email == "") {
+            try {
+                $query = "SELECT history_date, history_action, history_remarks FROM history";
+                $stm = $this->connect()->prepare($query);
+                $stm->execute();
+                $employee_history = $stm->fetchAll(PDO::FETCH_ASSOC);
+                $stm->closeCursor();
+                
+                return $employee_history;
+            } catch(PDOException $e) {
+                echo "<script>alert('Error Occured');</script>";
+            }
+        } else {
+            try {
+                $query = "SELECT history_date, history_action, history_remarks FROM history WHERE history_email = :email";
+                $stm = $this->connect()->prepare($query);
+                $stm->bindValue(":email", $email);
+                $stm->execute();
+                $employee_history = $stm->fetchAll(PDO::FETCH_ASSOC);
+                $stm->closeCursor();
+    
+                return $employee_history;
+            } catch(PDOException $e) {
+                echo "<script>alert('Error Occured');</script>";
+            }
+        }
+        
+    }
+
 }

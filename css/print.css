@@ -1,0 +1,27 @@
+@media print {
+    #jo_update {
+        display: none;
+    }
+    #jo_checklist {
+        display: none;
+    }
+    #jo_phases {
+        display: none;
+    }
+    #print_page {
+        display: none;
+    }
+    #jo_cancel {
+        display: none;
+    }
+    #jo_items_div {
+        display: none;
+    }
+    .btn {
+        display: none;
+    }
+
+    body {
+        font-size: 50px;
+    }
+}

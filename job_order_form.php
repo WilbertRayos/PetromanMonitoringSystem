@@ -5,6 +5,9 @@ if (!isset($_SESSION['loggedIn']) ) {
     header('Location: index.php');
 }
 
+$obj_maintenance = new Maintenance;
+
+
 if (isset($_POST['jo_save'])) {
     if(!isset($_POST['jo_number']) || empty($_POST['jo_number'])) {
         echo "<script>alert('Please Fill-up Trading Sales Number');</script>";
@@ -44,8 +47,10 @@ if (isset($_POST['jo_save'])) {
                 foreach($arr as $items) {
                     $db_obj1->addJobOrderItems($items[0],$items[1],$items[2],$items[3]);  
                 }
+
                 header("Location: projects.php");
             } catch(Exception $e) {
+
                 echo "<script>alert('Unexpected Error Occured');</script>";
             } 
         }
@@ -83,7 +88,18 @@ if (isset($_POST['jo_save'])) {
                 </div>
                 <div class="form-group col-md-8">
                     <label for="jo_clientName">Client Name </label>
-                    <input class="form-control" id="jo_clientName" name="jo_clientName" />
+                    <!-- <input class="form-control" id="jo_clientName" name="jo_clientName" /> -->
+                    <select class="form-control" id="jo_clientName" name="jo_clientName" >
+                        <?php
+                            $all_company = $obj_maintenance->fetchAllCompany();
+                            foreach ($all_company as $company) {
+                        ?>
+                            <option><?php echo $company['company_desc']; ?></option>
+                        <?php
+                            }
+                        ?>
+
+                    </select>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="jo_date">Date(mm/dd/yyyy) </label>
@@ -123,6 +139,17 @@ if (isset($_POST['jo_save'])) {
                         <option>150 Days</option>
                         <option>180 Days</option>
                     </select>
+                    <!-- <select  class="form-control" id="jo_cod" name="jo_cod">
+                        <?php
+                            $all_terms_of_payment = $obj_maintenance->fetchAlltermsOfPayment();
+                            foreach ($all_terms_of_payment as $top) {
+                        ?>
+                            <option><?php echo $top['terms_of_payment_desc']; ?></option>
+                        <?php
+                            }
+                        ?>
+
+                    </select> -->
                 </div> 
             </div>
             <hr />
@@ -155,15 +182,27 @@ if (isset($_POST['jo_save'])) {
                 <div class="form-group col-md-5">
                     <label for="jo_description">Description</label>
                     <input class="form-control" id="jo_description" name="jo_description" />
+                    
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="jo_unit">Unit</label>
-                    <select class="form-control" id="jo_unit" name="jo_unit">
+                    <!-- <select class="form-control" id="jo_unit" name="jo_unit">
                         <option>SQM</option>
                         <option>PC</option>
                         <option>BAGS</option>
                         <option>KG</option>
                         <option>BOX</option>
+                    </select> -->
+                    <select class="form-control" id="jo_unit" name="jo_unit">
+                        <?php
+                            $all_units = $obj_maintenance->fetchAllUnits();
+                            foreach ($all_units as $unit) {
+                        ?>
+                            <option><?php echo $unit['unit_desc']; ?></option>
+                        <?php
+                            }
+                        ?>
+
                     </select>
                 </div>
                 <div class="form-group col-md-2 col-sm-6">

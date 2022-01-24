@@ -8,7 +8,6 @@
     // Fetch Accounts
     $db_obj = new Fetch_All_Users;
     $employees = $db_obj->fetchAllUsers();
-    $allRoles = $db_obj->fetchAllRoles();
 
     // Add New Account
     if(isset($_POST['addAccount'])){
@@ -74,11 +73,11 @@
               Create New Account
             </button>
         </div>
-        <h2 class="display-4 my-4 page-title">Users</h2>
+        <h2 class="display-4 my-4 page-title">Admins</h2>
         <hr />
         <div class="row">
             <div class="col-md-12">        
-                <p class="lead my-4 menu-box-title">Table of Accounts</p>
+                <p class="lead my-4 menu-box-title">Table of admin accounts</p>
             </div>
             <div class="col-md-2">
                 
@@ -99,7 +98,7 @@
               <div class="modal-body">
                 <form action="<?php echo $path_parts['basename'];?>" method="POST" id="newAccountInfo">
                     <div class="form-group">
-                        <!-- <div class="form-check">
+                        <div class="form-check">
                           <input class="form-check-input" type="radio" name="role" id="rdbAdmin" value="admin" checked>
                           <label class="form-check-label" for="rdbAdmin">
                             Admin
@@ -110,17 +109,7 @@
                           <label class="form-check-label" for="rdbAgent">
                             Agent
                           </label>
-                        </div> -->
-                        <label for="role">Role</label>
-                        <select class="form-control" id="role" name="role">
-                          <?php
-                            foreach($allRoles as $role) {
-                          ?>
-                            <option><?php echo $role['role_desc'];?></option>
-                          <?php
-                            }
-                          ?>
-                        </select>
+                        </div>
                     </div>
                     <div class="form-group">
                       <label for="create_employee_number">Employee Number</label>
@@ -163,7 +152,6 @@
             <tr>
             <th scope="col">Employee ID</th>
             <th scope="col">Employee Number</th>
-            <th scope="col">Role</th>
             <th scope="col">First Name</th>
             <th scope="col">Middle Name</th>
             <th scope="col">Last Name</th>
@@ -175,11 +163,11 @@
         <tbody>
             <?php
                 foreach($employees as $employee){
+                    if(strcmp($employee['role_desc'], 'Admin') == 0){
             ?>
                     <tr>
                         <td><?php echo $employee['employee_id'] ?></th>
                         <td><?php echo $employee['employee_number'] ?></th>
-                        <td><?php echo $employee['role_desc'] ?></th>
                         <td><?php echo $employee['employee_fName'] ?></td>
                         <td><?php echo $employee['employee_mName'] ?></td>
                         <td><?php echo $employee['employee_lName'] ?></td>
@@ -190,12 +178,54 @@
                         </td>
                     </tr>
             <?php
+                    }
                 }
             ?>
         </tbody>
         </table>
 
-        
+        <h2 class="display-4 my-4 page-title">Agents</h2>
+        <hr />
+        <p class="lead my-4 menu-box-title">Table of agent accounts</p>
+
+        <table class="table table-striped table-sm">
+        <thead class="thead-dark">
+            <tr>
+            <th scope="col">Employee ID</th>
+            <th scope="col">Employee Number</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Middle Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Status</th>
+            <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+                foreach($employees as $employee){
+                    if(strcmp($employee['role_desc'], 'Agent') == 0){
+            ?>
+                        <tr>
+                            <td><?php echo $employee['employee_id'] ?></th>
+                            <td><?php echo $employee['employee_number'] ?></th>
+                            <td><?php echo $employee['employee_fName'] ?></td>
+                            <td><?php echo $employee['employee_mName'] ?></td>
+                            <td><?php echo $employee['employee_lName'] ?></td>
+                            <td><?php echo $employee['employee_email'] ?></td>
+                            <td><?php echo $employee['employee_stats'] ?></td>
+                            <td>
+                                <button type="button" class="btn btn-outline-success btn-sm btnAgent_edit" data-toggle="modal" data-target="#employees_accounts" name="btnEdit">Edit</button>
+                            </td>
+                        </tr>
+            <?php
+                    }
+                }
+            ?>
+
+            
+        </tbody>
+        </table>
 
         <!-- Button trigger modal -->
         
@@ -217,7 +247,6 @@
                         <input type="input" class="form-control" id="edit_employee_id" name="edit_employee_id" readonly>
                     </div>
                     <div class="form-group">
-                      <!-- 
                         <div class="form-check">
                           <input class="form-check-input" type="radio" name="edit_roles" id="edit_admin" value="admin">
                           <label class="form-check-label" for="exampleRadios1">
@@ -229,17 +258,7 @@
                           <label class="form-check-label" for="exampleRadios2">
                             Agent
                           </label>
-                        </div>  -->
-                        <label for="role">Role</label>
-                        <select class="form-control" id="edit_employee_role" name="edit_employee_role">
-                          <?php
-                            foreach($allRoles as $role) {
-                          ?>
-                            <option value="<?php echo $role['role_desc'];?>"><?php echo $role['role_desc'];?></option>
-                          <?php
-                            }
-                          ?>
-                        </select>
+                        </div>
                     </div> 
                     <div class="form-group">
                       <label for="edit_employee_number">Employee Number</label>
@@ -290,29 +309,30 @@
             }).get();
             console.log(data);
             $('#edit_employee_id').val(data[0]);
+            $('#edit_employee_id').prop('');
+            $('#edit_admin').prop('checked',true);
             $('#edit_employee_number').val(data[1]);
-            $("#edit_employee_role option:selected").text(data[2]);
-            $('#edit_employee_fName').val(data[3]);
-            $('#edit_employee_mName').val(data[4]);
-            $('#edit_employee_lName').val(data[5]);
-            $('#edit_employee_email').val(data[6]);
+            $('#edit_employee_fName').val(data[2]);
+            $('#edit_employee_mName').val(data[3]);
+            $('#edit_employee_lName').val(data[4]);
+            $('#edit_employee_email').val(data[5]);
         });
 
-        // $('.btnAgent_edit').on('click', function() {
+        $('.btnAgent_edit').on('click', function() {
 
-        //     $tr = $(this).closest('tr');
-        //     var data = $tr.children("td").map(function(){
-        //         return $(this).text();
-        //     }).get();
-        //     console.log(data);
-        //     $('#edit_employee_id').val(data[0]);
-        //     $('#edit_agent').prop('checked',true);
-        //     $('#edit_employee_number').val(data[1]);
-        //     $('#edit_employee_fName').val(data[2]);
-        //     $('#edit_employee_mName').val(data[3]);
-        //     $('#edit_employee_lName').val(data[4]);
-        //     $('#edit_employee_email').val(data[5]);
-        // });
+            $tr = $(this).closest('tr');
+            var data = $tr.children("td").map(function(){
+                return $(this).text();
+            }).get();
+            console.log(data);
+            $('#edit_employee_id').val(data[0]);
+            $('#edit_agent').prop('checked',true);
+            $('#edit_employee_number').val(data[1]);
+            $('#edit_employee_fName').val(data[2]);
+            $('#edit_employee_mName').val(data[3]);
+            $('#edit_employee_lName').val(data[4]);
+            $('#edit_employee_email').val(data[5]);
+        });
       });
     </script>
 

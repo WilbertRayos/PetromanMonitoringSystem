@@ -5,6 +5,8 @@ if (!isset($_SESSION['loggedIn']) ) {
     header('Location: index.php');
 }
 
+$obj_maintenance = new Maintenance;
+
 if (isset($_POST['ts_save'])) {
     if(!isset($_POST['ts_number']) || empty($_POST['ts_number'])) {
         echo "<script>alert('Please Fill-up Trading Sales Number');</script>";
@@ -90,7 +92,18 @@ if (isset($_POST['ts_save'])) {
                 </div>
                 <div class="form-group col-md-8">
                     <label for="ts_clientName">Client Name </label>
-                    <input class="form-control" id="ts_clientName" name="ts_clientName" />
+                    <!-- <input class="form-control" id="ts_clientName" name="ts_clientName" /> -->
+                    <select class="form-control" id="ts_clientName" name="ts_clientName" >
+                        <?php
+                            $all_company = $obj_maintenance->fetchAllCompany();
+                            foreach ($all_company as $company) {
+                        ?>
+                            <option><?php echo $company['company_desc']; ?></option>
+                        <?php
+                            }
+                        ?>
+
+                    </select>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="ts_date">Date(mm/dd/yyyy) </label>
@@ -153,23 +166,45 @@ if (isset($_POST['ts_save'])) {
             <div class="form-row">
                 <div class="form-group col-md-5">
                     <label for="ts_description">Description</label>
-                    <select class="form-control" id="ts_description" name="ts_description" >
+                    <!-- <select class="form-control" id="ts_description" name="ts_description" >
                         <option>CS WHITE</option>
                         <option>CS YELLOW</option>
                         <option>GLASS BEADS</option>
                         <option>LEGACY WHITE</option>
                         <option>LEGACY YELLOW</option>
                         <option>PRIMER</option>
+                    </select> -->
+                    <select class="form-control" id="ts_description" name="ts_description">
+                        <?php
+                            $all_products = $obj_maintenance->fetchAllItems();
+                            foreach ($all_products as $product) {
+                        ?>
+                            <option><?php echo $product['product_desc']; ?></option>
+                        <?php
+                            }
+                        ?>
+
                     </select>
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="ts_unit">Unit</label>
-                    <select class="form-control" id="ts_unit" name="ts_unit">
+                    <!-- <select class="form-control" id="ts_unit" name="ts_unit">
                         <option>SQM</option>
                         <option>PC</option>
                         <option>BAGS</option>
                         <option>KG</option>
                         <option>BOX</option>
+                    </select> -->
+                    <select class="form-control" id="ts_unit" name="ts_unit">
+                        <?php
+                            $all_units = $obj_maintenance->fetchAllUnits();
+                            foreach ($all_units as $unit) {
+                        ?>
+                            <option><?php echo $unit['unit_desc']; ?></option>
+                        <?php
+                            }
+                        ?>
+
                     </select>
                 </div>
                 <div class="form-group col-md-2 col-sm-6">

@@ -6,6 +6,9 @@ if (!isset($_SESSION['loggedIn']) ) {
 
 require_once('db_ops.php');
 
+$obj_maintenance = new Maintenance;
+
+
 $job_order_number = $_GET['jo_num'];
 $db_obj_1 = new Fetch_Specific_Job_Order($_GET['jo_num']);
 $jo_information = $db_obj_1->fetchJobOrderInformation();
@@ -13,6 +16,7 @@ $all_jo_items = $db_obj_1->fetchJobOrderItems();
 
 if (isset($_POST['jo_update'])){
     if (is_numeric($_POST['jo_contact']) != 1) {
+
         echo "<script>alert('Please Fill-up Contact Number Properly');</script>";
     } else {
         $arr = json_decode($_POST['jo_item_array']);
@@ -22,6 +26,9 @@ if (isset($_POST['jo_update'])){
         $db_obj_updateJobOrder->updateJobOrderItems($arr);
         $db_obj_updateJobOrder->updateJobOrderInformation($_POST['jo_number'], $_POST['jo_clientName'], $_POST['jo_representative'], $_POST['jo_contact'],
         $_POST['jo_address'],$_POST['jo_date'],$_POST['jo_tin'],$_POST['jo_location'],$_POST['jo_cod'],$_POST['jo_mobilization']);
+        
+
+
         header('Location: projects.php');
     }
     
@@ -150,8 +157,10 @@ if (isset($_POST['submit_phase'])) {
                     $fileDestination = 'phases_pictures/'.$fileNewName;
                     move_uploaded_file($fileTempName, $fileDestination);
                     $db_obj_4->addNewPhase($phase, $fileNewName);
+
                     header("Refresh:0");
                 }catch (PDOException $e) {
+
                     echo "<script>alert('Unexpected Error Occured');</script>";
                 }
                 
@@ -188,16 +197,23 @@ if (isset($_POST["btn_delete_phase"])) {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" media="all">
+    <link rel="stylesheet" href="css/main.css" type="text/css" media="all">
+    <link rel="stylesheet" href="css/print.css" type="text/css" media="print">
     <script src="js/main.js"></script>
     <title>View Job Order</title>
+    <style>
+       
+    </style>
   </head>
   <body>
    
     <?php require('navbar.php');?>
 
     <div class="container">
+        <div id="print_main_info">
+
+        
         <h3 class="display-4 my-4 page-title">Job Order</h3>
         <form action="<?php echo $path_parts['basename'];?>" method="POST" id="jo_information">
             <div class="form-row">
@@ -207,7 +223,20 @@ if (isset($_POST["btn_delete_phase"])) {
                 </div>
                 <div class="form-group col-md-8">
                     <label for="jo_clientName">Client Name </label>
-                    <input class="form-control" id="jo_clientName" name="jo_clientName" value="<?php echo $jo_information['client_name']; ?>"/>
+                    <!-- <input class="form-control" id="jo_clientName" name="jo_clientName" value="<?php echo $jo_information['client_name']; ?>"/> -->
+                    <select class="form-control" id="jo_clientName" name="jo_clientName" >
+                        <?php
+                            
+                            $all_company = $obj_maintenance->fetchAllCompany();
+                            foreach ($all_company as $company) {
+                        ?>
+                            
+                            <option value="<?php echo $company['company_desc']; ?>" <?php if($jo_information['client_name'] == $company['company_desc']) echo 'selected="selected"';?>><?php echo $company['company_desc']; ?></option>
+                        <?php
+                            }
+                        ?>
+
+                    </select>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="jo_date">Date(mm/dd/yyyy) </label>
@@ -240,12 +269,12 @@ if (isset($_POST["btn_delete_phase"])) {
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="jo_cod">Terms of Payment</label>
                     <select class="form-control" id="jo_cod" name="jo_cod" value="<?php echo $jo_information['terms_of_payment']; ?>">
-                    <option value="COD" <?php if($jo_information['terms_of_payment'] == "COD") echo 'selected="selected"';?>>COD</option>
-                    <option value="30" <?php if($jo_information['terms_of_payment'] == "30") echo 'selected="selected"';?>>30 Days</option>
-                    <option value="60" <?php if($jo_information['terms_of_payment'] == "60") echo 'selected="selected"';?>>60 Days</option>
-                    <option value="90" <?php if($jo_information['terms_of_payment'] == "90") echo 'selected="selected"';?>>90 Days</option>
-                    <option value="150" <?php if($jo_information['terms_of_payment'] == "150") echo 'selected="selected"';?>>150 Days</option>
-                    <option value="180" <?php if($jo_information['terms_of_payment'] == "180") echo 'selected="selected"';?>>180 Days</option>
+                        <option value="COD" <?php if($jo_information['terms_of_payment'] == "COD") echo 'selected="selected"';?>>COD</option>
+                        <option value="30 Days" <?php if($jo_information['terms_of_payment'] == "30 Days") echo 'selected="selected"';?>>30 Days</option>
+                        <option value="60 Days" <?php if($jo_information['terms_of_payment'] == "60 Days") echo 'selected="selected"';?>>60 Days</option>
+                        <option value="90 Days" <?php if($jo_information['terms_of_payment'] == "90 Days") echo 'selected="selected"';?>>90 Days</option>
+                        <option value="150 Days" <?php if($jo_information['terms_of_payment'] == "150 Days") echo 'selected="selected"';?>>150 Days</option>
+                        <option value="180 Days" <?php if($jo_information['terms_of_payment'] == "180 Days") echo 'selected="selected"';?>>180 Days</option>
                     </select>
                 </div> 
             </div>
@@ -259,9 +288,11 @@ if (isset($_POST["btn_delete_phase"])) {
                 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="jo_totalPayment">Total Payment</label>
-                    <input type="number" class="form-control" id="jo_totalPayment" value="<?php echo number_format($jo_information['jo_sum']+$jo_information['mobilization'],2); ?>" readonly/>
+                    <input class="form-control" id="jo_totalPayment" value="<?php echo number_format($jo_information['jo_sum']+$jo_information['mobilization'],2); ?>" readonly/>
                 </div>
             </div>
+
+</div>
             <input type="hidden" id="jo_item_array" name="jo_item_array">
             <div class="form-row">
                     <?php 
@@ -274,13 +305,18 @@ if (isset($_POST["btn_delete_phase"])) {
                         }
                     ?>
                 <div class="form-group col-md-2">
-                    <button type="button" class="form-control btn btn-info" data-toggle="modal" data-target="#checklistModal">
+                    <button type="button" class="form-control btn btn-info" id="jo_checklist" data-toggle="modal" data-target="#checklistModal">
                         Checklist
                     </button>
                 </div>
                 <div class="form-group col-md-2">
-                    <button type="button" class="form-control btn btn-primary" data-toggle="modal" data-target="#phasesModal">
+                    <button type="button" class="form-control btn btn-primary" id="jo_phases" data-toggle="modal" data-target="#phasesModal">
                         Phases
+                    </button>
+                </div> 
+                <div class="form-group col-md-2">
+                    <button type="button" class="form-control btn btn-success" id="print_page" name="print_page" form="jo_information">
+                        Print
                     </button>
                 </div> 
                 <div class="form-group col-md-3">
@@ -295,19 +331,30 @@ if (isset($_POST["btn_delete_phase"])) {
         </form>
         
         <form action="<?php echo $path_parts['basename'];?>" method="POST" id="jo_items">
-            <div class="form-row">
+            <div class="form-row" id="jo_items_div">
                 <div class="form-group col-md-5">
                     <label for="jo_description">Description</label>
                     <input class="form-control" id="jo_description" name="jo_description" />
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="jo_unit">Unit</label>
-                    <select class="form-control" id="jo_unit" name="jo_unit">
+                    <!-- <select class="form-control" id="jo_unit" name="jo_unit">
                         <option selected="selected">SQM</option>
                         <option>PC</option>
                         <option>BAGS</option>
                         <option>KG</option>
                         <option>BOX</option>
+                    </select> -->
+                    <select class="form-control" id="jo_unit" name="jo_unit">
+                        <?php
+                            $all_units = $obj_maintenance->fetchAllUnits();
+                            foreach ($all_units as $unit) {
+                        ?>
+                            <option><?php echo $unit['unit_desc']; ?></option>
+                        <?php
+                            }
+                        ?>
+
                     </select>
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
@@ -579,6 +626,33 @@ if (isset($_POST["btn_delete_phase"])) {
                 $('#jo_unitPrice').val("");
                 $('#jo_item_array').val(JSON.stringify(arr_jo_items));
             });
+
+            $("#print_page").on('click', function() {
+                // var divToPrint=document.getElementsByClassName('container')[0].innerHTML;
+                // newWin= window.open("");
+                // newWin.document.write("<img src='img/logo.png'>");
+                // newWin.document.write(divToPrint);
+                // newWin.print();
+                // newWin.close();
+                var mywindow = window.open();
+                var divToPrint = document.getElementById("print_main_info");
+                var tableToPrint = document.getElementById("jo_item_table");
+                mywindow.document.write('<html><head><title>my div</title>');
+                // mywindow.document.write('<link rel="stylesheet" href="css/main.css" type="text/css" />');
+                mywindow.document.write('<link rel="stylesheet" href="css/print.css" type="text/css" media="print"/>');
+                mywindow.document.write('<style>');
+                mywindow.document.write('body {margin: 20px; font-size: 24px;} .form-control {font-size:24px !important} table {font-size: 26px; text-align:center; width:70%; margin-left:15%; margin-right:15%; margin-top: 10%;} @media print {.btn {display: none;}');
+                mywindow.document.write('</style>');
+                mywindow.document.write('</head><body >');
+                mywindow.document.write("<img src='img/logo.png'>");
+                mywindow.document.write(divToPrint.innerHTML);
+                mywindow.document.write(tableToPrint.outerHTML);
+                mywindow.document.write('</body></html>');
+
+                mywindow.print();
+                mywindow.close();
+
+            });
         });
 
         function deleteRow(cell){
@@ -601,6 +675,8 @@ if (isset($_POST["btn_delete_phase"])) {
             return totalAmount;
 
         }
+
+        
 
 
     </script>

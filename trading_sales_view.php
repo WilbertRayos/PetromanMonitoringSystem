@@ -5,6 +5,7 @@ if (!isset($_SESSION['loggedIn']) ) {
 }
 
 require_once('db_ops.php');
+$obj_maintenance = new Maintenance;
 
 $trading_sales_number = $_GET['ts_num'];
 $db_obj_1 = new Fetch_Specific_Trading_Sales($_GET['ts_num']);
@@ -153,8 +154,8 @@ if (isset($_POST['ts_delete'])) {
   <body>
 
     <?php require('navbar.php');?>
-
     <div class="container">
+        <div id="print_main_info">
         <h3 class="display-4 my-4 page-title">Trading Sales</h3>
         <form action="<?php echo $path_parts['basename'];?>" method="POST" id="ts_information">
             <div class="form-row">
@@ -164,11 +165,25 @@ if (isset($_POST['ts_delete'])) {
                 </div>
                 <div class="form-group col-md-8">
                     <label for="ts_clientName">Client Name </label>
-                    <input class="form-control" id="ts_clientName" name="ts_clientName" value="<?php echo $ts_information['client_name']; ?>"/>
+                    <!-- <input class="form-control" id="ts_clientName" name="ts_clientName" value="<?php echo $ts_information['client_name']; ?>"/> -->
+                    <select class="form-control" id="ts_clientName" name="ts_clientName" >
+                        <?php
+                            
+                            $all_company = $obj_maintenance->fetchAllCompany();
+                            foreach ($all_company as $company) {
+                        ?>
+                            
+                            <option value="<?php echo $company['company_desc']; ?>" <?php if($ts_information['client_name'] == $company['company_desc']) echo 'selected="selected"';?>><?php echo $company['company_desc']; ?></option>
+                        <?php
+                            }
+                        ?>
+
+                    </select>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="ts_date">Date(mm/dd/yyyy) </label>
                     <input class="form-control" id="ts_date" name="ts_date" value="<?php echo date("Y-m-d", strtotime($ts_information['trading_sales_date'])) ;?>" readonly/>
+                    
                 </div>
                 <div class="form-group col-md-4">
                     <label for="ts_representative">Representative</label>
@@ -209,9 +224,10 @@ if (isset($_POST['ts_delete'])) {
                 
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="ts_totalPayment">Total Payment</label>
-                    <input type="number" class="form-control" id="ts_totalPayment" value="<?php echo number_format((float)$ts_information['ts_sum'],2,'.',''); ?>" readonly/>
+                    <input class="form-control" id="ts_totalPayment" value="<?php echo number_format((float)$ts_information['ts_sum'],2); ?>" readonly/>
                 </div>
             </div>
+</div>
             <input type="hidden" id="ts_item_array" name="ts_item_array">
             <div class="form-row">
                     <?php 
@@ -226,6 +242,11 @@ if (isset($_POST['ts_delete'])) {
                         Checklist
                     </button>
                 </div>
+                <div class="form-group col-md-2">
+                    <button type="button" class="form-control btn btn-success" id="print_page" name="print_page" form="jo_information">
+                        Print
+                    </button>
+                </div> 
                 <div class="form-group col-md-3">
                     <a href="trading_sales.php" type="button" class="form-control btn btn-danger" id="ts_cancel" name="ts_cancel">Cancel</a>
                 </div>
@@ -240,23 +261,45 @@ if (isset($_POST['ts_delete'])) {
             <div class="form-row">
                 <div class="form-group col-md-5">
                     <label for="ts_description">Description</label>
-                    <select class="form-control" id="ts_description" name="ts_description" >
+                    <!-- <select class="form-control" id="ts_description" name="ts_description" >
                         <option>CS WHITE</option>
                         <option>CS YELLOW</option>
                         <option>GLASS BEADS</option>
                         <option>LEGACY WHITE</option>
                         <option>LEGACY YELLOW</option>
                         <option>PRIMER</option>
+                    </select> -->
+                    <select class="form-control" id="ts_description" name="ts_description" >
+                        <?php
+                            $all_products = $obj_maintenance->fetchAllItems();
+                            foreach ($all_products as $product) {
+                        ?>
+                            <option><?php echo $product['product_desc']; ?></option>
+                        <?php
+                            }
+                        ?>
+
                     </select>
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
                     <label for="ts_unit">Unit</label>
-                    <select class="form-control" id="ts_unit" name="ts_unit">
+                    <!-- <select class="form-control" id="ts_unit" name="ts_unit">
                         <option>SQM</option>
                         <option>PC</option>
                         <option>BAGS</option>
                         <option>KG</option>
                         <option>BOX</option>
+                    </select> -->
+                    <select class="form-control" id="ts_unit" name="ts_unit">
+                        <?php
+                            $all_units = $obj_maintenance->fetchAllUnits();
+                            foreach ($all_units as $unit) {
+                        ?>
+                            <option><?php echo $unit['unit_desc']; ?></option>
+                        <?php
+                            }
+                        ?>
+
                     </select>
                 </div>
                 <div class="form-group col-md-2 col-sm-6">
@@ -463,6 +506,34 @@ if (isset($_POST['ts_delete'])) {
                 $('#ts_unitPrice').val("");
                 $('#ts_item_array').val(JSON.stringify(arr_ts_items));
             });
+
+            $("#print_page").on('click', function() {
+                // var divToPrint=document.getElementsByClassName('container')[0].innerHTML;
+                // newWin= window.open("");
+                // newWin.document.write("<img src='img/logo.png'>");
+                // newWin.document.write(divToPrint);
+                // newWin.print();
+                // newWin.close();
+                var mywindow = window.open();
+                var divToPrint = document.getElementById("print_main_info");
+                var tableToPrint = document.getElementById("ts_item_table");
+                mywindow.document.write('<html><head><title>my div</title>');
+                // mywindow.document.write('<link rel="stylesheet" href="css/main.css" type="text/css" />');
+                mywindow.document.write('<link rel="stylesheet" href="css/print.css" type="text/css" media="print"/>');
+                mywindow.document.write('<style>');
+                mywindow.document.write('body {margin: 20px; font-size: 24px;} .form-control {font-size:24px !important} table {font-size: 26px; text-align:center; width:70%; margin-left:15%; margin-right:15%; margin-top: 10%;} @media print {.btn {display: none;}');
+                mywindow.document.write('</style>');
+                mywindow.document.write('</head><body >');
+                mywindow.document.write("<img src='img/logo.png'>");
+                mywindow.document.write(divToPrint.innerHTML);
+                mywindow.document.write(tableToPrint.outerHTML);
+                mywindow.document.write('</body></html>');
+
+                mywindow.print();
+                mywindow.close();
+
+            });
+
         });
 
         function deleteRow(cell){
