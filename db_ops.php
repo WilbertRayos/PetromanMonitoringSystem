@@ -1077,11 +1077,12 @@ class Job_Order_Phases extends Dbh {
         
     }
 
-    function deletePhase ($phase_id) {
+    function deletePhase ($job_order_number, $phase_stage) {
         try {
-            $query = "DELETE FROM project_phases WHERE project_phases_id = :project_phases_id";
+            $query = "DELETE FROM project_phases WHERE job_order_number = :job_order_number AND stage = :stage";
             $stm = $this->connect()->prepare($query);
-            $stm->bindValue(':project_phases_id', $phase_id);
+            $stm->bindValue(':job_order_number', $job_order_number);
+            $stm->bindValue(':stage', $phase_stage);
             $stm->execute();
             $stm->closeCursor();
             $this->obj_history->saveHistory("Deleted Phase, with JO# {$this->job_order_number}","Success");

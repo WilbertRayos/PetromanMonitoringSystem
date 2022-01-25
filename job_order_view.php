@@ -179,9 +179,9 @@ if (isset($_POST['jo_delete'])) {
 
 if (isset($_POST["btn_delete_phase"])) {
     if (!isset($_POST["delete_phase"]) || empty($_POST["delete_phase"])) {
-        echo "<script>alert('Please enter the phase ID you want to delete');</script>";
+        echo "<script>alert('Please enter the phase Number you want to delete');</script>";
     } else {
-        $db_obj_4->deletePhase($_POST["delete_phase"]);
+        $db_obj_4->deletePhase($job_order_number, $_POST["delete_phase"]);
         header('Location: projects.php');
     }
 }
@@ -203,7 +203,13 @@ if (isset($_POST["btn_delete_phase"])) {
     <script src="js/main.js"></script>
     <title>View Job Order</title>
     <style>
-       
+        #phase_title {
+            text-align: center;
+            font-weight: bold;
+        }
+       #phase_id {
+           color: white;
+       }
     </style>
   </head>
   <body>
@@ -539,23 +545,36 @@ if (isset($_POST["btn_delete_phase"])) {
                         <form action="<?php echo $path_parts['basename'];?>" method="POST" id="delete_phase_form" enctype="multipart/form-data">
                             <div class="form-row">
                                 <div class="form-group col-md-5">
-                                    <label for="delete_phase">Phase ID</label>
+                                    <label for="delete_phase">Phase Number</label>
                                     <input type="number" class="form-control" id="delete_phase" name="delete_phase">
                                     <button type="submit" class="btn btn-danger mt-1" name="btn_delete_phase" form="delete_phase_form">Delete</button>
                                 </div>
                             </div>  
                         </form>  
                         <hr /> 
-                        <h4>Phases</h4>
+                        <h4 id="phase_title">Phases</h4>
                         <?php
                                 foreach($jo_phases as $jo_phase) {
                                     
                         ?>
-                        <div>
+                        <div id="phase_id">
                             Phase ID: <?php echo $jo_phase['project_phases_id']; ?>
                         </div>
                         <div>
-                            Phase Stage: <?php echo $jo_phase['stage']; ?>
+                            Phase Stage: <?php echo $jo_phase['stage']; ?> -
+                            <?php 
+                                if ($jo_phase['stage'] == 1) {
+                                    echo "Area upon Checking";
+                                } else if ($jo_phase['stage'] == 2) {
+                                    echo "Starting the Project";
+                                } else if ($jo_phase['stage'] == 3) {
+                                    echo "50% Completion of the Project";
+                                } else if ($jo_phase['stage'] == 4) {
+                                    echo "Finish Project";
+                                } else {
+                                    echo "";
+                                }
+                            ?>
                         </div>
                             <div class="col-md-12">
                                     <img src="phases_pictures/<?php echo $jo_phase['image']; ?>" class="img-thumbnail"/>

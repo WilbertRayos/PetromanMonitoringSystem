@@ -57,6 +57,7 @@ if (isset($_POST['ts_save'])) {
                     $db_obj1->addTradingSalesItems($items[0],$items[1],$items[2],$items[3]);
                 }
             }
+            header('Location: trading_sales.php');
         } catch(Exception $e) {
             echo "<script>alert('Unexpected Error Occured');</script>";
         }
@@ -88,12 +89,12 @@ if (isset($_POST['ts_save'])) {
             <div class="form-row">
                 <div class="form-group col-md-5">
                     <label for="ts_number">Order Form Number </label>
-                    <input class="form-control" id="ts_number" name="ts_number" />
+                    <input class="form-control" id="ts_number" name="ts_number" value="<?php echo isset($_POST['ts_number']) ? $_POST['ts_number']: '' ?>"/>
                 </div>
                 <div class="form-group col-md-8">
                     <label for="ts_clientName">Client Name </label>
                     <!-- <input class="form-control" id="ts_clientName" name="ts_clientName" /> -->
-                    <select class="form-control" id="ts_clientName" name="ts_clientName" >
+                    <select class="form-control" id="ts_clientName" name="ts_clientName" value="<?php echo isset($_POST['ts_clientName']) ? $_POST['ts_clientName'] : '' ?>">
                         <?php
                             $all_company = $obj_maintenance->fetchAllCompany();
                             foreach ($all_company as $company) {
@@ -111,23 +112,23 @@ if (isset($_POST['ts_save'])) {
                 </div>
                 <div class="form-group col-md-4">
                     <label for="ts_representative">Representative</label>
-                    <input class="form-control" id="ts_representative" name="ts_representative" />
+                    <input class="form-control" id="ts_representative" name="ts_representative" value="<?php echo isset($_POST['ts_representative']) ? $_POST['ts_representative'] : '' ?>" />
                 </div>
                 <div class="form-group col-md-4">
                     <label for="ts_contact">Contact Number</label>
-                    <input class="form-control" id="ts_contact" name="ts_contact" />
+                    <input class="form-control" id="ts_contact" name="ts_contact" value="<?php echo isset($_POST['ts_contact']) ? $_POST['ts_contact'] : '' ?>" />
                 </div>
                 <div class="form-group col-md-4">
                     <label for="ts_tin">TIN#</label>
-                    <input class="form-control" id="ts_tin" name="ts_tin" />
+                    <input class="form-control" id="ts_tin" name="ts_tin" value="<?php echo isset($_POST['ts_tin']) ? $_POST['ts_tin'] : '' ?>" />
                 </div>
                 <div class="form-group col-md-12">
                     <label for="ts_address">Address</label>
-                    <input class="form-control" id="ts_address" name="ts_address" />
+                    <input class="form-control" id="ts_address" name="ts_address" value="<?php echo isset($_POST['ts_address']) ? $_POST['ts_address'] : '' ?>"  />
                 </div>
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="ts_cod">Terms of Payment</label>
-                    <select class="form-control" id="ts_cod" name="ts_cod">
+                    <select class="form-control" id="ts_cod" name="ts_cod" value="<?php echo isset($_POST['ts_cod']) ? $_POST['ts_cod'] : '' ?>"  >
                     <option>COD</option>
                     <option>30 Days</option>
                     <option>60 Days</option>

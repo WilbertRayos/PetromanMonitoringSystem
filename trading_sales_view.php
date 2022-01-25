@@ -206,11 +206,11 @@ if (isset($_POST['ts_delete'])) {
                     <select class="form-control" id="ts_cod" name="ts_cod">
                         <label for="jo_cod">Terms of Payment</label>
                         <option value="COD" <?php if($ts_information['terms_of_payment'] == "COD") echo 'selected="selected"';?>>COD</option>
-                        <option value="30" <?php if($ts_information['terms_of_payment'] == "30") echo 'selected="selected"';?>>30 Days</option>
-                        <option value="60" <?php if($ts_information['terms_of_payment'] == "60") echo 'selected="selected"';?>>60 Days</option>
-                        <option value="90" <?php if($ts_information['terms_of_payment'] == "90") echo 'selected="selected"';?>>90 Days</option>
-                        <option value="150" <?php if($ts_information['terms_of_payment'] == "150") echo 'selected="selected"';?>>150 Days</option>
-                        <option value="180" <?php if($ts_information['terms_of_payment'] == "180") echo 'selected="selected"';?>>180 Days</option>
+                        <option value="30 Days" <?php if($ts_information['terms_of_payment'] == "30 Days") echo 'selected="selected"';?>>30 Days</option>
+                        <option value="60 Days" <?php if($ts_information['terms_of_payment'] == "60 Days") echo 'selected="selected"';?>>60 Days</option>
+                        <option value="90 Days" <?php if($ts_information['terms_of_payment'] == "90 Days") echo 'selected="selected"';?>>90 Days</option>
+                        <option value="150 Days" <?php if($ts_information['terms_of_payment'] == "150 Days") echo 'selected="selected"';?>>150 Days</option>
+                        <option value="180 Days" <?php if($ts_information['terms_of_payment'] == "180 Days") echo 'selected="selected"';?>>180 Days</option>
                     </select>
                 </div> 
             </div>

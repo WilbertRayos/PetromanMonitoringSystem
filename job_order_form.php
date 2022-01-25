@@ -10,7 +10,7 @@ $obj_maintenance = new Maintenance;
 
 if (isset($_POST['jo_save'])) {
     if(!isset($_POST['jo_number']) || empty($_POST['jo_number'])) {
-        echo "<script>alert('Please Fill-up Trading Sales Number');</script>";
+        echo "<script>alert('Please Fill-up Job Order Number');</script>";
     } else if(!isset($_POST['jo_clientName']) || empty($_POST['jo_clientName'])) {
         echo "<script>alert('Please Fill-up Client');</script>";
     } else if(!isset($_POST['jo_date']) || empty($_POST['jo_date'])) {
@@ -84,12 +84,12 @@ if (isset($_POST['jo_save'])) {
             <div class="form-row">
                 <div class="form-group col-md-5">
                     <label for="jo_number">Job Order Number </label>
-                    <input class="form-control" id="jo_number" name="jo_number" />
+                    <input class="form-control" id="jo_number" name="jo_number" value="<?php echo isset($_POST['jo_number']) ? $_POST['jo_number']: '' ?>" />
                 </div>
                 <div class="form-group col-md-8">
                     <label for="jo_clientName">Client Name </label>
                     <!-- <input class="form-control" id="jo_clientName" name="jo_clientName" /> -->
-                    <select class="form-control" id="jo_clientName" name="jo_clientName" >
+                    <select class="form-control" id="jo_clientName" name="jo_clientName" value="<?php echo isset($_POST['jo_clientName']) ? $_POST['jo_clientName']: '' ?>"  >
                         <?php
                             $all_company = $obj_maintenance->fetchAllCompany();
                             foreach ($all_company as $company) {
@@ -107,31 +107,31 @@ if (isset($_POST['jo_save'])) {
                 </div>
                 <div class="form-group col-md-4">
                     <label for="jo_representative">Representative</label>
-                    <input class="form-control" id="jo_representative" name="jo_representative" />
+                    <input class="form-control" id="jo_representative" name="jo_representative" value="<?php echo isset($_POST['jo_representative']) ? $_POST['jo_representative']: '' ?>" />
                 </div>
                 <div class="form-group col-md-4">
                     <label for="jo_contact">Contact Number</label>
-                    <input class="form-control" id="jo_contact" name="jo_contact" />
+                    <input class="form-control" id="jo_contact" name="jo_contact" value="<?php echo isset($_POST['jo_contact']) ? $_POST['jo_contact']: '' ?>" />
                 </div>
                 <div class="form-group col-md-4">
                     <label for="jo_tin">TIN#</label>
-                    <input class="form-control" id="jo_tin" name="jo_tin" />
+                    <input class="form-control" id="jo_tin" name="jo_tin" value="<?php echo isset($_POST['jo_tin']) ? $_POST['jo_tin']: '' ?>" />
                 </div>
                 <div class="form-group col-md-12">
                     <label for="jo_address">Address</label>
-                    <input class="form-control" id="jo_address" name="jo_address" />
+                    <input class="form-control" id="jo_address" name="jo_address" value="<?php echo isset($_POST['jo_address']) ? $_POST['jo_address']: '' ?>" />
                 </div>
                 <div class="form-group col-md-12">
                     <label for="jo_location">Project Location</label>
-                    <input class="form-control" id="jo_location" name="jo_location" />
+                    <input class="form-control" id="jo_location" name="jo_location" value="<?php echo isset($_POST['jo_location']) ? $_POST['jo_location']: '' ?>" />
                 </div>
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="jo_mobilization">Mobilization</label>
-                    <input class="form-control" id="jo_mobilization" name="jo_mobilization" />
+                    <input class="form-control" id="jo_mobilization" name="jo_mobilization" value="<?php echo isset($_POST['jo_mobilization']) ? $_POST['jo_mobilization']: '' ?>" />
                 </div>
                 <div class="form-group col-sm-12 col-md-6">
                     <label for="jo_cod">Terms of Payment</label>
-                    <select class="form-control" id="jo_cod" name="jo_cod">
+                    <select class="form-control" id="jo_cod" name="jo_cod" value="<?php echo isset($_POST['jo_cod']) ? $_POST['jo_cod']: '' ?>" >
                         <option>COD</option>
                         <option>30 Days</option>
                         <option>60 Days</option>
