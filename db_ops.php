@@ -326,6 +326,8 @@ class Add_New_Account extends Dbh{
             $this->employee_password = "admin123";
         }else if ($role == "agent") {
             $this->employee_password = "user123";
+        }else if ($role == "manager") {
+            $this->employee_password = "manager123";
         }
         $this->employee_role = $role;
     }
