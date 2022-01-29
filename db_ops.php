@@ -2217,9 +2217,9 @@ class Insert_Reset_Unique extends Dbh {
             $stm->bindValue(':email', $this->email);
             $stm->execute();
             $stm->closeCursor();
-            $this->obj_history->saveHistory("Password Reset for {$this->email}","Success");
+            $obj_history->saveHistory("Password Reset for {$this->email}","Success");
         } catch (PDOException $e) {
-            $this->obj_history->saveHistory("Password Reset for {$this->email}","Failed");
+            $obj_history->saveHistory("Password Reset for {$this->email}","Failed");
             echo "<script>alert('Error Occured');</script>";
         }
     }
