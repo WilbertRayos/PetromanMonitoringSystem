@@ -26,8 +26,32 @@ if (isset($_POST['save_payment'])) {
         echo "Enter reference number";
     } else if (!isset($_POST['deposit_date']) || empty($_POST['deposit_date'])) {
         echo "Please enter deposit date";
-    } else {
-        $db_obj_joFinance->insertPayment($job_order_number, $_POST['amount_paid'], $_POST['bank'], $_POST['reference_number'],$_POST['deposit_date']);
+    } else if ($_FILES['payment_pic']['size'] === 0) {
+        echo "Please upload proof of payment";
+    }else {
+        $file = $_FILES['payment_pic'];
+        $fileName = $file['name'];
+        $fileTmpName = $file['tmp_name'];
+        $fileSize = $file['size'];
+        $fileError = $file['error'];
+        $fileType = $file['type'];
+
+        $fileExt = explode('.', $fileName);
+        $fileActualExt = strtolower(end($fileExt));
+        $allowed = array('jpg', 'jpeg', 'png', 'pdf');
+        if (in_array($fileActualExt, $allowed)) {
+            if ($fileError === 0) {
+                $fileNameNew = uniqid('', true).".".$fileActualExt;
+                $fileDestination = 'proof_of_payment/'.$fileNameNew;
+                move_uploaded_file($fileTmpName, $fileDestination);
+            } else {
+                echo "<script>alert('Error occured while uploading the proof of payment');</script>";
+            }
+        } else {
+            echo "<script>alert('Invalid image file. Please upload jpg, jpeg, png, or pdf files');</script>";
+        }
+
+        $db_obj_joFinance->insertPayment($job_order_number, $_POST['amount_paid'], $_POST['bank'], $_POST['reference_number'],$_POST['deposit_date'], $fileDestination);
         header('Refresh:0');
     }
 }
@@ -79,7 +103,7 @@ if (isset($_POST['save_payment'])) {
                     if ($_SESSION["employee_role"] == "Admin") {
                 ?>
                 <div class="col-md-6 px-2 py-3 mb-4 menu-box">
-                    <form action="<?php echo $path_parts['basename'];?>" method="POST" id="payment_information">
+                    <form action="<?php echo $path_parts['basename'];?>" method="POST" id="payment_information" enctype="multipart/form-data">
                         <div class="form-group col-md-12">
                             <label for="amount_paid">Amount Paid</label>
                             <input class="form-control" id="amount_paid" name="amount_paid" />
@@ -96,6 +120,10 @@ if (isset($_POST['save_payment'])) {
                             <label for="deposit_date">Deposit Date</label>
                             <input type="date" class="form-control" id="deposit_date" name="deposit_date" />
                         </div>
+                        <div class="form-group col-md-12">
+                            <label for="deposit_date">Proof of Payment: </label>
+                            <input type="file" id="payment_pic" name="payment_pic" />
+                        </div>
                         <button type="submit" class="form-control btn btn-primary" id="save_payment" name="save_payment" form="payment_information">Save Payment</button>
                     </form>
                 </div>
@@ -111,6 +139,7 @@ if (isset($_POST['save_payment'])) {
                         <th scope="col">Bank</th>
                         <th scope="col">Reference Number</th>
                         <th scope="col">Amount</th>
+                        <th scope="col">Proof of Payment</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -123,6 +152,7 @@ if (isset($_POST['save_payment'])) {
                             <td><?php echo $transaction["bank"]; ?></td>
                             <td><?php echo $transaction["reference_number"]; ?></td>
                             <td><?php echo number_format($transaction["amount"], 2); ?></td>
+                            <td><?php echo "<a href='{$transaction['proof']}' target='_blank'>Click Here to view Proof</a>"; ?></td>
                         </tr>
                     <?php
                         }

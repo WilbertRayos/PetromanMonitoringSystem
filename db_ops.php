@@ -1279,28 +1279,30 @@ class Finance_Job_Order extends Dbh {
         }
     }
 
-    function insertPayment($job_order_number, $amount, $bank, $reference_number, $deposit_date) {
+    function insertPayment($job_order_number, $amount, $bank, $reference_number, $deposit_date, $proof) {
+        $obj_history = new History;
         try {
-            $query = "INSERT INTO job_order_payment (job_order_number, amount, bank, reference_number, deposit_date) 
-                        VALUES (:job_order_number, :amount, :bank, :reference_number, :deposit_date)";
+            $query = "INSERT INTO job_order_payment (job_order_number, amount, bank, reference_number, deposit_date, proof) 
+                        VALUES (:job_order_number, :amount, :bank, :reference_number, :deposit_date, :proof)";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':job_order_number', $job_order_number);
             $stm->bindValue(':amount', $amount);
             $stm->bindValue(':bank', $bank);
             $stm->bindValue(':reference_number', $reference_number);
             $stm->bindValue(':deposit_date', $deposit_date);
+            $stm->bindValue(':proof', $proof);
             $stm->execute();
             $stm->closeCursor();
-            $this->obj_history->saveHistory("Inserted payment, with JO# {$job_order_number}, Amount of {$amount}, reference number of {$reference_number}","Success");
+            $obj_history->saveHistory("Inserted payment, with JO# {$job_order_number}, Amount of {$amount}, reference number of {$reference_number}","Success");
         } catch(PDOException $e) {
-            $this->obj_history->saveHistory("Inserted payment, with JO# {$job_order_number}, Amount of {$amount}, reference number of {$reference_number}","Failed");
+            $obj_history->saveHistory("Inserted payment, with JO# {$job_order_number}, Amount of {$amount}, reference number of {$reference_number}","Failed");
             echo $e;
         }
     }
 
     function fetchSpecificJobOrderTransaction($job_order_number) {
         try {
-            $query = "SELECT amount, bank, reference_number, deposit_date FROM job_order_payment WHERE job_order_number = :job_order_number";
+            $query = "SELECT amount, bank, reference_number, deposit_date, proof FROM job_order_payment WHERE job_order_number = :job_order_number";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(":job_order_number", $job_order_number);
             $stm->execute();
@@ -2143,29 +2145,30 @@ class Finance_Trading_Sales extends Dbh {
         }
     }
 
-    function insertPayment($trading_sales_number, $amount, $bank, $reference_number, $deposit_date) {
+    function insertPayment($trading_sales_number, $amount, $bank, $reference_number, $deposit_date, $proof) {
         $obj_history = new History;
         try {
-            $query = "INSERT INTO trading_sales_payment (trading_sales_number, amount, bank, reference_number, deposit_date) 
-                        VALUES (:trading_sales_number, :amount, :bank, :reference_number, :deposit_date)";
+            $query = "INSERT INTO trading_sales_payment (trading_sales_number, amount, bank, reference_number, deposit_date, proof) 
+                        VALUES (:trading_sales_number, :amount, :bank, :reference_number, :deposit_date, :proof)";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(':trading_sales_number', $trading_sales_number);
             $stm->bindValue(':amount', $amount);
             $stm->bindValue(':bank', $bank);
             $stm->bindValue(':reference_number', $reference_number);
             $stm->bindValue(':deposit_date', $deposit_date);
+            $stm->bindValue(':proof', $proof);
             $stm->execute();
             $stm->closeCursor();
-            $this->obj_history->saveHistory("Inserted New Payment for Trading Sales, with TS# {$trading_sales_number}, amount of {$amount} with reference number {$reference_number}","Success");
+            $obj_history->saveHistory("Inserted New Payment for Trading Sales, with TS# {$trading_sales_number}, amount of {$amount} with reference number {$reference_number}","Success");
         } catch (PDOException $e) {
-            $this->obj_history->saveHistory("Inserted New Payment for Trading Sales, with TS# {$trading_sales_number}, amount of {$amount} with reference number {$reference_number}","Failed");
+            $obj_history->saveHistory("Inserted New Payment for Trading Sales, with TS# {$trading_sales_number}, amount of {$amount} with reference number {$reference_number}","Failed");
             echo "<script>alert('Error Occured');</script>";
         }
     }
 
     function fetchSpecificTradingSalesTransaction($trading_sales_number) {
         try {
-            $query = "SELECT amount, bank, reference_number, deposit_date FROM trading_sales_payment WHERE trading_sales_number = :trading_sales_number";
+            $query = "SELECT amount, bank, reference_number, deposit_date, proof FROM trading_sales_payment WHERE trading_sales_number = :trading_sales_number";
             $stm = $this->connect()->prepare($query);
             $stm->bindValue(":trading_sales_number", $trading_sales_number);
             $stm->execute();
