@@ -233,7 +233,9 @@ if (isset($_POST['btn_filter'])) {
       $('#btn_print').on('click',function(){
         var divToPrint=document.getElementById("printTable");
         newWin= window.open("");
-        newWin.document.write("<img src='img/logo.png'>");
+        var loc = window.location.pathname;
+        var dir = loc.substring(0, loc.lastIndexOf('/'));
+        newWin.document.write("<img src='"+dir+"/img/logo.png'>");
         newWin.document.write(divToPrint.outerHTML);
         newWin.print();
         newWin.close();

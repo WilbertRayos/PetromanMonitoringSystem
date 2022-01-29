@@ -2809,7 +2809,7 @@ class History extends Dbh {
     function fetchHistory($email) {
         if($email == "") {
             try {
-                $query = "SELECT history_date, history_action, history_remarks FROM history";
+                $query = "SELECT history_email, history_date, history_action, history_remarks FROM history";
                 $stm = $this->connect()->prepare($query);
                 $stm->execute();
                 $employee_history = $stm->fetchAll(PDO::FETCH_ASSOC);
@@ -2821,7 +2821,7 @@ class History extends Dbh {
             }
         } else {
             try {
-                $query = "SELECT history_date, history_action, history_remarks FROM history WHERE history_email = :email";
+                $query = "SELECT history_email, history_date, history_action, history_remarks FROM history WHERE history_email = :email";
                 $stm = $this->connect()->prepare($query);
                 $stm->bindValue(":email", $email);
                 $stm->execute();

@@ -61,6 +61,7 @@ if(isset($_POST['btn_filter'])) {
             <thead class="thead-dark">
                 <tr>
                     <th>Date</th>
+                    <th>Employee Email</th>
                     <th>Time</th>
                     <th>Action</th>
                     <th>Remarks</th>
@@ -75,6 +76,7 @@ if(isset($_POST['btn_filter'])) {
                 ?>
                     <tr>
                         <td><?php echo $date; ?></td>
+                        <td><?php echo $employee['history_email']; ?></td>
                         <td><?php echo $time; ?></td>
                         <td><?php echo $employee['history_action']; ?></td>
                         <td><?php echo $employee['history_remarks']; ?></td>
