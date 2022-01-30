@@ -2795,10 +2795,15 @@ class Maintenance extends Dbh {
 
 class History extends Dbh {
     function saveHistory($hAction="", $hRemarks="") {
+        if (!isset($_SESSION['employee_email']) || empty($_SESSION['employee_email'])) {
+            $email = "";
+        } else {
+            $email = $_SESSION['employee_email'];
+        }
         try {
             $query = "INSERT INTO history (history_email, history_date, history_action, history_remarks) VALUES (:history_email, :history_date, :history_action, :history_remarks)";
             $stm = $this->connect()->prepare($query);
-            $stm->bindValue(":history_email", $_SESSION['employee_email']);
+            $stm->bindValue(":history_email", $email);
             $stm->bindValue(":history_date", date('Y-m-d H:i:s'));
             $stm->bindValue(":history_action", $hAction);
             $stm->bindValue(":history_remarks", $hRemarks);
